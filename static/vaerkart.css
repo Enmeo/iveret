@@ -1,0 +1,59 @@
+/* Vaerkart css */
+
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: Palatino, Utopia, Times, serif;
+}
+
+div.header {
+	background-color: #221111;
+	color: #ffffff;
+	width: 94%;
+	margin: 0;
+	padding: 5px 3% 5px 3%;
+}
+div.header select {
+	display: inline-block;
+}
+div.header p {
+	display: inline-block;
+	margin: 0 0.2em 0 1em;
+}
+div.header ul {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+}
+div.header li {
+	display: inline-block;
+	font-size: 0.85em;
+}
+div.header a {
+	display: inline-block;
+	width: 2em;
+	height: 1.15em;
+	text-align: center;
+	border: 1px solid #442222;
+	color: #ffcccc;
+}
+
+div.content {
+	margin: 0;
+	width: 94%;
+	padding: 5px 3% 5px 3%;
+}
+div.content h1 {
+	font-size: 1.5em;
+	font-weight: normal;
+	margin: 5px 0 5px 0 ;
+}
+div.content h2 {
+	font-size: 1.0em;
+	font-weight: normal;
+	margin: 5px 0 5px 0;
+}
+
+img#map {
+	width: 100%;
+}
