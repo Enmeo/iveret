@@ -6,7 +6,7 @@ from datetime import datetime as dt, timedelta as td
 from django.conf import settings
 from django.template import Context, loader
 
-settings.configure(TEMPLATE_DIRS = ('/data/devel/vaerkart', ))
+settings.configure(TEMPLATE_DIRS = ('/Home/siv22/csp001/vaerkart', '/data/devel/vaerkart', ))
 
 
 # The only free parameter for the entire script
