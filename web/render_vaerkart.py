@@ -1,12 +1,17 @@
 #!/usr/bin/env python
 # -*- encoding: utf8
 
+import codecs
+
 from datetime import datetime as dt, timedelta as td
 
 from django.conf import settings
 from django.template import Context, loader
 
-settings.configure(TEMPLATE_DIRS = ('/Home/siv22/csp001/vaerkart', '/data/devel/vaerkart', ))
+# Where to save the weather map; 
+# TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
+filepath = '/Data/gfi/users/csp001/forecasts/web/vaerkart.html'
+settings.configure(TEMPLATE_DIRS = ('/Data/gfi/users/csp001/forecasts/web', ), DEFAULT_CHARSET='utf-8')
 
 
 # The only free parameter for the entire script
@@ -17,6 +22,8 @@ else:
 	date_base = dt(now.year,now.month,now.day,12)
 	if now.hour < 11:
 		date_base -= td(1,0)
+# Override
+date_base = dt(2015,2,3,0)
 print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
 
 
@@ -30,16 +37,21 @@ class variable(object):
 
 v = variable
 varlist = [
-    v('Geopotential', '500 hPa', 'z500_msl'), 
-    v('Temperature', '850 hPa', 't850_msl'),
-    v('Spec. Humidity', '850 hPa', 'q850_wind'),
-    v('Total column water vapour', '', 'tcwv'),
-    v('Total cloud cover', '', 'tcc'),
-    v('Precipitiation', '', 'tp'),
-    v('Potential vorticity', '300 K', 'pvpt300_wind'),
-    v('Potential vorticity', '330 K', 'pvpt330_wind'),
-    v('Potential vorticity', '350 K', 'pvpt350_wind'),
-    v('Potential temperature', 'PV 2', 'ptpv2_wind'),
+    v(u'Geopotential [gpdm]', u'500 hPa', u'z500_msl'), 
+    v(u'Temperature [°C]', u'850 hPa', u't850_msl'),
+    v(u'Eq. Pot. Temperature [K]', u'850 hPa', u'the850_wind'),
+    v(u'Spec. Humidity [g/kg]', u'850 hPa', u'q850_wind'),
+    v(u'Wind speed [m/s]', u'850 hPa', u'ff850_wind'),
+    v(u'Deformation [10⁻⁵/s]', u'850 hPa', u'deform850_msl'),
+    v(u'10m wind speed [m/s]', u'', u'ff10_wind'),
+    v(u'Total column water vapour [kg/m²]', u'', u'tcwv'),
+    v(u'Total cloud cover [%]', u'', u'tcc'),
+    v(u'Precipitiation [mm/h]', u'', u'tp'),
+    v(u'Potential vorticity [PVU]', u'300 K', u'pvpt300_wind'),
+    v(u'Potential vorticity [PVU]', u'330 K', u'pvpt330_wind'),
+    v(u'Potential vorticity [PVU]', u'350 K', u'pvpt350_wind'),
+    v(u'Potential temperature [K]', u'PV 2', u'ptpv2_wind'),
+    v(u'Wind speed [m/s], jets axes', u'PV 2', u'ffpv2_wind'),
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(11)]
@@ -63,9 +75,10 @@ c = Context({
     'initvar': varlist[0],
     'date_begin': date_fc,
     'date_init': date_fc,
+    'plotdir': 'plots',
 })
 
-f = file('vaerkart.html', 'w')
+f = codecs.open(filepath, mode='w', encoding='utf-8')
 f.write(t.render(c))
 f.close()
 

@@ -1,3 +1,8 @@
 *~
 *.pyc
+*.swp
+
 plots
+plots_npolar
+vaerkart.html
+vaerkart_npolar.html

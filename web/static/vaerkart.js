@@ -55,7 +55,7 @@ function chtim(newtim) {
 	var map = document.getElementById('map');
 
 	date_vis = newtim;
-	map.src = './plots/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
+	map.src = './'+plotdir+'/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
 
 	var heading = document.getElementById('timtitle');
 	heading.childNodes[0].data = get_timtitle();
@@ -66,7 +66,7 @@ function chfc(newfc) {
 	// Update map
 	var map = document.getElementById('map');
 	date_fc = newfc;
-	map.src = './plots/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
+	map.src = './'+plotdir+'/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
 	
 	// Update heading
 	var heading = document.getElementById('timtitle');
@@ -90,7 +90,7 @@ function chvar(newvar) {
 	var map = document.getElementById('map');
 
 	prefix = newvar;
-	map.src = './plots/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
+	map.src = './'+plotdir+'/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
 
 	var heading = document.getElementById('vartitle');
 	heading.childNodes[0].data = get_varname_by_prefix(newvar);
