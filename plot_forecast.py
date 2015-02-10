@@ -3,8 +3,8 @@
 
 import matplotlib as mpl
 mpl.use('Agg')
-from dynlib_dev import *
-from settings_dev import *
+from dynlib import *
+from settings import *
 
 
 ######################################################
@@ -29,6 +29,7 @@ class plotter(object):
 		'grid_linestyle': '-',
 		'grid_latmax': 90,
 		'show': False,
+		'disable_cb': True,
 	}
 	
 	# Do the art; to be overriden in derived classes
@@ -39,8 +40,8 @@ class plotter(object):
 				self.filetype
 		)
 
-		fi = plt.figure(figsize=(12.0,7.2), dpi=96)
-		fi.subplotpars.update(left=0.01, right=0.99, top=0.99, bottom=0.01)
+		fi = plt.figure(figsize=(10.8,7.2), dpi=96)
+		fi.subplotpars.update(left=0.001, right=0.999, top=0.999, bottom=0.001)
 		
 		data_available = True
 		for qplev in self.requires:
@@ -780,7 +781,7 @@ forecast = dt(2015,2,3,0)
 
 #plots = [t850_msl(), z500_msl(), q850_wind(), pvpt300_wind(), ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
 #	 pvpt300_wind_npolar(), ]
-plots = [tcwv(), ] # ffpv2_wind()
+plots = [z500_msl(), ] # ffpv2_wind()
 data = {}
 for plot in plots:
 	for q, plev in plot.requires:
