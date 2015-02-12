@@ -98,6 +98,8 @@ function chvar(newvar) {
 
 // Change to the next time step (increase lead time)
 function nexttim(){
+	clear_timeouts(); 
+
 	var idx = avail_tims.indexOf(date_vis);
 	idx = Math.min(idx+1, avail_tims.length-1);
 	chtim(avail_tims[idx]);
@@ -105,13 +107,24 @@ function nexttim(){
 
 // Change to the next time step (increase lead time)
 function prevtim(){
+	clear_timeouts();
+
 	var idx = avail_tims.indexOf(date_vis);
 	idx = Math.max(idx-1, 0);
 	chtim(avail_tims[idx]);
 }
 
+// Skip back to first time step
+function firsttim(){
+	clear_timeouts();
+
+	chtim(avail_tims[0]);
+}
+
 // Change to the next time step (increase lead time)
 function nextfc(){
+	clear_timeouts();
+
 	var idx = avail_fcs.indexOf(date_fc);
 	idx = Math.min(idx+1, avail_fcs.length-1);
 	chfc(avail_fcs[idx]);
@@ -119,9 +132,48 @@ function nextfc(){
 
 // Change to the next time step (increase lead time)
 function prevfc(){
+	clear_timeouts();
+
 	var idx = avail_fcs.indexOf(date_fc);
 	idx = Math.max(idx-1, 0);
 	chfc(avail_fcs[idx]);
+}
+
+function play(){
+	console.note($('#play')); //.css('display'));
+	// Toggle which buttons to display
+	$('#play').css('display', 'none');
+	$('#pause').css('display', 'inline-block');
+
+	var idx = avail_tims.indexOf(date_vis);
+	var maxidx = avail_tims.length-1;
+	
+	for (i=idx+1; i <= maxidx; i++) {
+		set_timeout(i, idx);
+	}
+}
+function pause() {
+	clear_timeouts()
+
+	// Toggle which buttons to display
+	$('#play').css('display', 'inline-block');
+	$('#pause').css('display', 'none');
+}
+
+// Set timeout for the play function (needs to be separate, because javascript is stupid)
+function set_timeout(i, idx) {
+	setTimeout(function() {
+		chtim(avail_tims[i]);
+	}, (i-idx-1)*500+50);
+}
+
+// Clear all timeouts set in play.
+function clear_timeouts() {
+	var id = window.setTimeout(function() {}, 0);
+
+	while (id--) {
+	    window.clearTimeout(id); 
+	}
 }
 
 

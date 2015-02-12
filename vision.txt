@@ -14,7 +14,7 @@ Overall help in header bar (?).
 -> Dark Transparent overlay with help text (white on black).
 -> Display if clicked, initially hidden.
 
-Top bar becomes variable selector
+Top bar becomes data selector: forecast model / run / variable / plot area
 -> Presets for shading + overlays
 -> Customize overlays??
 

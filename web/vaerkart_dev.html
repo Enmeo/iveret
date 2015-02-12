@@ -5,8 +5,8 @@
   <meta charset="utf-8">
   <title>ECMWF forecasts</title>
   <link rel="stylesheet" href="./static/vaerkart.css" type="text/css" />
-  <script src="./static/vaerkart.js" type="text/javascript"></script>
   <script src="./static/jquery.js" type="text/javascript"></script>
+  <script src="./static/vaerkart.js" type="text/javascript"></script>
   <script type="text/javascript">
 	var prefix = 'z500_msl';
 	var date_fc = '2015020300';
@@ -16,7 +16,7 @@
 	var plotdir = 'plots';
 
 	$( document ).ready(function() {
-		$('#time_controls').hide(2000);
+		$('#time_controls').delay(3000).slideUp(1000);
 	});
   </script>
 </head>
@@ -57,15 +57,15 @@
     <h1 id="vartitle">Geopotential [gpdm] on 500 hPa</h1>
     <h2 id="timtitle">Forecast from 03 Feb 2015, 00 UTC for 03 Feb 2015, 00 UTC</h2>
     <div class="plot">
-      <div class="map">
+      <div id="map_container" class="map">
         <img id="map" src="./plots/ec_for_z500_msl_from_2015020300_for_2015020300.png" />
 	<div id="time_controls">
 	  <ul id="play_controls">
-	    <li class="first"><a href="javascript:chtim('2015020300')">&#8739;&#8201;&#8810;</a></li> 
-	    <li class="prev"><a href="javascript:prevtim()">&#8810;</a></li>
-	    <li class="play"><a href="javascript:play()">&#8201;&#9658;</a></li>
-	    <li class="pause" style="display: none;"><a href="javascript:pause()">&#10074;&#10074;</a></li>
-	    <li class="next"><a href="javascript:nexttim()">&#8811;</a></li>
+	    <li id="but_first"><a href="javascript:firsttim()">&#8739;&#8201;&#8810;</a></li> 
+	    <li id="but_prev"><a href="javascript:prevtim()">&#8810;</a></li>
+	    <li id="but_play"><a href="javascript:play()">&#8201;&#9658;</a></li>
+	    <li id="but_pause" style="display: none;"><a href="javascript:pause()">&#10074;&#10074;</a></li>
+	    <li id="but_next"><a href="javascript:nexttim()">&#8811;</a></li>
 	  </ul><br />
           <p>Lead time:</p>
           <ul id="timselect">
@@ -97,4 +97,24 @@
     </div>
   </div>
 </body>
+
+<script>
+$( '#time_controls' ).mouseenter(function() {
+	$('#time_controls').stop(true);
+	$('#time_controls').slideDown(100);
+});
+$( '#time_controls' ).mouseleave(function() {
+	$('#time_controls').delay(2000).slideUp(500);
+});
+$( '#map_container' ).mouseenter(function() {
+	$('#time_controls').stop(true);
+	$('#time_controls').slideDown(200).delay(2000).slideUp(500);
+});
+$( '#map_container' ).mouseleave(function() {
+	$('#time_controls').stop(true);
+	$('#time_controls').slideUp(200);
+});
+
+</script>
+
 </html>

@@ -36,10 +36,12 @@ div.content h2 {
 div#time_controls {
 	opacity: 0.8;
 	background-color: rgba(0,0,0,0.4);
-	margin: -100px 0 0 0 ;
+	margin: -110px auto 0 auto ;
 	padding: 0;
 	height: 100px;
 	text-align: center;
+	width: 90%;
+	border-radius: 2em;
 }
 div#time_controls p {
 	display: inline-block;
@@ -67,16 +69,16 @@ div#time_controls a {
 	text-decoration: none;
 }
 
-div#time_controls li.first, div#time_controls li.prev, div#time_controls li.next {
+div#time_controls li#but_first, div#time_controls li#but_prev, div#time_controls li#but_next {
 	font-size: 1.8em;
 }
-div#time_controls li.play, div#time_controls li.pause {
+div#time_controls li#but_play, div#time_controls li#but_pause {
 	font-size: 2.5em;
 }
-div#time_controls li.first a, div#time_controls li.prev a, div#time_controls li.next a {
+div#time_controls li#but_first a, div#time_controls li#but_prev a, div#time_controls li#but_next a {
 	border-radius: 1.2em;
 }
-div#time_controls li.play a, div#time_controls li.pause a {
+div#time_controls li#but_play a, div#time_controls li#but_pause a {
 	border-radius: 1.4em;
 }
 
