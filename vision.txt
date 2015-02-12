@@ -1,0 +1,22 @@
+
+Play controls: first prev play/pause next 
+-> South. Look-n-feel like movie players.
+-> Display if? Mouse-move over img? Controls-button?
+-> Incorporate lead time quick access bar into controls.
+-> Incorporate init time drop down into controls.
+
+Legend: White info button if closed, initially visible.
+-> Southwest. Look-n-feel like transparent in-axes legend
+-> Dislay initially. Hide button.
+-> Round (i) button to show if hidden.
+
+Overall help in header bar (?).
+-> Dark Transparent overlay with help text (white on black).
+-> Display if clicked, initially hidden.
+
+Top bar becomes variable selector
+-> Presets for shading + overlays
+-> Customize overlays??
+
+Separate colorbar and image
+-> Horizontal and vertical version?? Hide colorbar option?

@@ -16,27 +16,6 @@ div.header {
 div.header select {
 	display: inline-block;
 }
-div.header p {
-	display: inline-block;
-	margin: 0 0.2em 0 1em;
-}
-div.header ul {
-	display: inline-block;
-	margin: 0;
-	padding: 0;
-}
-div.header li {
-	display: inline-block;
-	font-size: 0.85em;
-}
-div.header a {
-	display: inline-block;
-	width: 2em;
-	height: 1.15em;
-	text-align: center;
-	border: 1px solid #442222;
-	color: #ffcccc;
-}
 
 div.content {
 	margin: 0;
@@ -54,9 +33,60 @@ div.content h2 {
 	margin: 5px 0 5px 0;
 }
 
-img#map {
+div#time_controls {
+	opacity: 0.8;
+	background-color: rgba(0,0,0,0.4);
+	margin: -100px 0 0 0 ;
+	padding: 0;
+	height: 100px;
+	text-align: center;
+}
+div#time_controls p {
+	display: inline-block;
+	margin: 0.3em 0.2em 0 1em;
+	color: #ffcccc;
+}
+div#time_controls ul {
+	display: inline-block;
+	margin: 10px 0 0 0;
+	padding: 0;
+}
+div#time_controls li {
+	display: inline-block;
+	font-size: 0.85em;
+}
+div#time_controls a {
+	display: inline-block;
+	width: 2em;
+	height: 1.15em;
+	text-align: center;
+	border-radius: 5px;
+	background-color: rgba(0,0,0,0.7);
+	padding: 2px;
+	color: #ffcccc;
+	text-decoration: none;
+}
+
+div#time_controls li.first, div#time_controls li.prev, div#time_controls li.next {
+	font-size: 1.8em;
+}
+div#time_controls li.play, div#time_controls li.pause {
+	font-size: 2.5em;
+}
+div#time_controls li.first a, div#time_controls li.prev a, div#time_controls li.next a {
+	border-radius: 1.2em;
+}
+div#time_controls li.play a, div#time_controls li.pause a {
+	border-radius: 1.4em;
+}
+
+div.map {
 	width: 90%;
 	float: left;
+}
+img#map {
+	width: 100%;
+	display: block;
 }
 img#cbar {
 	width: 10%;

@@ -1,0 +1,100 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>ECMWF forecasts</title>
+  <link rel="stylesheet" href="./static/vaerkart.css" type="text/css" />
+  <script src="./static/vaerkart.js" type="text/javascript"></script>
+  <script src="./static/jquery.js" type="text/javascript"></script>
+  <script type="text/javascript">
+	var prefix = 'z500_msl';
+	var date_fc = '2015020300';
+	var date_vis = '2015020300';
+	var avail_fcs = ['2015020300', '2015020212', '2015020200', '2015020112', '2015020100', '2015013112', '2015013100', '2015013012', '2015013000', '2015012912', '2015012900'];
+	var avail_tims = ['2015020300', '2015020303', '2015020306', '2015020309', '2015020312', '2015020315', '2015020318', '2015020321', '2015020400', '2015020403', '2015020406', '2015020409', '2015020412', '2015020415', '2015020418', '2015020421', '2015020500', '2015020503', '2015020506', '2015020509', '2015020512', '2015020515', '2015020518', '2015020521', '2015020600', '2015020603', '2015020606', '2015020609', '2015020612', '2015020615', '2015020618', '2015020621', '2015020700', '2015020703', '2015020706', '2015020709', '2015020712', '2015020715', '2015020718', '2015020721', '2015020800', '2015020803', '2015020806', '2015020809', '2015020812', '2015020815', '2015020818', '2015020821', '2015020900', '2015020906', '2015020912', '2015020918', '2015021000', '2015021006', '2015021012', '2015021018', '2015021100', '2015021106', '2015021112', '2015021118', '2015021200', '2015021206', '2015021212', '2015021218', '2015021300'];
+	var plotdir = 'plots';
+
+	$( document ).ready(function() {
+		$('#time_controls').hide(2000);
+	});
+  </script>
+</head>
+<body>
+  <div class="header">
+    <select id="fcselect" name="fcselect" onchange="chfc(this.value);">
+      <option value="2015020300" selected="selected">From: 03 Feb 2015, 00 UTC</option>
+      <option value="2015020212">From: 02 Feb 2015, 12 UTC</option>
+      <option value="2015020200">From: 02 Feb 2015, 00 UTC</option>
+      <option value="2015020112">From: 01 Feb 2015, 12 UTC</option>
+      <option value="2015020100">From: 01 Feb 2015, 00 UTC</option>
+      <option value="2015013112">From: 31 Jan 2015, 12 UTC</option>
+      <option value="2015013100">From: 31 Jan 2015, 00 UTC</option>
+      <option value="2015013012">From: 30 Jan 2015, 12 UTC</option>
+      <option value="2015013000">From: 30 Jan 2015, 00 UTC</option>
+      <option value="2015012912">From: 29 Jan 2015, 12 UTC</option>
+      <option value="2015012900">From: 29 Jan 2015, 00 UTC</option>
+    </select>
+    <select id="varselect" name="varselect" onchange="chvar(this.value);">
+      <option value="z500_msl" selected="selected">Geopotential [gpdm] on 500 hPa</option>
+      <option value="t850_msl">Temperature [°C] on 850 hPa</option>
+      <option value="the850_wind">Eq. Pot. Temperature [K] on 850 hPa</option>
+      <option value="q850_wind">Spec. Humidity [g/kg] on 850 hPa</option>
+      <option value="ff850_wind">Wind speed [m/s] on 850 hPa</option>
+      <option value="deform850_msl">Deformation [10⁻⁵/s] on 850 hPa</option>
+      <option value="ff10_wind">10m wind speed [m/s]</option>
+      <option value="tcwv">Total column water vapour [kg/m²]</option>
+      <option value="tcc">Total cloud cover [%]</option>
+      <option value="tp">Precipitiation [mm/h]</option>
+      <option value="pvpt300_wind">Potential vorticity [PVU] on 300 K</option>
+      <option value="pvpt330_wind">Potential vorticity [PVU] on 330 K</option>
+      <option value="pvpt350_wind">Potential vorticity [PVU] on 350 K</option>
+      <option value="ptpv2_wind">Potential temperature [K] on PV 2</option>
+      <option value="ffpv2_wind">Wind speed [m/s], jets axes on PV 2</option>
+    </select>
+  </div>
+  <div class="content">
+    <h1 id="vartitle">Geopotential [gpdm] on 500 hPa</h1>
+    <h2 id="timtitle">Forecast from 03 Feb 2015, 00 UTC for 03 Feb 2015, 00 UTC</h2>
+    <div class="plot">
+      <div class="map">
+        <img id="map" src="./plots/ec_for_z500_msl_from_2015020300_for_2015020300.png" />
+	<div id="time_controls">
+	  <ul id="play_controls">
+	    <li class="first"><a href="javascript:chtim('2015020300')">&#8739;&#8201;&#8810;</a></li> 
+	    <li class="prev"><a href="javascript:prevtim()">&#8810;</a></li>
+	    <li class="play"><a href="javascript:play()">&#8201;&#9658;</a></li>
+	    <li class="pause" style="display: none;"><a href="javascript:pause()">&#10074;&#10074;</a></li>
+	    <li class="next"><a href="javascript:nexttim()">&#8811;</a></li>
+	  </ul><br />
+          <p>Lead time:</p>
+          <ul id="timselect">
+            <li><a href="javascript:chtim('2015020300')">0</a></li>
+            <li><a href="javascript:chtim('2015020312')">12</a></li>
+            <li><a href="javascript:chtim('2015020400')">24</a></li>
+            <li><a href="javascript:chtim('2015020412')">36</a></li>
+            <li><a href="javascript:chtim('2015020500')">48</a></li>
+            <li><a href="javascript:chtim('2015020512')">60</a></li>
+            <li><a href="javascript:chtim('2015020600')">72</a></li>
+            <li><a href="javascript:chtim('2015020612')">84</a></li>
+            <li><a href="javascript:chtim('2015020700')">96</a></li>
+            <li><a href="javascript:chtim('2015020712')">108</a></li>
+            <li><a href="javascript:chtim('2015020800')">120</a></li>
+            <li><a href="javascript:chtim('2015020812')">132</a></li>
+            <li><a href="javascript:chtim('2015020900')">144</a></li>
+            <li><a href="javascript:chtim('2015020912')">156</a></li>
+            <li><a href="javascript:chtim('2015021000')">168</a></li>
+            <li><a href="javascript:chtim('2015021012')">180</a></li>
+            <li><a href="javascript:chtim('2015021100')">192</a></li>
+            <li><a href="javascript:chtim('2015021112')">204</a></li>
+            <li><a href="javascript:chtim('2015021200')">216</a></li>
+            <li><a href="javascript:chtim('2015021212')">228</a></li>
+            <li><a href="javascript:chtim('2015021300')">240</a></li>
+          </ul>
+	</div>
+      </div>
+      <img id="cbar" src="./static/cbar_z500_msl.png" />
+    </div>
+  </div>
+</body>
+</html>
