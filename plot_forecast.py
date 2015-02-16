@@ -3,8 +3,8 @@
 
 import matplotlib as mpl
 mpl.use('Agg')
-from dynlib import *
-from settings import *
+from dynlib_dev import *
+from settings_dev import *
 
 
 ######################################################
@@ -15,6 +15,9 @@ class plotter(object):
 	filetype = 'png'
 	fcname = 'ec_for'
 	opath = conf.opath
+	
+	# Add colorbar and legend
+	decorations = True
 
 	# Which data is required for the plot
 	requires=[]
@@ -29,7 +32,6 @@ class plotter(object):
 		'grid_linestyle': '-',
 		'grid_latmax': 90,
 		'show': False,
-		'disable_cb': True,
 	}
 	
 	# Do the art; to be overriden in derived classes
@@ -40,7 +42,14 @@ class plotter(object):
 				self.filetype
 		)
 
-		fi = plt.figure(figsize=(10.8,7.2), dpi=96)
+		if self.decorations:
+			fi = plt.figure(figsize=(12.0,7.2), dpi=96)
+			self.std_plotconf['show_legend'] = True
+			
+		else:
+			fi = plt.figure(figsize=(10.8,7.2), dpi=96)
+			self.std_plotconf['disable_cb'] = True
+
 		fi.subplotpars.update(left=0.001, right=0.999, top=0.999, bottom=0.001)
 		
 		data_available = True
@@ -209,8 +218,7 @@ class t850_msl(t_msl):
 				overlays=overlays,
 				cmap=cm.t, # Set a colormap
 				scale=range(-34,36,2),
-				ticks=range(-34,36,2),
-				ticklabels=range(-34,36,2),
+				ticks=range(-30,31,10),
 				**self.std_plotconf
 		)
 		fig.map_oro_dat(data['t', '850']-273.15, static, **plotconf)
@@ -231,7 +239,8 @@ class the850_wind(the):
 
 		plotconf = conf.contourf.merge('t',
 				cmap=cm.t, # Set a colormap
-				scale=range(250,351,5),
+				scale=np.arange(250,351,2.5),
+				ticks=range(250,351,10),
 				**self.std_plotconf
 		)
 		fig.map_oro_barb(data['u','850'], data['v','850'], static, dat=data['the', '850'], **plotconf)
@@ -270,8 +279,7 @@ class z500_msl(z_msl):
 				overlays=overlays,
 				cmap=cm.z,
 				scale=range(476,604,4),
-				ticks=range(476,604,4),
-				ticklabels=range(476,604,4),
+				ticks=range(480,601,20),
 				**self.std_plotconf
 		)
 		fig.map_oro_dat(data['z','500'], static, **plotconf)
@@ -302,7 +310,9 @@ class q850_wind(precip):
 		plotconf = conf.contourf.merge('q',
 				overlays=overlays,
 				cmap=cm.q,
-				scale=np.arange(1,16,1),
+				scale=np.arange(0,16,1),
+				ticks=range(0,16,5),
+				extend='max',
 				**self.std_plotconf
 		)
 		fig.map_oro_barb(data['u','850'], data['v','850'], static, dat=data['q','850'], **plotconf) 
@@ -433,6 +443,36 @@ class pvpt300_wind(pv_wind):
 		return True
 
 
+# Potential vorticity@300K shading and wind barbs
+class pvpt315_wind(pv_wind):
+	requires = [('pv', 'pt315'), ('u', 'pt315'), ('v', 'pt315')]
+	plotname = 'pvpt315_wind'
+
+	def plot(self, data, static, dateinit, datevalid):
+		done = pv_wind.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		overlays=[fig.map_overlay_dat(data['pv','pt315']*1e6, static, **conf.contour.merge('pv', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(2,3,1) ) ), 
+		]
+		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		plotconf = conf.contourf.merge('pv',
+				overlays=overlays,
+				cmap=cm.pv_new,
+				norm=mpl.colors.BoundaryNorm(s, 256),
+				scale=s,
+				ticks=st,
+				**self.std_plotconf
+		)
+		fig.map_oro_barb(data['u','pt315'], data['v','pt315'], static, dat=data['pv','pt315']*1e6, **plotconf) 
+
+		return True
+
+
 # Potential vorticity@350K shading and wind barbs
 class pvpt330_wind(pv_wind):
 	requires = [('pv', 'pt330'), ('u', 'pt330'), ('v', 'pt330')]
@@ -506,8 +546,8 @@ class ptpv2_wind(pt_wind):
 		plotconf = conf.contourf.merge('pt',
 				overlays=[],
 				cmap=cm.t,
-				scale=np.arange(270,385,5),
-				ticks=np.arange(270,385,5),
+				scale=np.arange(270,396,5),
+				ticks=[270,285,300,315,330,350,370,395],
 				**self.std_plotconf
 		)
 		fig.map_oro_barb(data['u', 'pv2000'], data['v', 'pv2000'], static, dat=data['pt', 'pv2000'], **plotconf)
@@ -529,8 +569,8 @@ class ptpv2_wind_npolar(pt_wind):
 		plotconf = conf.contourf.merge('pt',
 				overlays=[],
 				cmap=cm.t,
-				scale=np.arange(270,385,5),
-				ticks=np.arange(270,385,5),
+				scale=np.arange(270,396,5),
+				ticks=[270,285,300,315,330,350,370,395],
 				**self.std_plotconf
 		)
 		fig.map_oro_barb(data['u', 'pv2000'], data['v', 'pv2000'], static, dat=data['pt', 'pv2000'], **plotconf)
@@ -560,7 +600,6 @@ class tp(precip):
 				extend='max',
 				scale=s,
 				ticks=s,
-				ticklabels=s,
 				**self.std_plotconf
 		)
 		fig.map_oro_dat(data['trr','sfc']*1000+1e-10, static, **plotconf)
@@ -588,18 +627,18 @@ class tcwv(precip,iwvtrans):
 			return True
 
 		overlays=[fig.map_overlay_dat(data['crr','sfc']*1000, static, **conf.contour.merge('default', 
-				scale=[1.0, 3.0, 10.0],
+				scale=[0.3, 1.0, 3.0],
 				colors='c', ) ), 
 			 fig.map_overlay_dat(data['lsrr','sfc']*1000, static, **conf.contour.merge('default', 
-				scale=[1.0, 3.0, 10.0],
+				scale=[0.3, 1.0, 3.0],
 				colors='m', ) ), 
 		]
 
-		s_NA=range(4,45,2)
 		plotconf = conf.contourf.merge('tcwv', 	# Get configuration for q, but override with the other arguments, like
 				overlays=overlays,
 				cmap=cm.q,
-				scale=s_NA,
+				scale=range(4,45,2),
+				ticks=range(10,41,10),
 				quiver=True,
 				quiver_length=1.5,
 				**self.std_plotconf
@@ -620,12 +659,10 @@ class tcwv_npolar(plotter):
 		if done:
 			return True
 
-		s_glob=range(0, 61, 3)
 		plotconf = conf.contourf.merge('tcwv', 	# Get configuration for q, but override with the other arguments, like
 				cmap=cm.q,
-				scale=s_glob,           
-				ticks=s_glob,
-				ticklabels=s_glob,
+				scale=range(6,61,3),
+				ticks=range(15,61,15),
 				**self.std_plotconf
 		)
 		fig.map_oro_dat(data['tcwv','sfc'], static, **plotconf)
@@ -643,12 +680,16 @@ class tcc(plotter):
 		if done:
 			return True
 
-		s=[0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1.0]
+		s = np.array([0,] + list(np.arange(0.0625,0.95,0.125)) + [1,])
+		print s
+		t = (s[1:]+s[:-1])/2.0
+		print t
 		plotconf = conf.contourf.merge('tcc', 	# Get configuration for q, but override with the other arguments, like
 				cmap=cm.q_r, # Set a colormap
 				scale=s,
-				ticks=s,
+				ticks=t,
 				ticklabels=["0/8","1/8", "2/8", "3/8", "4/8", "5/8", "6/8", "7/8", "8/8"],
+				extend='neither',
 				**self.std_plotconf
 		)
 		fig.map_oro_dat(data['tcc','sfc'], static, **plotconf)
@@ -751,11 +792,10 @@ class ffpv2_wind(jets):
 			fig.map_overlay_lines(data['jetaxis','pv2000'], data['jaoff','pv2000'], static, linecolor='w', linewidth=4), 
 		]
 
-		s=np.arange(15,76,5)
 		plotconf = conf.contourf.merge('u', 	# Get configuration for q, but override with the other arguments, like
 				cmap=cm.ff, 
-				scale=s,
-				ticks=s,
+				scale=np.arange(15,76,5),
+				ticks=np.arange(15,76,15),
 				extend='both',
 				overlays=overlays,
 				**self.std_plotconf
@@ -779,9 +819,12 @@ else:
 # Override 
 forecast = dt(2015,2,3,0)
 
-#plots = [t850_msl(), z500_msl(), q850_wind(), pvpt300_wind(), ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
-#	 pvpt300_wind_npolar(), ]
-plots = [z500_msl(), ] # ffpv2_wind()
+#plots = [t850_msl(), z500_msl(), the850_wind(), q850_wind(), deform850_msl(), 
+#		pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
+#		ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
+#]
+plots = [ffpv2_wind(), pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), tcc(), ]
+#plots = [z500_msl(), ] 
 data = {}
 for plot in plots:
 	for q, plev in plot.requires:
@@ -803,6 +846,10 @@ for plot in plots:
 for tidx, date in zip(range(len(static.t)), static.t_parsed):
 	# Plot only 3-hourly data to speed up plotting
 	if not date.hour % 3 == 0:
+		continue
+
+	# Plot only initial time step
+	if not date == forecast:
 		continue
 
 	data_inst = {}

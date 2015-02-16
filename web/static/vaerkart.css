@@ -69,6 +69,25 @@ div#time_controls a {
 	text-decoration: none;
 }
 
+div #legend_controls {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0.2em 0.2em 0 0;
+	padding: 0;
+	text-align: right;
+	opacity: 0.8;
+	border-radius: 1em;
+	background-color: rgba(255, 255, 255, 0.5);
+}
+div #legend_controls a {
+	padding: 0.1em 0.7em 0.1em 0.7em;
+	margin: 0;
+	text-decoration: none;
+	color: black;
+	font-size: 1.2em;
+}
+
 div#time_controls li#but_first, div#time_controls li#but_prev, div#time_controls li#but_next {
 	font-size: 1.8em;
 }
@@ -83,6 +102,7 @@ div#time_controls li#but_play a, div#time_controls li#but_pause a {
 }
 
 div.map {
+	position: relative;
 	width: 90%;
 	float: left;
 }

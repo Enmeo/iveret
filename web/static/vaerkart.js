@@ -87,10 +87,8 @@ function chfc(newfc) {
 
 // Change the forecast origin
 function chvar(newvar) {
-	var map = document.getElementById('map');
-
-	prefix = newvar;
-	map.src = './'+plotdir+'/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
+	$('#map').attr('src', './'+plotdir+'/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png');
+	$('#cbar').attr('src', './static/info/'+prefix+'_cbar.png');
 
 	var heading = document.getElementById('vartitle');
 	heading.childNodes[0].data = get_varname_by_prefix(newvar);
@@ -140,10 +138,10 @@ function prevfc(){
 }
 
 function play(){
-	console.note($('#play')); //.css('display'));
+	//console.log($('#play')); //.css('display'));
 	// Toggle which buttons to display
-	$('#play').css('display', 'none');
-	$('#pause').css('display', 'inline-block');
+	$('#but_play').css('display', 'none');
+	$('#but_pause').css('display', 'inline-block');
 
 	var idx = avail_tims.indexOf(date_vis);
 	var maxidx = avail_tims.length-1;
@@ -156,8 +154,8 @@ function pause() {
 	clear_timeouts()
 
 	// Toggle which buttons to display
-	$('#play').css('display', 'inline-block');
-	$('#pause').css('display', 'none');
+	$('#but_play').css('display', 'inline-block');
+	$('#but_pause').css('display', 'none');
 }
 
 // Set timeout for the play function (needs to be separate, because javascript is stupid)
