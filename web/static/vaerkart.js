@@ -39,14 +39,24 @@ function get_varname_by_prefix(prefix) {
 	return 'Unknown prefix.'
 }
 
-// Humanize the date: Takes a string "%Y%m%d%H" and returns "%d %M %Y, %H UTC"
-function humanize_datetime(datestr) {
-	return datestr.substr(6,2)+' '+datestr.substr(4,2).replace('01','Jan').replace('02', 'Feb').replace('03', 'Mar').replace('04', 'Apr').replace('05', 'May').replace('06', 'Jun').replace('07', 'Jul').replace('08', 'Aug').replace('09', 'Sep').replace('10', 'Oct').replace('11', 'Nov').replace('12', 'Dec')+' '+datestr.substr(0,4)+', '+datestr.substr(8,2)+' UTC'
+// Humanize the date: Takes a moment object and returns "%d %M %Y, %H UTC"
+function humanize(date) {
+	return date.format('dddd, DD MMM YYYY, HH')+' UTC';
+}
+
+// Filename from date: Takes a moment object and returns "%Y%M%d%H".
+function filename(date) {
+	return date.format('YYYYMMDDHH');
 }
 
 // Create a new time / forecast title from date_vis and date_fc
 function get_timtitle() {
-	return 'Forecast from '+humanize_datetime(date_fc)+' for '+humanize_datetime(date_vis);
+	return 'Forecast from '+humanize(date_fc)+' for '+humanize(date_vis);
+}
+
+// Create filename based on current state
+function get_current_filename() {
+	return './'+plotdir+'/ec_for_'+prefix+'_from_'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
 }
 
 
@@ -55,18 +65,18 @@ function chtim(newtim) {
 	var map = document.getElementById('map');
 
 	date_vis = newtim;
-	map.src = './'+plotdir+'/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
+	map.src = get_current_filename();
 
 	var heading = document.getElementById('timtitle');
 	heading.childNodes[0].data = get_timtitle();
 }
 
 // Change the forecast origin
-function chfc(newfc) {
+function chfc(fcidx) {
 	// Update map
 	var map = document.getElementById('map');
-	date_fc = newfc;
-	map.src = './'+plotdir+'/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png';
+	date_fc = avail_fcs[fcidx];
+	map.src = get_current_filename();
 	
 	// Update heading
 	var heading = document.getElementById('timtitle');
@@ -75,20 +85,14 @@ function chfc(newfc) {
 	// Update drop down box
 	var sel = document.getElementById('fcselect');
 	var opts = sel.childNodes;
-
-	for (i=0; i <= opts.length; i++) {
-		if (opts[i].value == newfc) {
-			return opts[i].selected='selected';
-		}
-	}
-	
-	return 'Unknown prefix.'
+	opts[fcidx].selected='selected';
 }
 
 // Change the forecast origin
 function chvar(newvar) {
-	$('#map').attr('src', './'+plotdir+'/ec_for_'+prefix+'_from_'+date_fc+'_for_'+date_vis+'.png');
-	$('#cbar').attr('src', './static/info/'+prefix+'_cbar.png');
+	prefix = newvar;
+	$('#map').attr('src', get_current_filename());
+	$('#cbar').attr('src', './static/deco/cbar_'+prefix+'.png');
 
 	var heading = document.getElementById('vartitle');
 	heading.childNodes[0].data = get_varname_by_prefix(newvar);
@@ -125,7 +129,7 @@ function nextfc(){
 
 	var idx = avail_fcs.indexOf(date_fc);
 	idx = Math.min(idx+1, avail_fcs.length-1);
-	chfc(avail_fcs[idx]);
+	chfc(idx);
 }
 
 // Change to the next time step (increase lead time)
@@ -134,7 +138,7 @@ function prevfc(){
 
 	var idx = avail_fcs.indexOf(date_fc);
 	idx = Math.max(idx-1, 0);
-	chfc(avail_fcs[idx]);
+	chfc(idx);
 }
 
 function play(){
@@ -173,6 +177,30 @@ function clear_timeouts() {
 	    window.clearTimeout(id); 
 	}
 }
+
+
+// Startup definitions
+$( document ).ready(function() {
+	// Initial display: play controls
+	$('#time_controls').delay(3000).slideUp(1000);
+	
+	// Define hide/show behaviour of play controls
+	$( '#time_controls' ).mouseenter(function() {
+		$('#time_controls').stop(true);
+		$('#time_controls').slideDown(100);
+	});
+	$( '#time_controls' ).mouseleave(function() {
+		$('#time_controls').delay(2000).slideUp(500);
+	});
+	$( '#map_container' ).mouseenter(function() {
+		$('#time_controls').stop(true);
+		$('#time_controls').slideDown(200).delay(2000).slideUp(500);
+	});
+	$( '#map_container' ).mouseleave(function() {
+		$('#time_controls').stop(true);
+		$('#time_controls').slideUp(200);
+	});
+});
 
 
 // the end

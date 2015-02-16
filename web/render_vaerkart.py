@@ -10,8 +10,9 @@ from django.template import Context, loader
 
 # Where to save the weather map; 
 # TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
-filepath = '/Data/gfi/users/csp001/forecasts/web/vaerkart.html'
-settings.configure(TEMPLATE_DIRS = ('/Data/gfi/users/csp001/forecasts/web', ), DEFAULT_CHARSET='utf-8')
+basepath = '/Home/siv22/csp001/work/iveret/vaerkart'
+filepath = basepath+'/web/vaerkart.html'
+settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
 
 
 # The only free parameter for the entire script

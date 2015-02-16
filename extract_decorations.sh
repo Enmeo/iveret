@@ -1,7 +1,8 @@
 #!/bin/bash
 
 ipath="/Data/gfi/users/csp001/forecasts/web/plots"
-opath="/Data/gfi/users/csp001/forecasts/web/static/info"
+#opath="/Data/gfi/users/csp001/forecasts/web/static/deco"
+opath="/Home/siv22/csp001/work/iveret/vaerkart/web/static/deco"
 
 
 # Extract the init date from the last changed file 
@@ -18,7 +19,7 @@ do
 	echo "Processing $plotname"
 	
 	# Extract colorbars
-	convert -crop 120x720+1080+0\! $f $opath/${plotname}_cbar.png
+	convert -crop 120x720+1080+0\! $f $opath/cbar_${plotname}.png
 
 done
 

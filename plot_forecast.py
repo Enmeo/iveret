@@ -4,7 +4,7 @@
 import matplotlib as mpl
 mpl.use('Agg')
 from dynlib_dev import *
-from settings_dev import *
+from settings import *
 
 
 ######################################################
@@ -17,7 +17,7 @@ class plotter(object):
 	opath = conf.opath
 	
 	# Add colorbar and legend
-	decorations = True
+	decorations = False
 
 	# Which data is required for the plot
 	requires=[]
@@ -681,9 +681,7 @@ class tcc(plotter):
 			return True
 
 		s = np.array([0,] + list(np.arange(0.0625,0.95,0.125)) + [1,])
-		print s
 		t = (s[1:]+s[:-1])/2.0
-		print t
 		plotconf = conf.contourf.merge('tcc', 	# Get configuration for q, but override with the other arguments, like
 				cmap=cm.q_r, # Set a colormap
 				scale=s,
@@ -819,11 +817,11 @@ else:
 # Override 
 forecast = dt(2015,2,3,0)
 
-#plots = [t850_msl(), z500_msl(), the850_wind(), q850_wind(), deform850_msl(), 
-#		pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
-#		ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
-#]
-plots = [ffpv2_wind(), pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), tcc(), ]
+plots = [t850_msl(), z500_msl(), the850_wind(), q850_wind(), deform850_msl(), 
+		pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
+		ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
+]
+#plots = [ffpv2_wind(), pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), tcc(), ]
 #plots = [z500_msl(), ] 
 data = {}
 for plot in plots:

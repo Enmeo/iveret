@@ -2,9 +2,9 @@
 # -*- encoding: utf-8
 import matplotlib as mpl
 
-from dynlib.dynpie.settings import conf
-import dynlib.dynpie.proj as proj
-import dynlib.dynpie.cm as cm
+from dynlib_dev.dynpie.settings import conf
+import dynlib_dev.dynpie.proj as proj
+import dynlib_dev.dynpie.cm as cm
 
 
 # Adapt the default settings to your needs here, then use 
@@ -268,7 +268,8 @@ cm.pv_new = mpl.colors.LinearSegmentedColormap('my_defabs',cdict7,256)
 del cdict7
 
 # Set the default output location (e.g. for plots)
-conf.opath = '/Data/gfi/users/csp001/forecasts/web/plots'
+#conf.opath = '/Data/gfi/users/csp001/forecasts/web/plots'
+conf.opath = '/Home/siv22/csp001/work/iveret/vaerkart/web/plots'
 
 
 def map_tmp():
