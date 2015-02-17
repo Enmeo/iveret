@@ -1,7 +1,9 @@
 #!/bin/bash
 
-ipath="/Data/gfi/users/csp001/forecasts/web/plots"
+#ipath="/Data/gfi/users/csp001/forecasts/web/plots"
 #opath="/Data/gfi/users/csp001/forecasts/web/static/deco"
+
+ipath="/Home/siv22/csp001/work/iveret/vaerkart/web/plots"
 opath="/Home/siv22/csp001/work/iveret/vaerkart/web/static/deco"
 
 

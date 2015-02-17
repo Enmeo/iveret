@@ -61,70 +61,141 @@ function get_current_filename() {
 
 
 // Change the forecasted date (lead time)
-function chtim(newtim) {
-	var map = document.getElementById('map');
+function chlead(newlead) {
+	// Set new current valid time
+	lead_vis = newlead;
+	date_vis = moment(date_fc);
+	date_vis.add(newlead, 'hours');
 
-	date_vis = newtim;
-	map.src = get_current_filename();
+	// Update map, heading
+	$('#map').attr('src',get_current_filename());
+	$('#timtitle').text(get_timtitle());
+}
 
-	var heading = document.getElementById('timtitle');
-	heading.childNodes[0].data = get_timtitle();
+// Change the lead time for untrusted input
+function chtim(newlead) {
+	// Find closest available valid time using the new fc data
+	diff = 9999;
+	for (i = 0; i <= avail_leads.length; i++) {
+		diff_ = Math.abs(newlead - avail_leads[i]);
+		if ( diff_ < diff ) {
+			diff = diff_;
+			lead_vis = avail_leads[i];
+		}
+	}
+	chlead(lead_vis);
+}
+
+// Involves custom check of equality of two dates, as indexOf and the-like use object-identity instead of equality
+function date_array_contains(date, array) {
+	for (j = 0; j <= array.length; j++) {
+		date2 = moment(array[j]);
+		if ( date2.diff(date) == 0 ) {
+			return j
+		}
+	}
+	return -1
 }
 
 // Change the forecast origin
 function chfc(fcidx) {
-	// Update map
-	var map = document.getElementById('map');
+	// Set new current forecast init time
 	date_fc = avail_fcs[fcidx];
-	map.src = get_current_filename();
-	
-	// Update heading
-	var heading = document.getElementById('timtitle');
-	heading.childNodes[0].data = get_timtitle();
-	
-	// Update drop down box
-	var sel = document.getElementById('fcselect');
-	var opts = sel.childNodes;
-	opts[fcidx].selected='selected';
+
+	// Recreate available times
+	avail_leads = [];
+	for (i = 0; i <= base_leads.length; i++) {
+		date = moment(date_fc).add(base_leads[i], 'hours');
+		if (date_array_contains(date, base_tims) > -1) {
+			avail_leads.push(base_leads[i]);
+			if (base_leads[i] % 12 == 0) {
+				$('#timselect_'+base_leads[i].toString()).removeClass('disabled');
+			}
+		}
+		else if (base_leads[i] % 12 == 0) {
+			$('#timselect_'+base_leads[i].toString()).addClass('disabled');
+		}
+	}
+
+	// Find closest available valid time using the new fc data
+	diff = 9999;
+	for (i = 0; i <= avail_leads.length; i++) {
+		date = moment(date_fc).add(avail_leads[i], 'hours');
+		diff_ = Math.abs(date_vis.diff(date, 'hours'));
+		if ( diff_ < diff ) {
+			diff = diff_;
+			lead_vis = avail_leads[i];
+		}
+	}
+	chlead(lead_vis);
+
+	// Update map, heading and drop-down box; remove focus from drop down box
+	$('#map').attr('src',get_current_filename());
+	$('#timtitle').text(get_timtitle());
+	$('#fcselect').val(fcidx).blur();
 }
+
+// TODO: 
+// (1) BUG: play always starts from first frame.
+// (2) BUG: first up/down arrow to change fc is ignored
 
 // Change the forecast origin
 function chvar(newvar) {
+	// Set the new current variable and update overlay details
+	if ( display_overlay_details ) 
+		$('#'+prefix+'_overlays').css('display', 'none');
 	prefix = newvar;
+	if ( display_overlay_details ) 
+		$('#'+prefix+'_overlays').css('display', 'block');
+
+	// Update map, colorbar and heading
 	$('#map').attr('src', get_current_filename());
 	$('#cbar').attr('src', './static/deco/cbar_'+prefix+'.png');
+	$('#cbar_units').text('['+units[prefix]+']');
+	$('#vartitle').text(get_varname_by_prefix(newvar));
 
-	var heading = document.getElementById('vartitle');
-	heading.childNodes[0].data = get_varname_by_prefix(newvar);
+	// Remove focus from drop down to avoid changes due to arrow key strokes
+	$('#varselect').blur();
+}
+
+function toggle_overlay() {
+	if ( display_overlay_details ) {
+		$('#'+prefix+'_overlays').css('display', 'none');
+		display_overlay_details = false;
+	}
+	else {
+		$('#'+prefix+'_overlays').css('display', 'block');
+		display_overlay_details = true;
+	}
 }
 
 // Change to the next time step (increase lead time)
-function nexttim(){
+function nexttim() {
 	clear_timeouts(); 
 
-	var idx = avail_tims.indexOf(date_vis);
-	idx = Math.min(idx+1, avail_tims.length-1);
-	chtim(avail_tims[idx]);
+	var idx = avail_leads.indexOf(lead_vis);
+	idx = Math.min(idx+1, avail_leads.length-1);
+	chlead(avail_leads[idx]);
 }
 
 // Change to the next time step (increase lead time)
-function prevtim(){
+function prevtim() {
 	clear_timeouts();
 
-	var idx = avail_tims.indexOf(date_vis);
+	var idx = avail_leads.indexOf(lead_vis);
 	idx = Math.max(idx-1, 0);
-	chtim(avail_tims[idx]);
+	chlead(avail_leads[idx]);
 }
 
 // Skip back to first time step
-function firsttim(){
+function firsttim() {
 	clear_timeouts();
 
-	chtim(avail_tims[0]);
+	chlead(avail_leads[0]);
 }
 
 // Change to the next time step (increase lead time)
-function nextfc(){
+function nextfc() {
 	clear_timeouts();
 
 	var idx = avail_fcs.indexOf(date_fc);
@@ -133,7 +204,7 @@ function nextfc(){
 }
 
 // Change to the next time step (increase lead time)
-function prevfc(){
+function prevfc() {
 	clear_timeouts();
 
 	var idx = avail_fcs.indexOf(date_fc);
@@ -141,14 +212,14 @@ function prevfc(){
 	chfc(idx);
 }
 
-function play(){
+function play() {
 	//console.log($('#play')); //.css('display'));
 	// Toggle which buttons to display
 	$('#but_play').css('display', 'none');
 	$('#but_pause').css('display', 'inline-block');
 
-	var idx = avail_tims.indexOf(date_vis);
-	var maxidx = avail_tims.length-1;
+	var idx = avail_leads.indexOf(date_vis);
+	var maxidx = avail_leads.length-1;
 	
 	for (i=idx+1; i <= maxidx; i++) {
 		set_timeout(i, idx);
@@ -165,7 +236,7 @@ function pause() {
 // Set timeout for the play function (needs to be separate, because javascript is stupid)
 function set_timeout(i, idx) {
 	setTimeout(function() {
-		chtim(avail_tims[i]);
+		chlead(avail_leads[i]);
 	}, (i-idx-1)*500+50);
 }
 

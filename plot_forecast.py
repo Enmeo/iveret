@@ -816,13 +816,15 @@ else:
 
 # Override 
 forecast = dt(2015,2,3,0)
+plot_only_init = False
 
 plots = [t850_msl(), z500_msl(), the850_wind(), q850_wind(), deform850_msl(), 
 		pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
 		ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
 ]
 #plots = [ffpv2_wind(), pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), tcc(), ]
-#plots = [z500_msl(), ] 
+#plots = [q850_wind(), ] 
+
 data = {}
 for plot in plots:
 	for q, plev in plot.requires:
@@ -847,7 +849,7 @@ for tidx, date in zip(range(len(static.t)), static.t_parsed):
 		continue
 
 	# Plot only initial time step
-	if not date == forecast:
+	if plot_only_init and not date == forecast:
 		continue
 
 	data_inst = {}

@@ -29,54 +29,104 @@ print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H 
 
 
 
-# Defining stuff
 class variable(object):
-    def __init__(self, name, level, prefix):
-        self.name = name
-        self.level = level
-        self.prefix = prefix
+	def __init__(self, name, units, level):
+		self.name = name
+		self.units = units
+		self.level = level
 
-v = variable
-varlist = [
-    v(u'Geopotential [gpdm]', u'500 hPa', u'z500_msl'), 
-    v(u'Temperature [°C]', u'850 hPa', u't850_msl'),
-    v(u'Eq. Pot. Temperature [K]', u'850 hPa', u'the850_wind'),
-    v(u'Spec. Humidity [g/kg]', u'850 hPa', u'q850_wind'),
-    v(u'Wind speed [m/s]', u'850 hPa', u'ff850_wind'),
-    v(u'Deformation [10⁻⁵/s]', u'850 hPa', u'deform850_msl'),
-    v(u'10m wind speed [m/s]', u'', u'ff10_wind'),
-    v(u'Total column water vapour [kg/m²]', u'', u'tcwv'),
-    v(u'Total cloud cover [%]', u'', u'tcc'),
-    v(u'Precipitiation [mm/h]', u'', u'tp'),
-    v(u'Potential vorticity [PVU]', u'300 K', u'pvpt300_wind'),
-    v(u'Potential vorticity [PVU]', u'330 K', u'pvpt330_wind'),
-    v(u'Potential vorticity [PVU]', u'350 K', u'pvpt350_wind'),
-    v(u'Potential temperature [K]', u'PV 2', u'ptpv2_wind'),
-    v(u'Wind speed [m/s], jets axes', u'PV 2', u'ffpv2_wind'),
+		#self.overlays = overlays
+
+class plot(object):
+	def __init__(self, prefix, shading, overlays=[], name=None):
+		self.prefix = prefix
+		self.shading = shading
+		self.overlays = overlays
+		
+		if name:
+			self.name = name
+		elif self.shading.level:
+			self.name = '%s on %s' % (self.shading.name, self.shading.level)
+		else:
+			self.name = self.shading.name
+
+
+# Defining stuff
+z500 = variable(u'Geopotential', u'gpdm', u'500 hPa')
+t850 = variable(u'Temperature', u'°C', u'850 hPa')
+the850 = variable(u'Eq. Pot. Temperature', 'K', u'850 hPa')
+q850 = variable(u'Spec. Humidity', 'g/kg', u'850 hPa')
+ff850 = variable(u'Wind speed', 'm/s', u'850 hPa')
+def850 = variable(u'Deformation', '10⁻⁵/s', u'850 hPa')
+ff10 = variable(u'10 m wind speed', 'm/s', u'')
+tcwv = variable(u'Total column water vapour', 'kg/m²', u'')
+tcc = variable(u'Total cloud cover', '', u'')
+tp = variable(u'Precipitiation', 'mm/h', u'')
+pvpt300 = variable(u'Potential vorticity', 'PVU', u'300 K')
+pvpt315 = variable(u'Potential vorticity', 'PVU', u'315 K')
+pvpt330 = variable(u'Potential vorticity', 'PVU', u'330 K')
+pvpt350 = variable(u'Potential vorticity', 'PVU', u'350 K')
+ptpv2 = variable(u'Potential temperature', 'K', u'PV 2')
+ffpv2 = variable(u'Wind speed', 'm/s', u'PV 2')
+
+msl = variable(u'Sea level pressure', 'hPa', u'')
+cp = variable(u'Convective precipitation', 'mm/h', u'')
+lp = variable(u'Large-scale precipitation', 'mm/h', u'')
+barbs850 = variable(u'Wind barbs', u'm/s', u'850 hPa')
+barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
+barbspt300 = variable(u'Wind barbs', u'm/s', u'300 K')
+barbspt315 = variable(u'Wind barbs', u'm/s', u'315 K')
+barbspt330 = variable(u'Wind barbs', u'm/s', u'330 K')
+barbspt350 = variable(u'Wind barbs', u'm/s', u'350 K')
+barbspv2 = variable(u'Wind barbs', u'm/s', u'PV 2')
+defang850 = variable(u'Axes of dilatation', u'', u'850 hPa')
+icwvt = variable(u'Integrated column water vapour transport', u'', u'')
+jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
+
+
+plotlist = [
+	plot(u'z500_msl', z500, [('white', z500, 16), ('black', msl, 5)]), 
+	plot(u't850_msl', t850, [('black dashes', t850, [0,]), ('black', msl, 5)]),
+	plot(u'the850_wind', the850, [('black', barbs850, None), ]),
+	plot(u'q850_wind', q850, [('black', barbs850, None), ]),
+	plot(u'ff850_wind', ff850, [('black', barbs850, None), ]),
+	plot(u'deform850_msl', def850, [('black double-arrows', defang850, None), ('blue', msl, 10), ]),
+	plot(u'ff10_wind', ff10, [('black', barbs10, None), ]),
+	plot(u'tcwv', tcwv, [('black arrows', icwvt, None), ('magenta', lp, [0.5,1,2]), ('cyan', cp, [0.5,1,2]), ]),
+	plot(u'tcc', tcc),
+	plot(u'tp', tp),
+	plot(u'pvpt300_wind', pvpt300, [('black', barbspt300, None), ]),
+	plot(u'pvpt315_wind', pvpt315, [('black', barbspt315, None), ]),
+	plot(u'pvpt330_wind', pvpt330, [('black', barbspt330, None), ]),
+	plot(u'pvpt350_wind', pvpt350, [('black', barbspt350, None), ]),
+	plot(u'ptpv2_wind', ptpv2, [('black', barbspv2, None), ]),
+	plot(u'ffpv2_wind', ffpv2, [('black', barbspv2, None), ('white', jetaxespv2, None), ], name='Jets on PV 2'),
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(11)]
 date_fc = fclist[0]
 
-timlist = [date_base + td(0.125)*i for i in range(48)]
-timlist.extend([date_base + td(6) + td(0.25)*i for i in range(17)])
+leadlist = range(0,144,3)
+leadlist.extend(range(144,241,6))
 
-timlist_link = [date_base + td(0.5)*i for i in range(21)]
-timlist_link = map(lambda d: (d, int((d-date_fc).total_seconds()/3600)), timlist_link)
+leadlist_link = range(0,241,12)
+
+timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 
 
 # Rendering
-
 t = loader.get_template(template_name='template.html')
 c = Context({
-    'varlist': varlist, 
-    'timlist': timlist,
-    'timlist_link': timlist_link,
-    'fclist': fclist, 
-    'initvar': varlist[0],
-    'date_begin': date_fc,
-    'date_init': date_fc,
-    'plotdir': 'plots',
+	'plotlist': plotlist, 
+	'timlist': timlist,
+	'leadlist': leadlist,
+	'leadlist_link': leadlist_link,
+	'fclist': fclist, 
+	'initplot': plotlist[0],
+	'date_begin': date_fc,
+	'date_init': date_fc,
+	'plotdir': 'plots',
+	'display_overlay_details': False,
 })
 
 f = codecs.open(filepath, mode='w', encoding='utf-8')

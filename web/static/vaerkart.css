@@ -25,12 +25,20 @@ div.content {
 div.content h1 {
 	font-size: 1.5em;
 	font-weight: normal;
-	margin: 5px 0 5px 0 ;
+	margin: 5px 0 5px 0;
+	display: inline-block;
 }
 div.content h2 {
 	font-size: 1.0em;
 	font-weight: normal;
 	margin: 5px 0 5px 0;
+}
+sup#overlay_toggle a {
+	margin-left: 0.5em;
+	padding: 0 0.2em 0 0.2em;
+	font-size: 1.3em;
+	color: #999999;
+	text-decoration: none;
 }
 
 div#time_controls {
@@ -46,7 +54,7 @@ div#time_controls {
 div#time_controls p {
 	display: inline-block;
 	margin: 0.3em 0.2em 0 1em;
-	color: #ffcccc;
+	color: #dddddd;
 }
 div#time_controls ul {
 	display: inline-block;
@@ -65,8 +73,11 @@ div#time_controls a {
 	border-radius: 5px;
 	background-color: rgba(0,0,0,0.7);
 	padding: 2px;
-	color: #ffcccc;
+	color: #dddddd;
 	text-decoration: none;
+}
+div#time_controls a.disabled {
+	opacity: 0.2;
 }
 
 div #legend_controls {
@@ -110,7 +121,45 @@ img#map {
 	width: 100%;
 	display: block;
 }
-img#cbar {
+
+div#cbar_container {
 	width: 10%;
 	float: left;
+	position: relative;
+}
+img#cbar {
+	width: 100%;
+}
+div#cbar_units {
+	position: absolute;
+	top: 1em;
+	left: 1em;
+	font-size: 1.3em;
+	font-weight: bold;
+}
+
+li.overlay {
+	color: #999999;
+}
+
+li.overlay span.varname {
+	color: #333333;
+	font-weight: bold;
+}
+
+.black {
+	color: black;
+}
+.white {
+	background-color: black;
+	color: white;
+}
+.blue {
+	color: blue;
+}
+.cyan {
+	color: #00CCCC;
+}
+.magenta {
+	color: #CC00CC;
 }
