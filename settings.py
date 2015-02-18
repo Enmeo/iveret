@@ -2,9 +2,9 @@
 # -*- encoding: utf-8
 import matplotlib as mpl
 
-from dynlib_dev.dynpie.settings import conf
-import dynlib_dev.dynpie.proj as proj
-import dynlib_dev.dynpie.cm as cm
+from dynlib.dynpie.settings import conf
+import dynlib.dynpie.proj as proj
+import dynlib.dynpie.cm as cm
 
 
 # Adapt the default settings to your needs here, then use 

@@ -3,7 +3,7 @@
 
 import matplotlib as mpl
 mpl.use('Agg')
-from dynlib_dev import *
+from dynlib import *
 from settings import *
 
 
