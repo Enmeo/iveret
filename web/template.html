@@ -9,16 +9,16 @@
   <script src="./static/moment.js" type="text/javascript"></script>
   <script src="./static/vaerkart.js" type="text/javascript"></script>
   <script type="text/javascript">
-	// Initial values
-	var prefix = '{{ initplot.prefix }}';
-	var date_fc = moment("{{ date_begin|date:"Y-m-d H" }}");
-	var date_vis = moment("{{ date_init|date:"Y-m-d H" }}");
-	var lead_vis = 0;
-	var display_overlay_details = {{ display_overlay_details|lower }};
-
 	// Defining the data base of init and valid times
 	var avail_fcs = [{% for fc in fclist %}moment("{{ fc|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
 	var avail_leads = [{% for lead in leadlist %}{{ lead }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+	// Initial values
+	var prefix = '{{ initplot.prefix }}';
+	var date_fc = avail_fcs[0];
+	var date_vis = moment("{{ date_init|date:"Y-m-d H" }}");
+	var lead_vis = 0;
+	var display_overlay_details = {{ display_overlay_details|lower }};
 
 	// Constants
 	var base_date = moment("{{ date_init|date:"Y-m-d H" }}");
@@ -40,11 +40,11 @@
   </div>
   <div class="content">
     <h1 id="vartitle">{{ initplot.shading.name }}{% if initplot.shading.level %} on {{ initplot.shading.level }}{% endif %}</h1> <sup id="overlay_toggle"><a href="javascript:toggle_overlay()">&#8505;</a></sup>
-    {% for plot in plotlist %}<ul id="{{ plot.prefix }}_overlays"{% if not plot == initplot or not display_overlay_details %} style="display: none;"{% endif %}>{% for col, var, ci in plot.overlays %}
-      <li class="overlay"><span class="varname">{{ var.name }}</span>{% if var.units %} [{{ var.units }}]{% endif %}{% if var.level %} on {{ var.level }}{% endif %} (<span class="{{ col }}">{{ col }}</span>){% if ci %}, ci = {{ ci }} {{ var.units }}{% endif %}</li>{% endfor %}
+    {% for plot in plotlist %}<ul id="{{ plot.prefix }}_overlays"{% if not plot == initplot or not display_overlay_details %} style="display: none;"{% endif %}>{% for o in plot.overlays %}
+    <li class="overlay"><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
       {% if not plot.overlays %}<li class="overlay"><i>No overlays</i></li>{% endif %}
     </ul>{% endfor %}
-    <h2 id="timtitle">Forecast from {{ date_init|date:"l, d M Y, H" }} UTC for {{ date_begin|date:"l, d M Y, H" }} UTC</h2>
+    <h2 id="timtitle">Forecast from {{ date_init|date:"l, d M Y, H" }} UTC for {{ date_begin|date:"l, d M Y, H" }} UTC [+0h]</h2>
     <div class="plot">
       <div id="map_container" class="map">
         <img id="map" src="./{{ plotdir }}/ec_for_{{ initplot.prefix }}_from_{{ date_init|date:"YmdH" }}_for_{{ date_begin|date:"YmdH" }}.png" />

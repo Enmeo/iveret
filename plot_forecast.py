@@ -627,10 +627,10 @@ class tcwv(precip,iwvtrans):
 			return True
 
 		overlays=[fig.map_overlay_dat(data['crr','sfc']*1000, static, **conf.contour.merge('default', 
-				scale=[0.3, 1.0, 3.0],
+				scale=[1.0, 3.0, 10.0],
 				colors='c', ) ), 
 			 fig.map_overlay_dat(data['lsrr','sfc']*1000, static, **conf.contour.merge('default', 
-				scale=[0.3, 1.0, 3.0],
+				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
 		]
 
