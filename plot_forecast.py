@@ -3,8 +3,8 @@
 
 import matplotlib as mpl
 mpl.use('Agg')
-from dynlib_dev import *
-from settings_dev import *
+from dynlib import *
+from settings import *
 
 
 ######################################################
@@ -48,7 +48,7 @@ class plotter(object):
 
 		if not data_available:
 			fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-			plt.savefig(self.filename)
+			plt.savefig(self.std_plotconf['save'])
 			return True
 
 		else:
@@ -775,27 +775,30 @@ else:
 	if now.hour < 11:
 		forecast -= td(1,0)
 
-# Override 
-forecast = dt(2015,2,3,0)
+plots = [t850_msl(), z500_msl(), q850_wind(), the850_wind(), deform850_msl(), 
+	pvpt300_wind(), pvpt330_wind(), pvpt350_wind(), ptpv2_wind(), 
+	tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
+	pvpt300_wind_npolar(), pvpt330_wind_npolar(), pvpt350_wind_npolar(), ptpv2_wind_npolar(), tcwv_npolar(),
+]
 
-#plots = [t850_msl(), z500_msl(), q850_wind(), pvpt300_wind(), ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
-#	 pvpt300_wind_npolar(), ]
-plots = [tcwv(), ] # ffpv2_wind()
 data = {}
 for plot in plots:
+	plot.error = False
 	for q, plev in plot.requires:
 		if (q,plev) not in data:
 			try:
 				f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qi[q]}, q)
 			except RuntimeError:
 				print 'Error loading data: ', (q, plev)
+				plot.error = True
 				continue
 
 			data[q,plev] = dat_[::]
 			f.close()
 
 	for fun, plev in plot.requires_diagnostic:
-		fun(plot, data, plev, static)
+		if not plot.error:
+			fun(plot, data, plev, static)
 
 			
 
