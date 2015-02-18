@@ -814,6 +814,8 @@ else:
 	if now.hour < 11:
 		forecast -= td(1,0)
 
+plot_only_init = False
+
 plots = [t850_msl(), z500_msl(), the850_wind(), q850_wind(), deform850_msl(), 
 		pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
 		ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
