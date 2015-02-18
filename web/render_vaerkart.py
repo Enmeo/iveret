@@ -48,6 +48,16 @@ class plot(object):
 		else:
 			self.name = self.shading.name
 
+class overlay(object):
+	def __init__(self, color, variable, contours):
+		self.color = color
+		self.var = variable
+		if type(contours) == list:
+			self.contours = ', '.join(map(str, contours))
+		else:
+			self.ci = contours
+		
+
 
 # Defining stuff
 z500 = variable(u'Geopotential', u'gpdm', u'500 hPa')
@@ -81,24 +91,24 @@ defang850 = variable(u'Axes of dilatation', u'', u'850 hPa')
 icwvt = variable(u'Integrated column water vapour transport', u'', u'')
 jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
 
-
+o = overlay
 plotlist = [
-	plot(u'z500_msl', z500, [('white', z500, 16), ('black', msl, 5)]), 
-	plot(u't850_msl', t850, [('black dashes', t850, [0,]), ('black', msl, 5)]),
-	plot(u'the850_wind', the850, [('black', barbs850, None), ]),
-	plot(u'q850_wind', q850, [('black', barbs850, None), ]),
-	plot(u'ff850_wind', ff850, [('black', barbs850, None), ]),
-	plot(u'deform850_msl', def850, [('black double-arrows', defang850, None), ('blue', msl, 10), ]),
-	plot(u'ff10_wind', ff10, [('black', barbs10, None), ]),
-	plot(u'tcwv', tcwv, [('black arrows', icwvt, None), ('magenta', lp, [0.5,1,2]), ('cyan', cp, [0.5,1,2]), ]),
+	plot(u'z500_msl', z500, [o('white', z500, 16), o('black', msl, 5)]), 
+	plot(u't850_msl', t850, [o('black dashes', t850, [0,]), o('black', msl, 5)]),
+	plot(u'the850_wind', the850, [o('black', barbs850, None), ]),
+	plot(u'q850_wind', q850, [o('black', barbs850, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ]),
+	plot(u'ff850_wind', ff850, [o('black', barbs850, None), ]),
+	plot(u'deform850_msl', def850, [o('black double-arrows', defang850, None), o('blue', msl, 10), ]),
+	plot(u'ff10_wind', ff10, [o('black', barbs10, None), ]),
+	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ]),
 	plot(u'tcc', tcc),
 	plot(u'tp', tp),
-	plot(u'pvpt300_wind', pvpt300, [('black', barbspt300, None), ]),
-	plot(u'pvpt315_wind', pvpt315, [('black', barbspt315, None), ]),
-	plot(u'pvpt330_wind', pvpt330, [('black', barbspt330, None), ]),
-	plot(u'pvpt350_wind', pvpt350, [('black', barbspt350, None), ]),
-	plot(u'ptpv2_wind', ptpv2, [('black', barbspv2, None), ]),
-	plot(u'ffpv2_wind', ffpv2, [('black', barbspv2, None), ('white', jetaxespv2, None), ], name='Jets on PV 2'),
+	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), ]),
+	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), ]),
+	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), ]),
+	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), ]),
+	plot(u'ptpv2_wind', ptpv2, [o('black', barbspv2, None), ]),
+	plot(u'ffpv2_wind', ffpv2, [o('black', barbspv2, None), o('white', jetaxespv2, None), ], name='Jets on PV 2'),
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(11)]

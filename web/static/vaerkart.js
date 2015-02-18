@@ -51,7 +51,7 @@ function filename(date) {
 
 // Create a new time / forecast title from date_vis and date_fc
 function get_timtitle() {
-	return 'Forecast from '+humanize(date_fc)+' for '+humanize(date_vis);
+	return 'Forecast from '+humanize(date_fc)+' for '+humanize(date_vis)+' [+'+lead_vis+'h]';
 }
 
 // Create filename based on current state
@@ -134,9 +134,6 @@ function chfc(fcidx) {
 	$('#timtitle').text(get_timtitle());
 	$('#fcselect').val(fcidx).blur();
 }
-
-// TODO: 
-// (1) BUG: first up/down arrow to change fc is ignored
 
 // Change the forecast origin
 function chvar(newvar) {
