@@ -40,9 +40,10 @@
   </div>
   <div class="content">
     <h1 id="vartitle">{{ initplot.shading.name }}{% if initplot.shading.level %} on {{ initplot.shading.level }}{% endif %}</h1> <sup id="overlay_toggle"><a href="javascript:toggle_overlay()">&#8505;</a></sup>
-    {% for plot in plotlist %}{% if plot.overlays %}<ul id="{{ plot.prefix }}_overlays"{% if not plot == initplot or not display_overlay_details %} style="display: none;"{% endif %}>{% for col, var, ci in plot.overlays %}
+    {% for plot in plotlist %}<ul id="{{ plot.prefix }}_overlays"{% if not plot == initplot or not display_overlay_details %} style="display: none;"{% endif %}>{% for col, var, ci in plot.overlays %}
       <li class="overlay"><span class="varname">{{ var.name }}</span>{% if var.units %} [{{ var.units }}]{% endif %}{% if var.level %} on {{ var.level }}{% endif %} (<span class="{{ col }}">{{ col }}</span>){% if ci %}, ci = {{ ci }} {{ var.units }}{% endif %}</li>{% endfor %}
-    </ul>{% endif %}{% endfor %}
+      {% if not plot.overlays %}<li class="overlay"><i>No overlays</i></li>{% endif %}
+    </ul>{% endfor %}
     <h2 id="timtitle">Forecast from {{ date_init|date:"l, d M Y, H" }} UTC for {{ date_begin|date:"l, d M Y, H" }} UTC</h2>
     <div class="plot">
       <div id="map_container" class="map">

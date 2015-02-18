@@ -136,8 +136,7 @@ function chfc(fcidx) {
 }
 
 // TODO: 
-// (1) BUG: play always starts from first frame.
-// (2) BUG: first up/down arrow to change fc is ignored
+// (1) BUG: first up/down arrow to change fc is ignored
 
 // Change the forecast origin
 function chvar(newvar) {
@@ -151,7 +150,10 @@ function chvar(newvar) {
 	// Update map, colorbar and heading
 	$('#map').attr('src', get_current_filename());
 	$('#cbar').attr('src', './static/deco/cbar_'+prefix+'.png');
-	$('#cbar_units').text('['+units[prefix]+']');
+	if ( units[prefix].length > 0 ) 
+		$('#cbar_units').text('['+units[prefix]+']');
+	else 
+		$('#cbar_units').text('');
 	$('#vartitle').text(get_varname_by_prefix(newvar));
 
 	// Remove focus from drop down to avoid changes due to arrow key strokes
@@ -218,7 +220,7 @@ function play() {
 	$('#but_play').css('display', 'none');
 	$('#but_pause').css('display', 'inline-block');
 
-	var idx = avail_leads.indexOf(date_vis);
+	var idx = avail_leads.indexOf(lead_vis);
 	var maxidx = avail_leads.length-1;
 	
 	for (i=idx+1; i <= maxidx; i++) {
