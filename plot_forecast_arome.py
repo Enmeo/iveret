@@ -1,0 +1,240 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8
+
+import matplotlib as mpl
+mpl.use('Agg')
+from dynlib import *
+from settings import *
+
+
+######################################################
+# The base of _everything_
+
+# Genering plot
+class plotter(object):
+	filetype = 'png'
+	fcname = 'no_for'
+	opath = conf.opath
+	
+	# Add colorbar and legend
+	decorations = False
+
+	# Which data is required for the plot
+	requires=[]
+	requires_diagnostic = []
+	fmt = '%Y%m%d%H'
+
+	std_plotconf = {
+		'm': proj.SNorwaymap,
+		'coastcolor': 'gray',
+		'coast_alpha': 0.5,
+		'grid_alpha': 0.25,
+		'grid_linestyle': '-',
+		'grid_latmax': 90,
+		'show': False,
+	}
+	
+	# Do the art; to be overriden in derived classes
+	def plot(self, data, static, dateinit, datevalid):
+		self.std_plotconf['save'] = '%s/%s_%s_from_%s_for_%s.%s' % (
+				self.opath, self.fcname, self.plotname, 
+				dateinit.strftime(self.fmt), datevalid.strftime(self.fmt), 
+				self.filetype
+		)
+
+		if self.decorations:
+			fi = plt.figure(figsize=(11.3,9.6), dpi=96)
+			self.std_plotconf['show_legend'] = True
+			
+		else:
+			fi = plt.figure(figsize=(9.6,9.6), dpi=96)
+			self.std_plotconf['disable_cb'] = True
+
+		fi.subplotpars.update(left=0.001, right=0.999, top=0.999, bottom=0.001)
+		
+		data_available = True
+		for qplev in self.requires:
+			data_available &= qplev in data
+
+		if not data_available:
+			fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
+			plt.savefig(self.filename)
+			return True
+
+		else:
+			return False
+
+
+######################################################
+# Plot archetypes
+
+# Temperature shading and MSLP contours
+class t_msl(plotter):
+	pass
+
+# Wind speed
+class ff(plotter):
+	def cal_ff(self, data, static):
+		if not 'ff' in data:
+			data['ff'] = np.sqrt(data['u']**2.0 + data['v']**2.0)
+
+# 10m wind speed
+class ff10(ff):
+	def cal_ff10(self, data, static):
+		if not 'ff_10m' in data:
+			data['ff_10m'] = np.sqrt(data['x_wind_10m']**2.0 + data['y_wind_10m']**2.0)
+
+# Precipitation
+class precip(plotter):
+	# Initial precip seems to be a fortran fail value that translates to an all-pink initial plot
+	def zero_init_precip(self, data, static):
+		if 'precipitation_amount' in data:
+			data['precipitation_amount'][0,::] = 0.0
+
+
+
+# Temperature@2m shading and MSLP contours
+class t2m_msl(t_msl):
+	requires = ['air_temperature_2m', 'air_pressure_at_sea_level']
+	plotname = 't2m_msl'
+
+	def plot(self, data, static, dateinit, datevalid):
+		done = t_msl.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		overlays = [
+			fig.map_overlay_dat(data['air_pressure_at_sea_level'][0,::]/100, static, **conf.contour.merge('default', 
+				contour_labels=True, 
+				contour_labels_format='%1.0f',
+				contour_labels_scale=range(940,1060,10), 
+				linewidths=[1], 
+				scale=range(900,1070,2) ) ), 
+			fig.map_overlay_dat(data['air_temperature_2m'][0,::]-273.15, static, **conf.contour.merge('default', 
+				linewidths=[1], 
+				linestyles='dashed',
+				scale=range(0,2,2) ) ),
+		]
+		plotconf = conf.contourf.merge('t',
+				overlays=overlays,
+				cmap=cm.t, # Set a colormap
+				scale=range(-34,36,2),
+				ticks=range(-30,31,10),
+				**self.std_plotconf
+		)
+		fig.map_oro_dat(data['air_temperature_2m'][0,::]-273.15, static, **plotconf)
+
+		return True
+
+# Near surface winds.
+class ff10_wind(ff10):
+	requires = ['x_wind_10m', 'y_wind_10m']
+	requires_diagnostic = [ff10.cal_ff10, ]
+	plotname = 'ff10_wind' 
+
+	def plot(self, data, static, dateinit, datevalid):
+		done = plotter.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+		
+		s = np.arange(5.0,32.6,2.5)
+		plotconf = conf.contourf.merge('u', 	# Get configuration for q, but override with the other arguments, like
+				cmap=cm.ff, 
+				scale=s,
+				extend='both',
+				**self.std_plotconf
+		)
+		fig.map_oro_barb(data['x_wind_10m'], data['y_wind_10m'], static, dat=data['ff_10m'], **plotconf)
+
+		return True
+
+# Total precipitation
+class tp(precip):
+	requires = ['precipitation_amount']
+	requires_diagnostic = [precip.zero_init_precip, ]
+	plotname = 'tp'
+
+	def plot(self, data, static, dateinit, datevalid):
+		done = precip.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
+		st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
+		plotconf = conf.contourf.merge('tp', 	# Get configuration for q, but override with the other arguments, like
+				cmap=cm.prec_bl, # Set a colormap
+				norm=mpl.colors.BoundaryNorm(st, 256),
+				cb_tickspacing='uniform',
+				extend='max',
+				scale=s,
+				ticks=s,
+				**self.std_plotconf
+		)
+		fig.map_oro_dat(data['precipitation_amount']+1e-10, static, **plotconf)
+
+		return True
+
+# -----------------------------------------------------------------------------
+
+# Most recent available data
+now = dt.now()
+if now.hour in range(4,10):
+	forecast = dt(now.year,now.month,now.day,0)
+elif now.hour in range(10,16):
+	forecast = dt(now.year,now.month,now.day,6)
+elif now.hour in range(16,22):
+	forecast = dt(now.year,now.month,now.day,12)
+else:
+	forecast = dt(now.year,now.month,now.day,18)
+	if now.hour < 11:
+		forecast -= td(1,0)
+
+# Override 
+#forecast = dt(2015,2,3,0)
+plot_only_init = False
+
+print 'Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H')
+
+plots = [ff10_wind(), t2m_msl(), tp(), ]
+
+f, time, static = metopen('arome_metcoop_default2_5km_latest', 'time')
+
+# We need to replace the auto-detected x dimension with the alternative lon dimension
+static.x = f.variables['longitude'][::]
+static.y = f.variables['latitude'][::]
+static.gridtype = 'latlon'
+#static.rebuild_grid()
+
+data = {}
+for plot in plots:
+	for q in plot.requires:
+		if q not in f.variables:
+			print '%s not available!' % q 
+		elif q not in data:
+			data[q] = f.variables[q][::]
+
+	for fun in plot.requires_diagnostic:
+		fun(plot, data, static)
+
+f.close()
+			
+
+for tidx, date in zip(range(len(static.t)), static.t_parsed):
+	# Plot only 3-hourly data to speed up plotting
+	if not date.hour % 3 == 0:
+		continue
+
+	# Plot only initial time step
+	if plot_only_init and not date == forecast:
+		continue
+
+	data_inst = {}
+	for q in data:
+		data_inst[q] = data[q][tidx]
+	
+	for plot in plots:
+		plot.plot(data_inst, static, forecast, date)
+		plt.close()
+
+
+# the end
