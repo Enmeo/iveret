@@ -41,6 +41,7 @@ conf.new_variable('v10','v10')
 
 # Add the folder of the forecasts to the PATH, such that reading functions automatically find the data
 conf.datapath.insert(1, '/Data/gfi/metno/ecmwf')
+conf.datapath.insert(1, '/Data/gfi/metno/thredds/arome25')
 
 cdict = {'red':   ((0.0, 1.0, 1.0), (0.33, 0.30, 0.30),  (0.867, 0.1, 0.1), (1.0, 0.5, 0.5)),
 	 'green': ((0.0, 1.0, 1.0), (0.33, 0.65, 0.65),  (0.867, 0.2, 0.2), (1.0, 0.2, 0.2)),
@@ -275,6 +276,12 @@ def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=58, lat_ts=58, lon_0=-30, resolution='l', 
 			width=10800000, height=7200000)
 proj.NAfcmap = map_tmp
+
+
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
+			llcrnrlon=0.5, llcrnrlat=56.5, urcrnrlon=11, urcrnrlat=63.5)
+proj.SNorwaymap = map_tmp
 
 
 # that's it
