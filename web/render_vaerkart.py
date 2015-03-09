@@ -11,7 +11,7 @@ from django.template import Context, loader
 # Where to save the weather map; 
 # TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
 filepath = '/Data/gfi/metno/visualisation/web/vaerkart.html'
-settings.configure(TEMPLATE_DIRS = ('/Data/gfi/users/csp001/forecasts/web', ))
+settings.configure(TEMPLATE_DIRS = ('/Data/gfi/metno/visualisation/web', ))
 
 
 # The only free parameter for the entire script
