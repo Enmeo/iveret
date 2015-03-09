@@ -21,6 +21,7 @@
 	var display_overlay_details = {{ display_overlay_details|lower }};
 
 	// Constants
+	var plot_prefix = '{{ plot_prefix }}';
 	var base_date = moment("{{ date_init|date:"Y-m-d H" }}");
 	var base_leads = [{% for lead in leadlist %}{{ lead }}{% if not forloop.last %}, {% endif %}{% endfor %}];
 	var base_tims = [{% for tim in timlist %}moment("{{ tim|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
@@ -47,7 +48,7 @@
     <h2 id="timtitle">Forecast from {{ date_init|date:"l, d M Y, H" }} UTC for {{ date_begin|date:"l, d M Y, H" }} UTC [+0h]</h2>
     <div class="plot">
       <div id="map_container" class="map">
-        <img id="map" src="./{{ plotdir }}/ec_for_{{ initplot.prefix }}_from_{{ date_init|date:"YmdH" }}_for_{{ date_begin|date:"YmdH" }}.png" />
+        <img id="map" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init|date:"YmdH" }}_for_{{ date_begin|date:"YmdH" }}.png" />
         <!--<div id="legend_controls">
           <a href="">&#8505;</a>
         </div>--!>

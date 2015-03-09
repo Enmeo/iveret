@@ -56,7 +56,7 @@ function get_timtitle() {
 
 // Create filename based on current state
 function get_current_filename() {
-	return './'+plotdir+'/ec_for_'+prefix+'_from_'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
+	return './'+plotdir+'/'+plot_prefix+'_'+prefix+'_from_'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
 }
 
 
