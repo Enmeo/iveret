@@ -127,6 +127,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 
 t = loader.get_template(template_name='template.html')
 c = Context({
+	'plot_prefix': 'ec_for',
 	'plotlist': plotlist, 
 	'timlist': timlist,
 	'leadlist': leadlist,

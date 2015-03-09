@@ -54,6 +54,7 @@ timlist_link = map(lambda d: (d, int((d-date_fc).total_seconds()/3600)), timlist
 
 t = loader.get_template(template_name='template.html')
 c = Context({
+    'plot_prefix': 'ec_for',
     'varlist': varlist, 
     'timlist': timlist,
     'timlist_link': timlist_link,

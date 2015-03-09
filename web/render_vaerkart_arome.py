@@ -18,18 +18,18 @@ settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
 # The only free parameter for the entire script
 now = dt.now()
 if now.hour in range(4,10):
-	forecast = dt(now.year,now.month,now.day,0)
+	date_base = dt(now.year,now.month,now.day,0)
 elif now.hour in range(10,16):
-	forecast = dt(now.year,now.month,now.day,6)
+	date_base = dt(now.year,now.month,now.day,6)
 elif now.hour in range(16,22):
-	forecast = dt(now.year,now.month,now.day,12)
+	date_base = dt(now.year,now.month,now.day,12)
 else:
-	forecast = dt(now.year,now.month,now.day,18)
+	date_base = dt(now.year,now.month,now.day,18)
 	if now.hour < 11:
-		forecast -= td(1,0)
+		date_base -= td(1,0)
 
 # Override 
-#forecast = dt(2015,2,3,0)
+#date_base = dt(2015,2,3,0)
 plot_only_init = False
 
 print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
@@ -95,6 +95,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 # Rendering
 t = loader.get_template(template_name='template.html')
 c = Context({
+	'plot_prefix': 'no_for',
 	'plotlist': plotlist, 
 	'timlist': timlist,
 	'leadlist': leadlist,
