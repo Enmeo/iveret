@@ -33,6 +33,9 @@ class plotter(object):
 		'grid_latmax': 90,
 		'show': False,
 	}
+
+	figsize = (10.8,7.2)
+	figsize_deco = (12.0,7.2)
 	
 	# Do the art; to be overriden in derived classes
 	def plot(self, data, static, dateinit, datevalid):
@@ -43,11 +46,11 @@ class plotter(object):
 		)
 
 		if self.decorations:
-			fi = plt.figure(figsize=(12.0,7.2), dpi=96)
+			fi = plt.figure(figsize=self.figsize_deco, dpi=96)
 			self.std_plotconf['show_legend'] = True
 			
 		else:
-			fi = plt.figure(figsize=(10.8,7.2), dpi=96)
+			fi = plt.figure(figsize=self.figsize, dpi=96)
 			self.std_plotconf['disable_cb'] = True
 
 		fi.subplotpars.update(left=0.001, right=0.999, top=0.999, bottom=0.001)
@@ -63,6 +66,18 @@ class plotter(object):
 
 		else:
 			return False
+
+
+# Base for all northern stereographic maps
+class npolar(plotter):
+	opath = plotter.opath + '_npolar'
+
+	std_plotconf = plotter.std_plotconf
+	std_plotconf['m'] = proj.npmap
+
+	figsize = (9.6,9.6)
+	figsize_deco = (11.3,9.6)
+
 
 
 ######################################################
@@ -321,10 +336,9 @@ class q850_wind(precip):
 
 
 # Potential vorticity@300K shading and wind barbs
-class pvpt300_wind_npolar(pv_wind):
+class pvpt300_wind_npolar(pv_wind,npolar):
 	requires = [('pv', 'pt300'), ('u', 'pt300'), ('v', 'pt300')]
 	plotname = 'pvpt300_wind'
-	opath = pv_wind.opath+'_npolar'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = pv_wind.plot(self, data, static, dateinit, datevalid)
@@ -351,11 +365,40 @@ class pvpt300_wind_npolar(pv_wind):
 		return True
 
 
+# Potential vorticity@300K shading and wind barbs
+class pvpt315_wind_npolar(pv_wind,npolar):
+	requires = [('pv', 'pt315'), ('u', 'pt315'), ('v', 'pt315')]
+	plotname = 'pvpt315_wind'
+
+	def plot(self, data, static, dateinit, datevalid):
+		done = pv_wind.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		overlays=[fig.map_overlay_dat(data['pv','pt315']*1e6, static, **conf.contour.merge('pv', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(2,3,1) ) ), 
+		]
+		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		plotconf = conf.contourf.merge('pv',
+				overlays=overlays,
+				cmap=cm.pv_new,
+				norm=mpl.colors.BoundaryNorm(s, 256),
+				scale=s,
+				ticks=st,
+				**self.std_plotconf
+		)
+		fig.map_oro_barb(data['u','pt315'], data['v','pt315'], static, dat=data['pv','pt315']*1e6, **plotconf) 
+
+		return True
+
+
 # Potential vorticity@350K shading and wind barbs
-class pvpt330_wind_npolar(pv_wind):
+class pvpt330_wind_npolar(pv_wind,npolar):
 	requires = [('pv', 'pt330'), ('u', 'pt330'), ('v', 'pt330')]
 	plotname = 'pvpt330_wind'
-	opath = pv_wind.opath+'_npolar'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = pv_wind.plot(self, data, static, dateinit, datevalid)
@@ -383,10 +426,9 @@ class pvpt330_wind_npolar(pv_wind):
 
 
 # Potential vorticity@350K shading and wind barbs
-class pvpt350_wind_npolar(pv_wind):
+class pvpt350_wind_npolar(pv_wind,npolar):
 	requires = [('pv', 'pt350'), ('u', 'pt350'), ('v', 'pt350')]
 	plotname = 'pvpt350_wind'
-	opath = pv_wind.opath+'_npolar'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = pv_wind.plot(self, data, static, dateinit, datevalid)
@@ -556,10 +598,9 @@ class ptpv2_wind(pt_wind):
 
 
 # Potential temperature@PV2 shading and wind barbs
-class ptpv2_wind_npolar(pt_wind):
+class ptpv2_wind_npolar(pt_wind,npolar):
 	requires = [('pt', 'pv2000'), ('u', 'pv2000'), ('v', 'pv2000')]
 	plotname = 'ptpv2_wind' 
-	opath = pt_wind.opath+'_npolar'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = pt_wind.plot(self, data, static, dateinit, datevalid)
@@ -649,23 +690,42 @@ class tcwv(precip,iwvtrans):
 
 
 # Total column water vapour
-class tcwv_npolar(plotter):
-	requires = [('tcwv', 'sfc'), ]
+class tcwv_npolar(precip,iwvtrans,npolar):
+	requires = [('tcwv', 'sfc'), ('cp', 'sfc'), ('lsp', 'sfc'), 
+			('u', '925'), ('v', '925'), ('q', '925'),
+			('u', '850'), ('v', '850'), ('q', '850'),
+			('u', '700'), ('v', '700'), ('q', '700'),
+			('u', '500'), ('v', '500'), ('q', '500'),
+			('u', '300'), ('v', '300'), ('q', '300'),
+	]
+	requires_diagnostic = [(iwvtrans.cal_iwvtransport, ['925', '850', '700', '500', '300']),
+				(precip.cal_crainrate, 'sfc'), 
+				(precip.cal_lsrainrate, 'sfc') ]
 	plotname = 'tcwv'
-	opath = pt_wind.opath+'_npolar'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = plotter.plot(self, data, static, dateinit, datevalid)
 		if done:
 			return True
 
+		overlays=[fig.map_overlay_dat(data['crr','sfc']*1000, static, **conf.contour.merge('default', 
+				scale=[1.0, 3.0, 10.0],
+				colors='c', ) ), 
+			 fig.map_overlay_dat(data['lsrr','sfc']*1000, static, **conf.contour.merge('default', 
+				scale=[1.0, 3.0, 10.0],
+				colors='m', ) ), 
+		]
+
 		plotconf = conf.contourf.merge('tcwv', 	# Get configuration for q, but override with the other arguments, like
+				overlays=overlays,
 				cmap=cm.q,
-				scale=range(6,61,3),
-				ticks=range(15,61,15),
+				scale=range(4,65,2),
+				ticks=range(10,61,10),
+				quiver=True,
+				quiver_length=1.5,
 				**self.std_plotconf
 		)
-		fig.map_oro_dat(data['tcwv','sfc'], static, **plotconf)
+		fig.map_oro_barb(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, dat=data['tcwv','sfc'], **plotconf)
 
 		return True
 
@@ -815,15 +875,22 @@ else:
 		forecast -= td(1,0)
 
 # Override 
-forecast = dt(2015,2,3,0)
+#forecast = dt(2015,2,3,0)
 plot_only_init = False
 
-plots = [t850_msl(), z500_msl(), the850_wind(), q850_wind(), deform850_msl(), 
-		pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
-		ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
+print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
+
+# Everything
+plots = [
+	t850_msl(), z500_msl(), the850_wind(), q850_wind(), deform850_msl(), 
+	pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
+	ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
+	pvpt300_wind_npolar(), pvpt315_wind_npolar(), pvpt330_wind_npolar(), pvpt350_wind_npolar(), 
+	tcwv_npolar(), ptpv2_wind_npolar(),
 ]
-#plots = [ffpv2_wind(), pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), tcc(), ]
-#plots = [q850_wind(), ] 
+# Override
+#plots = [tcwv_npolar(), ]
+
 
 data = {}
 for plot in plots:
