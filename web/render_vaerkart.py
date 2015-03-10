@@ -114,7 +114,7 @@ plotlist = [
 ]
 
 plotdomains = [
-	('ECMWF forecasts North Atlantic', ''), 
+	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 ]

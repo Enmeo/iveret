@@ -8,8 +8,9 @@ from django.template import Context, loader
 
 # Where to save the weather map; 
 # TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
-filepath = '/Data/gfi/users/csp001/forecasts/web/vaerkart_npolar.html'
-settings.configure(TEMPLATE_DIRS = ('/Data/gfi/users/csp001/forecasts/web', ))
+basepath = '/Home/siv22/csp001/work/iveret/vaerkart'
+filepath = basepath+'/web/vaerkart_npolar.html'
+settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
 
 
 # The only free parameter for the entire script
@@ -40,6 +41,12 @@ varlist = [
     v('Total column water vapour', '', 'tcwv'),
 ]
 
+plotdomains = [
+	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
+	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
+	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
+]
+
 fclist = [date_base - td(0.5)*i for i in range(11)]
 date_fc = fclist[0]
 
@@ -54,15 +61,17 @@ timlist_link = map(lambda d: (d, int((d-date_fc).total_seconds()/3600)), timlist
 
 t = loader.get_template(template_name='template.html')
 c = Context({
-    'plot_prefix': 'ec_for',
-    'varlist': varlist, 
-    'timlist': timlist,
-    'timlist_link': timlist_link,
-    'fclist': fclist, 
-    'initvar': varlist[0],
-    'date_begin': date_fc,
-    'date_init': date_fc,
-    'plotdir': 'plots_npolar',
+	'plot_domains': plotdomains,
+	'plot_domain': plotdomains[1][0],
+	'plot_prefix': 'ec_for',
+	'varlist': varlist, 
+	'timlist': timlist,
+	'timlist_link': timlist_link,
+	'fclist': fclist, 
+	'initvar': varlist[0],
+	'date_begin': date_fc,
+	'date_init': date_fc,
+	'plotdir': 'plots_npolar',
 })
 
 f = file(filepath, 'w')
