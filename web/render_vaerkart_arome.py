@@ -83,6 +83,12 @@ plotlist = [
 	plot(u'tp', tp),
 ]
 
+plotdomains = [
+	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
+	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
+	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
+]
+
 fclist = [date_base - td(0.25)*i for i in range(11)]
 date_fc = fclist[0]
 
@@ -95,6 +101,8 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 # Rendering
 t = loader.get_template(template_name='template.html')
 c = Context({
+	'plot_domains': plotdomains,
+	'plot_domain': plotdomains[2][0],
 	'plot_prefix': 'no_for',
 	'plotlist': plotlist, 
 	'timlist': timlist,
