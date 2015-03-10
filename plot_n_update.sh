@@ -17,6 +17,5 @@ python $basepath/web/render_vaerkart_npolar.py > $logpath/web_render_ec_npolar_o
 
 # Clean-up old plots
 find $basepath/web/plots -ctime +13 -delete
-find $basepath/web/plots_npolar -ctime +13 -delete
 
 # the end

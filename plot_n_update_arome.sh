@@ -13,6 +13,7 @@ python $basepath/plot_forecast_arome.py > $logpath/web_plot_no_out.log 2> $logpa
 
 # Then render the fitting website
 python $basepath/web/render_vaerkart_arome.py > $logpath/web_render_no_out.log 2> $logpath/web_render_no_err.log
+python $basepath/web/render_vaerkart_arome_scandies.py > $logpath/web_render_no_scandi_out.log 2> $logpath/web_render_no_scandi_err.log
 
 # Clean-up old plots
 find $basepath/web/plots -ctime +13 -delete

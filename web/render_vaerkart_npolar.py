@@ -100,6 +100,7 @@ plotdomains = [
 	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
+	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(11)]
