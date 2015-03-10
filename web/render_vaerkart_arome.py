@@ -77,8 +77,10 @@ barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
 
 o = overlay
 plotlist = [
-	plot(u't2m_msl', t2, [o('black dashes', t2, [0,]), o('black', msl, 2)]),
-	plot(u'ff10_wind', ff10, [o('black', barbs10, None), ]),
+	plot(u't2m_msl', t2, [o('black dashes', t2, [0,]), o('black', msl, 2)],
+		name='2m Temperature and SLP'),
+	plot(u'ff10_wind', ff10, [o('black', barbs10, None), ],
+		name='10 m Wind speed and direction'),
 	plot(u'tp', tp),
 ]
 
@@ -112,7 +114,7 @@ c = Context({
 	'date_begin': date_fc,
 	'date_init': date_fc,
 	'plotdir': 'plots',
-	'display_overlay_details': False,
+	'display_details': False,
 })
 
 f = codecs.open(filepath, mode='w', encoding='utf-8')
