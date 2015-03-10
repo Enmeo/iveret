@@ -137,12 +137,12 @@ function chfc(fcidx) {
 
 // Change the forecast origin
 function chvar(newvar) {
-	// Set the new current variable and update overlay details
-	if ( display_overlay_details ) 
-		$('#'+prefix+'_overlays').css('display', 'none');
+	// Set the new current variable and update plot details
+	if ( display_details ) 
+		$('#'+prefix+'_details').css('display', 'none');
 	prefix = newvar;
-	if ( display_overlay_details ) 
-		$('#'+prefix+'_overlays').css('display', 'block');
+	if ( display_details ) 
+		$('#'+prefix+'_details').css('display', 'block');
 
 	// Update map, colorbar and heading
 	$('#map').attr('src', get_current_filename());
@@ -157,14 +157,14 @@ function chvar(newvar) {
 	$('#varselect').blur();
 }
 
-function toggle_overlay() {
-	if ( display_overlay_details ) {
-		$('#'+prefix+'_overlays').css('display', 'none');
-		display_overlay_details = false;
+function toggle_details() {
+	if ( display_details ) {
+		$('#'+prefix+'_details').css('display', 'none');
+		display_details = false;
 	}
 	else {
-		$('#'+prefix+'_overlays').css('display', 'block');
-		display_overlay_details = true;
+		$('#'+prefix+'_details').css('display', 'block');
+		display_details = true;
 	}
 }
 

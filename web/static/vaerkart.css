@@ -33,7 +33,7 @@ div.content h2 {
 	font-weight: normal;
 	margin: 5px 0 5px 0;
 }
-sup#overlay_toggle a {
+sup#details_toggle a {
 	margin-left: 0.5em;
 	padding: 0 0.2em 0 0.2em;
 	font-size: 1.3em;
@@ -138,13 +138,25 @@ div#cbar_units {
 	font-weight: bold;
 }
 
-li.overlay {
+.plot_details {
 	color: #999999;
 }
-
-li.overlay span.varname {
+.plot_details span.varname {
 	color: #333333;
 	font-weight: bold;
+}
+.plot_details p.shading {
+	font-size: 1.15em;
+	margin: 0.3em 0 0.1em 0;
+}
+ul.overlay {
+	list-style: none;
+	margin: 0;
+	padding: 0 0 0 0.5em;
+	text-indent: 0.5em;
+}
+ul.overlay li:before {
+	content: '+ ';
 }
 
 .black {
