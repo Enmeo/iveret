@@ -70,13 +70,13 @@ class plotter(object):
 
 # Base for all northern stereographic maps
 class npolar(plotter):
-	opath = plotter.opath + '_npolar'
+	fcname = plotter.fcname + '_npolar'
 
 	std_plotconf = plotter.std_plotconf
 	std_plotconf['m'] = proj.npmap
 
 	figsize = (9.6,9.6)
-	figsize_deco = (11.3,9.6)
+	figsize_deco = (10.67,9.6)
 
 
 

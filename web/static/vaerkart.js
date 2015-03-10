@@ -146,7 +146,7 @@ function chvar(newvar) {
 
 	// Update map, colorbar and heading
 	$('#map').attr('src', get_current_filename());
-	$('#cbar').attr('src', './static/deco/cbar_'+prefix+'.png');
+	$('#cbar').attr('src', './static/deco/cbar_'+plot_prefix+'_'+prefix+'.png');
 	if ( units[prefix].length > 0 ) 
 		$('#cbar_units').text('['+units[prefix]+']');
 	else 

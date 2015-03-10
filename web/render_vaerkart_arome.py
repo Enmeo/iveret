@@ -30,7 +30,6 @@ else:
 
 # Override 
 #date_base = dt(2015,2,3,0)
-plot_only_init = False
 
 print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
 

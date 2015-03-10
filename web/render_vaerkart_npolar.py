@@ -113,7 +113,7 @@ t = loader.get_template(template_name='template.html')
 c = Context({
 	'plot_domains': plotdomains,
 	'plot_domain': plotdomains[1][0],
-	'plot_prefix': 'ec_for',
+	'plot_prefix': 'ec_for_npolar',
 	'plotlist': plotlist, 
 	'timlist': timlist,
 	'leadlist': leadlist,

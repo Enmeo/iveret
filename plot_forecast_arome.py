@@ -43,7 +43,7 @@ class plotter(object):
 		)
 
 		if self.decorations:
-			fi = plt.figure(figsize=(11.3,9.6), dpi=96)
+			fi = plt.figure(figsize=(10.67,9.6), dpi=96)
 			self.std_plotconf['show_legend'] = True
 			
 		else:
