@@ -17,15 +17,15 @@ settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
 
 # The only free parameter for the entire script
 now = dt.now()
-if now.hour in range(4,10):
+if now.hour in range(5,11):
 	date_base = dt(now.year,now.month,now.day,0)
-elif now.hour in range(10,16):
+elif now.hour in range(11,17):
 	date_base = dt(now.year,now.month,now.day,6)
-elif now.hour in range(16,22):
+elif now.hour in range(17,23):
 	date_base = dt(now.year,now.month,now.day,12)
 else:
 	date_base = dt(now.year,now.month,now.day,18)
-	if now.hour < 11:
+	if now.hour < 5:
 		date_base -= td(1,0)
 
 # Override 
