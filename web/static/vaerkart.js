@@ -104,15 +104,15 @@ function chfc(fcidx) {
 
 	// Recreate available times
 	avail_leads = [];
-	for (i = 0; i <= base_leads.length; i++) {
+	for (i = 0; i < base_leads.length; i++) {
 		date = moment(date_fc).add(base_leads[i], 'hours');
 		if (date_array_contains(date, base_tims) > -1) {
 			avail_leads.push(base_leads[i]);
-			if (base_leads[i] % 12 == 0) {
+			if ( $('#timselect_'+base_leads[i].toString()).length > 0 ) {
 				$('#timselect_'+base_leads[i].toString()).removeClass('disabled');
 			}
 		}
-		else if (base_leads[i] % 12 == 0) {
+		else if ( $('#timselect_'+base_leads[i].toString()).length > 0) {
 			$('#timselect_'+base_leads[i].toString()).addClass('disabled');
 		}
 	}

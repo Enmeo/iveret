@@ -90,7 +90,7 @@ plotdomains = [
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 ]
 
-fclist = [date_base - td(0.5)*i for i in range(11)]
+fclist = [date_base - td(0.25)*i for i in range(11)]
 date_fc = fclist[0]
 
 leadlist = range(0,67,3)
