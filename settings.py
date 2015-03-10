@@ -285,4 +285,10 @@ def map_tmp():
 proj.SNorwaymap = map_tmp
 
 
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=63, lat_ts=63, lon_0=15, resolution='h', 
+			llcrnrlon=2.0, llcrnrlat=52.5, urcrnrlon=41.5, urcrnrlat=72.0)
+proj.Scandimap = map_tmp
+
+
 # that's it
