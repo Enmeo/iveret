@@ -32,6 +32,9 @@
 </head>
 <body>
   <div class="header">
+    <select id="domainselect" name="domainselect" onchange="window.location.replace(this.value);">{% for name, link in plot_domains %}
+      <option value="{{ link }}"{% if name == plot_domain %} selected="selected"{% endif %}>{{ name }}</option>{% endfor %}
+    </select>
     <select id="fcselect" name="fcselect" onchange="chfc(this.value);">{% for fc in fclist %}
       <option value="{{ forloop.counter0 }}"{% if forloop.first %} selected="selected"{% endif %}>From: {{ fc|date:"l, d M Y, H" }} UTC</option>{% endfor %}
     </select>

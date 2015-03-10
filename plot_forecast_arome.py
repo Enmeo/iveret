@@ -197,7 +197,8 @@ print 'Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 
 plots = [ff10_wind(), t2m_msl(), tp(), ]
 
-f, time, static = metopen('arome_metcoop_default2_5km_latest', 'time')
+f, time, static = metopen('arome_metcoop_default2_5km_%s' % forecast.strftime('%Y%m%d_%H'), 'time')
+print static.t_parsed[:3], static.t_parsed[-3:]
 
 # We need to replace the auto-detected x dimension with the alternative lon dimension
 static.x = f.variables['longitude'][::]
