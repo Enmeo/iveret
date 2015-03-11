@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
 
+import copy
+
 import matplotlib as mpl
 mpl.use('Agg')
 from dynlib import *
@@ -72,7 +74,7 @@ class plotter(object):
 class npolar(plotter):
 	fcname = plotter.fcname + '_npolar'
 
-	std_plotconf = plotter.std_plotconf
+	std_plotconf = copy.copy(plotter.std_plotconf)
 	std_plotconf['m'] = proj.npmap
 
 	figsize = (9.6,9.6)
