@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
 
+import copy
+
 import matplotlib as mpl
 mpl.use('Agg')
 from dynlib import *
@@ -71,7 +73,7 @@ class plotter(object):
 class scandies(plotter):
 	fcname = plotter.fcname + '_full'
 
-	std_plotconf = plotter.std_plotconf
+	std_plotconf = copy.copy(plotter.std_plotconf)
 	std_plotconf['m'] = proj.Scandimap
 
 	figsize = (8.0,10.2)
