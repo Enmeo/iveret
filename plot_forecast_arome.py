@@ -5,7 +5,10 @@ import copy
 
 import matplotlib as mpl
 mpl.use('Agg')
-from dynlib import *
+
+import dynlib
+
+from dynlib.shorthands import *
 from settings import *
 
 

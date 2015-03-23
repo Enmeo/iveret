@@ -5,7 +5,13 @@ import copy
 
 import matplotlib as mpl
 mpl.use('Agg')
-from dynlib import *
+
+import dynlib
+import dynlib.humidity
+import dynlib.detect
+import dynlib.diag
+
+from dynlib.shorthands import *
 from settings import *
 
 
@@ -195,10 +201,10 @@ class ff10(ff):
 # Jets / Jet axes
 class jets(ff):
 	def cal_jetaxis(self, data, plev, static):
-		dynlib.config.nsmooth = 5 
-		dynlib.config.minlen = 2.0e6 
-		dynlib.config.jetint_thres = 0.5e-8
-		dynlib.config.searchrad = 1.5
+		dynfor.config.nsmooth = 5 
+		dynfor.config.minlen = 2.0e6 
+		dynfor.config.jetint_thres = 0.5e-8
+		dynfor.config.searchrad = 1.5
 		
 		if not ('jetaxis', plev) in data:
 			data['jetaxis',plev], data['jaoff',plev] = dynlib.detect.jetaxis(10000, 1000, 
