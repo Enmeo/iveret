@@ -876,6 +876,8 @@ else:
 	if now.hour < 11:
 		forecast -= td(1,0)
 
+# Override
+#forecast = dt(2015,3,10,12)
 plot_only_init = False
 
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
