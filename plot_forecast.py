@@ -69,7 +69,7 @@ class plotter(object):
 
 		if not data_available:
 			fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-			plt.savefig(self.filename)
+			plt.savefig(self.std_plotconf['save'])
 			return True
 
 		else:
@@ -81,7 +81,7 @@ class npolar(plotter):
 	fcname = plotter.fcname + '_npolar'
 
 	std_plotconf = copy.copy(plotter.std_plotconf)
-	std_plotconf['m'] = proj.npmap
+	std_plotconf['m'] = proj.n_hemisphere
 
 	figsize = (9.6,9.6)
 	figsize_deco = (10.67,9.6)
@@ -201,7 +201,7 @@ class ff10(ff):
 # Jets / Jet axes
 class jets(ff):
 	def cal_jetaxis(self, data, plev, static):
-		dynfor.config.nsmooth = 5 
+		dynfor.config.nsmooth = 10
 		dynfor.config.minlen = 2.0e6 
 		dynfor.config.jetint_thres = 0.5e-8
 		dynfor.config.searchrad = 1.5
@@ -244,7 +244,7 @@ class t850_msl(t_msl):
 				ticks=range(-30,31,10),
 				**self.std_plotconf
 		)
-		fig.map_oro_dat(data['t', '850']-273.15, static, **plotconf)
+		fig.map(data['t', '850']-273.15, static, **plotconf)
 
 		return True
 
@@ -266,7 +266,7 @@ class the850_wind(the):
 				ticks=range(250,351,10),
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','850'], data['v','850'], static, dat=data['the', '850'], **plotconf)
+		fig.map_barb(data['u','850'], data['v','850'], static, dat=data['the', '850'], **plotconf)
 
 		return True
 
@@ -305,7 +305,7 @@ class z500_msl(z_msl):
 				ticks=range(480,601,20),
 				**self.std_plotconf
 		)
-		fig.map_oro_dat(data['z','500'], static, **plotconf)
+		fig.map(data['z','500'], static, **plotconf)
 
 		return True
 
@@ -338,7 +338,7 @@ class q850_wind(precip):
 				extend='max',
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','850'], data['v','850'], static, dat=data['q','850'], **plotconf) 
+		fig.map_barb(data['u','850'], data['v','850'], static, dat=data['q','850'], **plotconf) 
 
 		return True
 
@@ -368,7 +368,7 @@ class pvpt300_wind_npolar(pv_wind,npolar):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pt300'], data['v','pt300'], static, dat=data['pv','pt300']*1e6, **plotconf) 
+		fig.map_barb(data['u','pt300'], data['v','pt300'], static, dat=data['pv','pt300']*1e6, **plotconf) 
 
 		return True
 
@@ -398,7 +398,7 @@ class pvpt315_wind_npolar(pv_wind,npolar):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pt315'], data['v','pt315'], static, dat=data['pv','pt315']*1e6, **plotconf) 
+		fig.map_barb(data['u','pt315'], data['v','pt315'], static, dat=data['pv','pt315']*1e6, **plotconf) 
 
 		return True
 
@@ -428,7 +428,7 @@ class pvpt330_wind_npolar(pv_wind,npolar):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pt330'], data['v','pt330'], static, dat=data['pv','pt330']*1e6, **plotconf) 
+		fig.map_barb(data['u','pt330'], data['v','pt330'], static, dat=data['pv','pt330']*1e6, **plotconf) 
 
 		return True
 
@@ -458,7 +458,7 @@ class pvpt350_wind_npolar(pv_wind,npolar):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pt350'], data['v','pt350'], static, dat=data['pv','pt350']*1e6, **plotconf) 
+		fig.map_barb(data['u','pt350'], data['v','pt350'], static, dat=data['pv','pt350']*1e6, **plotconf) 
 
 		return True
 
@@ -488,7 +488,7 @@ class pvpt300_wind(pv_wind):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pt300'], data['v','pt300'], static, dat=data['pv','pt300']*1e6, **plotconf) 
+		fig.map_barb(data['u','pt300'], data['v','pt300'], static, dat=data['pv','pt300']*1e6, **plotconf) 
 
 		return True
 
@@ -518,7 +518,7 @@ class pvpt315_wind(pv_wind):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pt315'], data['v','pt315'], static, dat=data['pv','pt315']*1e6, **plotconf) 
+		fig.map_barb(data['u','pt315'], data['v','pt315'], static, dat=data['pv','pt315']*1e6, **plotconf) 
 
 		return True
 
@@ -548,7 +548,7 @@ class pvpt330_wind(pv_wind):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pt330'], data['v','pt330'], static, dat=data['pv','pt330']*1e6, **plotconf) 
+		fig.map_barb(data['u','pt330'], data['v','pt330'], static, dat=data['pv','pt330']*1e6, **plotconf) 
 
 		return True
 
@@ -578,7 +578,7 @@ class pvpt350_wind(pv_wind):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pt350'], data['v','pt350'], static, dat=data['pv','pt350']*1e6, **plotconf) 
+		fig.map_barb(data['u','pt350'], data['v','pt350'], static, dat=data['pv','pt350']*1e6, **plotconf) 
 
 		return True
 
@@ -600,7 +600,7 @@ class ptpv2_wind(pt_wind):
 				ticks=[270,285,300,315,330,350,370,395],
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u', 'pv2000'], data['v', 'pv2000'], static, dat=data['pt', 'pv2000'], **plotconf)
+		fig.map_barb(data['u', 'pv2000'], data['v', 'pv2000'], static, dat=data['pt', 'pv2000'], **plotconf)
 
 		return True
 
@@ -622,7 +622,7 @@ class ptpv2_wind_npolar(pt_wind,npolar):
 				ticks=[270,285,300,315,330,350,370,395],
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u', 'pv2000'], data['v', 'pv2000'], static, dat=data['pt', 'pv2000'], **plotconf)
+		fig.map_barb(data['u', 'pv2000'], data['v', 'pv2000'], static, dat=data['pt', 'pv2000'], **plotconf)
 
 		return True
 
@@ -651,7 +651,7 @@ class tp(precip):
 				ticks=s,
 				**self.std_plotconf
 		)
-		fig.map_oro_dat(data['trr','sfc']*1000+1e-10, static, **plotconf)
+		fig.map(data['trr','sfc']*1000+1e-10, static, **plotconf)
 
 		return True
 
@@ -692,7 +692,7 @@ class tcwv(precip,iwvtrans):
 				quiver_length=1.5,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, dat=data['tcwv','sfc'], **plotconf)
+		fig.map_barb(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, dat=data['tcwv','sfc'], **plotconf)
 
 		return True
 
@@ -733,7 +733,7 @@ class tcwv_npolar(precip,iwvtrans,npolar):
 				quiver_length=1.5,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, dat=data['tcwv','sfc'], **plotconf)
+		fig.map_barb(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, dat=data['tcwv','sfc'], **plotconf)
 
 		return True
 
@@ -758,7 +758,7 @@ class tcc(plotter):
 				extend='neither',
 				**self.std_plotconf
 		)
-		fig.map_oro_dat(data['tcc','sfc'], static, **plotconf)
+		fig.map(data['tcc','sfc'], static, **plotconf)
 
 		return True
 
@@ -781,7 +781,7 @@ class ff10_wind(ff10):
 				extend='both',
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u10','sfc'], data['v10','sfc'], static, dat=data['ff10','sfc'], **plotconf)
+		fig.map_barb(data['u10','sfc'], data['v10','sfc'], static, dat=data['ff10','sfc'], **plotconf)
 
 		return True
 
@@ -804,7 +804,7 @@ class ff850_wind(ff):
 				extend='both',
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','850'], data['v','850'], static, dat=data['ff','850'], **plotconf)
+		fig.map_barb(data['u','850'], data['v','850'], static, dat=data['ff','850'], **plotconf)
 
 		return True
 
@@ -837,7 +837,7 @@ class deform850_msl(deform):
 				scale=np.arange(6,31,3),
 				**self.std_plotconf
 		)
-		fig.map_oro_deform(data['defabs','850'], data['defang','850'], static, **plotconf)
+		fig.map_deform(data['defabs','850'], data['defang','850'], static, **plotconf)
 
 		return True
 
@@ -866,7 +866,7 @@ class ffpv2_wind(jets):
 				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['u','pv2000'], data['v','pv2000'], static, dat=data['ff','pv2000'], **plotconf)
+		fig.map_barb(data['u','pv2000'], data['v','pv2000'], static, dat=data['ff','pv2000'], **plotconf)
 
 		return True
 
@@ -883,7 +883,7 @@ else:
 		forecast -= td(1,0)
 
 # Override
-#forecast = dt(2015,3,10,12)
+#forecast = dt(2015,3,24,12)
 plot_only_init = False
 
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
@@ -912,8 +912,8 @@ for plot in plots:
 			data[q,plev] = dat_[::]
 			f.close()
 
-	for fun, plev in plot.requires_diagnostic:
-		if not plot.error:
+	if not plot.error:
+		for fun, plev in plot.requires_diagnostic:
 			fun(plot, data, plev, static)
 
 			

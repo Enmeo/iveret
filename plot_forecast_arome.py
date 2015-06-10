@@ -66,7 +66,7 @@ class plotter(object):
 
 		if not data_available:
 			fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-			plt.savefig(self.filename)
+			plt.savefig(self.std_plotconf['save'])
 			return True
 
 		else:
@@ -140,7 +140,7 @@ class t2m_msl(t_msl):
 				ticks=range(-30,31,10),
 				**self.std_plotconf
 		)
-		fig.map_oro_dat(data['air_temperature_2m'][0,::]-273.15, static, **plotconf)
+		fig.map(data['air_temperature_2m'][0,::]-273.15, static, **plotconf)
 
 		return True
 
@@ -168,7 +168,7 @@ class ff10_wind(ff10):
 				extend='both',
 				**self.std_plotconf
 		)
-		fig.map_oro_barb(data['x_wind_10m'], data['y_wind_10m'], static, dat=data['ff_10m'], **plotconf)
+		fig.map_barb(data['x_wind_10m'], data['y_wind_10m'], static, dat=data['ff_10m'], **plotconf)
 
 		return True
 
@@ -205,7 +205,7 @@ class tp(precip):
 				ticks=s,
 				**self.std_plotconf
 		)
-		fig.map_oro_dat(data['precipitation_amount']+1e-10, static, **plotconf)
+		fig.map(data['precipitation_amount']+1e-10, static, **plotconf)
 
 		return True
 
@@ -232,7 +232,7 @@ else:
 		forecast -= td(1,0)
 
 # Override 
-#forecast = dt(2015,3,10,6)
+#forecast = dt(2015,4,24,12)
 plot_only_init = False
 
 print 'Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H')
@@ -242,24 +242,38 @@ plots = [
 	ff10_wind_scandies(), t2m_msl_scandies(), tp_scandies(), 
 ]
 
-f, time, static = metopen('arome_metcoop_default2_5km_%s' % forecast.strftime('%Y%m%d_%H'), 'time')
+try:
+	f, time, static = metopen('arome_metcoop_default2_5km_%s' % forecast.strftime('%Y%m%d_%H'), 'time')
 
-# We need to replace the auto-detected x dimension with the alternative lon dimension
-static.x = f.variables['longitude'][::]
-static.y = f.variables['latitude'][::]
-static.gridtype = 'latlon'
-#static.rebuild_grid()
+	# We need to replace the auto-detected x dimension with the alternative lon dimension
+	static.x = f.variables['longitude'][::]
+	static.y = f.variables['latitude'][::]
+	static.gridtype = 'latlon'
+	#static.rebuild_grid()
+except:	
+	class Bunch(dict):
+		def __init__(self,**kw):
+			dict.__init__(self,kw)
+			self.__dict__ = self
+	f = Bunch(variables=[], close=lambda: None)
+	
+	t = range(0,67,3)
+	static = Bunch(t=t, t_parsed=[forecast + i*td(0,3600) for i in t])
+
 
 data = {}
 for plot in plots:
+	plot.error = False
 	for q in plot.requires:
 		if q not in f.variables:
 			print '%s not available!' % q 
+			plot.error = True
 		elif q not in data:
 			data[q] = f.variables[q][::]
-
-	for fun in plot.requires_diagnostic:
-		fun(plot, data, static)
+	
+	if not plot.error:
+		for fun in plot.requires_diagnostic:
+			fun(plot, data, static)
 
 f.close()
 			

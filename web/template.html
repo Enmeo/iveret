@@ -10,21 +10,21 @@
   <script src="./static/vaerkart.js" type="text/javascript"></script>
   <script type="text/javascript">
 	// Defining the data base of init and valid times
-	var avail_fcs = [{% for fc in fclist %}moment("{{ fc|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
+	var avail_fcs = [{% for fc in fclist %}moment.utc("{{ fc|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
 	var avail_leads = [{% for lead in leadlist %}{{ lead }}{% if not forloop.last %}, {% endif %}{% endfor %}];
 
 	// Initial values
 	var prefix = '{{ initplot.prefix }}';
 	var date_fc = avail_fcs[0];
-	var date_vis = moment("{{ date_init|date:"Y-m-d H" }}");
+	var date_vis = moment.utc("{{ date_init|date:"Y-m-d H" }}");
 	var lead_vis = 0;
 	var display_details = {{ display_details|lower }};
 
 	// Constants
 	var plot_prefix = '{{ plot_prefix }}';
-	var base_date = moment("{{ date_init|date:"Y-m-d H" }}");
+	var base_date = moment.utc("{{ date_init|date:"Y-m-d H" }}");
 	var base_leads = [{% for lead in leadlist %}{{ lead }}{% if not forloop.last %}, {% endif %}{% endfor %}];
-	var base_tims = [{% for tim in timlist %}moment("{{ tim|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
+	var base_tims = [{% for tim in timlist %}moment.utc("{{ tim|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
 	var plotdir = '{{ plotdir }}';
 	var units = {}; {% for plot in plotlist %}
 	units['{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}
