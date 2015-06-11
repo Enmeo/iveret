@@ -10,6 +10,7 @@ import dynlib
 import dynlib.humidity
 import dynlib.detect
 import dynlib.diag
+import dynlib.sphere
 
 from dynlib.shorthands import *
 from settings import *
@@ -201,14 +202,21 @@ class ff10(ff):
 # Jets / Jet axes
 class jets(ff):
 	def cal_jetaxis(self, data, plev, static):
-		dynfor.config.nsmooth = 10
+		dynfor.config.nsmooth = 0
 		dynfor.config.minlen = 2.0e6 
-		dynfor.config.jetint_thres = 0.5e-8
+		dynfor.config.jetint_thres = 0.4e-8
 		dynfor.config.searchrad = 1.5
 		
 		if not ('jetaxis', plev) in data:
+			# Interpolation to T42 resolution
+			br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(data['u',plev], data['v',plev])
+			dynlib.sphere.trunc_triangular(br, bi, 42)
+			dynlib.sphere.trunc_triangular(cr, ci, 42)
+			us, vs = dynlib.sphere.sh_synthesis_vector(data['u',plev].shape[2], br,bi,cr,ci)
+			
+			# Jet axis detections
 			data['jetaxis',plev], data['jaoff',plev] = dynlib.detect.jetaxis(10000, 1000, 
-					data['u',plev], data['v',plev], static.dx, static.dy)
+					us, vs, static.dx, static.dy)
 
 
 
@@ -883,7 +891,7 @@ else:
 		forecast -= td(1,0)
 
 # Override
-#forecast = dt(2015,3,24,12)
+#forecast = dt(2015,6,9,12)
 plot_only_init = False
 
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')

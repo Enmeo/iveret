@@ -23,6 +23,10 @@ else:
 	date_base = dt(now.year,now.month,now.day,12)
 	if now.hour < 11:
 		date_base -= td(1,0)
+
+# Override
+#date_base = dt(2015,6,9,12)
+
 print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
 
 
