@@ -173,8 +173,7 @@ class the(plotter):
 	def cal_the(self, data, plev, static):
 		if not ('the', plev) in data:
 			p = np.ones(data['q',plev].shape)*float(plev)*100
-			data['the',plev] = dynlib.humidity.thetae_from_q(data['q',plev], data['t',plev], p, 
-					static.dx, static.dy)
+			data['the',plev] = dynlib.humidity.thetae_from_q(data['q',plev], data['t',plev], p)
 
 
 # Deformation
@@ -215,7 +214,7 @@ class jets(ff):
 			us, vs = dynlib.sphere.sh_synthesis_vector(data['u',plev].shape[2], br,bi,cr,ci)
 			
 			# Jet axis detections
-			data['jetaxis',plev], data['jaoff',plev] = dynlib.detect.jetaxis(10000, 1000, 
+			data['jetaxis',plev], data['jaoff',plev] = dynlib.detect.jetaxis(10000, 2000, 
 					us, vs, static.dx, static.dy)
 
 
