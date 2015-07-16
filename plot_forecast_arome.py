@@ -6,10 +6,8 @@ import copy
 import matplotlib as mpl
 mpl.use('Agg')
 
-import dynlib
-
 from dynlib.shorthands import *
-from settings import *
+from settings_metno import *
 
 
 ######################################################
@@ -19,7 +17,6 @@ from settings import *
 class plotter(object):
 	filetype = 'png'
 	fcname = 'no_for'
-	opath = conf.opath
 	
 	# Add colorbar and legend
 	decorations = False
@@ -37,6 +34,7 @@ class plotter(object):
 		'grid_linestyle': '-',
 		'grid_latmax': 90,
 		'show': False,
+		'title': None,
 	}
 	
 	figsize = (9.6,9.6)
@@ -44,8 +42,8 @@ class plotter(object):
 	
 	# Do the art; to be overriden in derived classes
 	def plot(self, data, static, dateinit, datevalid):
-		self.std_plotconf['save'] = '%s/%s_%s_from_%s_for_%s.%s' % (
-				self.opath, self.fcname, self.plotname, 
+		self.std_plotconf['save'] = '%s_%s_from_%s_for_%s.%s' % (
+				self.fcname, self.plotname, 
 				dateinit.strftime(self.fmt), datevalid.strftime(self.fmt), 
 				self.filetype
 		)
@@ -56,7 +54,7 @@ class plotter(object):
 			
 		else:
 			fi = plt.figure(figsize=self.figsize, dpi=96)
-			self.std_plotconf['disable_cb'] = True
+			self.std_plotconf['cb_disable'] = True
 
 		fi.subplotpars.update(left=0.001, right=0.999, top=0.999, bottom=0.001)
 		
@@ -122,25 +120,25 @@ class t2m_msl(t_msl):
 			return True
 
 		overlays = [
-			fig.map_overlay_dat(data['air_pressure_at_sea_level'][0,::]/100, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['air_pressure_at_sea_level'][0,::], static, **conf.plot.merge('sfc', 'msl', 
 				contour_labels=True, 
 				contour_labels_format='%1.0f',
 				contour_labels_scale=range(940,1060,10), 
 				linewidths=[1], 
 				scale=range(900,1070,2) ) ), 
-			fig.map_overlay_dat(data['air_temperature_2m'][0,::]-273.15, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['air_temperature_2m'][0,::], static, **conf.plot.merge('sfc', 't2m',
 				linewidths=[1], 
 				linestyles='dashed',
 				scale=range(0,2,2) ) ),
 		]
-		plotconf = conf.contourf.merge('t',
+		plotconf = conf.plotf.merge('sfc', 't2m',
 				overlays=overlays,
 				cmap=cm.t, # Set a colormap
 				scale=range(-34,36,2),
 				ticks=range(-30,31,10),
 				**self.std_plotconf
 		)
-		fig.map(data['air_temperature_2m'][0,::]-273.15, static, **plotconf)
+		fig.map(data['air_temperature_2m'][0,::], static, **plotconf)
 
 		return True
 
@@ -160,15 +158,20 @@ class ff10_wind(ff10):
 		done = plotter.plot(self, data, static, dateinit, datevalid)
 		if done:
 			return True
+
+		overlays = [
+			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
+		]
 		
 		s = np.arange(5.0,32.6,2.5)
-		plotconf = conf.contourf.merge('u', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('sfc', 'ff10',
 				cmap=cm.ff, 
 				scale=s,
 				extend='both',
+				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['x_wind_10m'], data['y_wind_10m'], static, dat=data['ff_10m'], **plotconf)
+		fig.map(data['ff_10m'], static, **plotconf)
 
 		return True
 
@@ -196,7 +199,7 @@ class tp(precip):
 
 		s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
 		st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
-		plotconf = conf.contourf.merge('tp', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('sfc', 'trr',
 				cmap=cm.prec_bl, # Set a colormap
 				norm=mpl.colors.BoundaryNorm(st, 256),
 				cb_tickspacing='uniform',
@@ -205,7 +208,7 @@ class tp(precip):
 				ticks=s,
 				**self.std_plotconf
 		)
-		fig.map(data['precipitation_amount']+1e-10, static, **plotconf)
+		fig.map(data['precipitation_amount'], static, **plotconf)
 
 		return True
 
@@ -232,7 +235,7 @@ else:
 		forecast -= td(1,0)
 
 # Override 
-#forecast = dt(2015,4,24,12)
+#forecast = dt(2015,7,15,6)
 plot_only_init = False
 
 print 'Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H')
@@ -243,14 +246,14 @@ plots = [
 ]
 
 try:
-	f, time, static = metopen('arome_metcoop_default2_5km_%s' % forecast.strftime('%Y%m%d_%H'), 'time')
+	f, static = metopen('arome_metcoop_default2_5km_%s' % forecast.strftime('%Y%m%d_%H'))
 
 	# We need to replace the auto-detected x dimension with the alternative lon dimension
 	static.x = f.variables['longitude'][::]
 	static.y = f.variables['latitude'][::]
 	static.gridtype = 'latlon'
 	#static.rebuild_grid()
-except:	
+except ValueError:	
 	class Bunch(dict):
 		def __init__(self,**kw):
 			dict.__init__(self,kw)

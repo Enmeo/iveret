@@ -2,46 +2,11 @@
 # -*- encoding: utf-8
 import matplotlib as mpl
 
-from dynlib.settings import conf
-import dynlib.proj as proj
-import dynlib.cm as cm
+from dynlib.settings import conf, cm, proj
+import dynlib.context.plot
 
 
-# Adapt the default settings to your needs here, then use 
-# >>> from settings import *
-# in your personal scripts. 
-#
-# Examples:
-# (1) Add a folder to the datapath which is scanned in metopen. 
-#     The first argument is the location within the path, the second place in the example below.
-# >>> conf.datapath.insert(1, '/work/csp001/deformation')
-# (2) Change the default colormap used in contourf-plots for the quantity 'z'
-# >>> conf.contourf.z['cmap'] = plt.cm.RdBu_r
-#
-# Note that you can always access the default settings by
-# >>> from dynlib import default_conf
-# >>> default_conf
-# >>> print default_conf.datapath
-# >>> print default_conf.contourf.Z
-
-# Naming scheme for ECMWF forecasts
-conf.file_std = '%(time)d/ec.for.%(time)d.%(plev)s.%(q)s'
-#conf.new_variable('tv', 'tcwv')
-conf.new_variable('msl','msl')
-conf.new_variable('lprec','lsp')
-conf.new_variable('cprec','cp')
-conf.new_variable('tprec','tp')
-conf.new_variable('PV','pv')
-conf.new_variable('th','pt')
-conf.new_variable('tv','tcwv')
-conf.new_variable('tw','tcw')
-conf.new_variable('tcl','tcc')
-conf.new_variable('u10','u10')
-conf.new_variable('v10','v10')
-
-# Add the folder of the forecasts to the PATH, such that reading functions automatically find the data
-conf.datapath.insert(1, '/Data/gfi/metno/ecmwf')
-conf.datapath.insert(1, '/Data/gfi/metno/thredds/arome25')
+# Define colorbars.
 
 cdict = {'red':   ((0.0, 1.0, 1.0), (0.33, 0.30, 0.30),  (0.867, 0.1, 0.1), (1.0, 0.5, 0.5)),
 	 'green': ((0.0, 1.0, 1.0), (0.33, 0.65, 0.65),  (0.867, 0.2, 0.2), (1.0, 0.2, 0.2)),
@@ -268,26 +233,4 @@ cm.pv_new = mpl.colors.LinearSegmentedColormap('my_defabs',cdict7,256)
 
 del cdict7
 
-# Set the default output location (e.g. for plots)
-conf.opath = '/Data/gfi/metno/visualisation/web/plots'
 
-
-def map_tmp():
-	return proj.Basemap(projection='lcc', lat_0=58, lat_ts=58, lon_0=-30, resolution='l', 
-			width=10800000, height=7200000)
-proj.NAfcmap = map_tmp
-
-
-def map_tmp():
-	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
-			llcrnrlon=0.5, llcrnrlat=56.5, urcrnrlon=11, urcrnrlat=63.5)
-proj.SNorwaymap = map_tmp
-
-
-def map_tmp():
-	return proj.Basemap(projection='lcc', lat_0=63, lat_ts=63, lon_0=15, resolution='h', 
-			llcrnrlon=2.0, llcrnrlat=52.5, urcrnrlon=41.5, urcrnrlat=72.0)
-proj.Scandimap = map_tmp
-
-
-# that's it

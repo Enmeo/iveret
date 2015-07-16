@@ -13,7 +13,7 @@ import dynlib.diag
 import dynlib.sphere
 
 from dynlib.shorthands import *
-from settings import *
+from settings_ecmwf import *
 
 
 ######################################################
@@ -41,6 +41,7 @@ class plotter(object):
 		'grid_linestyle': '-',
 		'grid_latmax': 90,
 		'show': False,
+		'title': None,
 	}
 
 	figsize = (10.8,7.2)
@@ -60,7 +61,7 @@ class plotter(object):
 			
 		else:
 			fi = plt.figure(figsize=self.figsize, dpi=96)
-			self.std_plotconf['disable_cb'] = True
+			self.std_plotconf['cb_disable'] = True
 
 		fi.subplotpars.update(left=0.001, right=0.999, top=0.999, bottom=0.001)
 		
@@ -169,11 +170,11 @@ class iwvtrans(plotter):
 
 
 # Equivalent potential temperature
-class the(plotter):
-	def cal_the(self, data, plev, static):
-		if not ('the', plev) in data:
+class eqpt(plotter):
+	def cal_eqpt(self, data, plev, static):
+		if not ('eqpt', plev) in data:
 			p = np.ones(data['q',plev].shape)*float(plev)*100
-			data['the',plev] = dynlib.humidity.thetae_from_q(data['q',plev], data['t',plev], p)
+			data['eqpt',plev] = dynlib.humidity.thetae_from_q(data['q',plev], data['t',plev], p)
 
 
 # Deformation
@@ -233,47 +234,52 @@ class t850_msl(t_msl):
 			return True
 
 		overlays = [
-			fig.map_overlay_dat(data['msl','sfc']/100, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
 				contour_labels=True, 
 				contour_labels_format='%1.0f',
 				contour_labels_scale=range(940,1060,15), 
 				linewidths=[1], 
 				scale=range(900,1070,5) ) ), 
-			fig.map_overlay_dat(data['t','850']-273.15, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
 				linewidths=[1], 
 				linestyles='dashed',
 				scale=range(0,2,2) ) ),
 		]
-		plotconf = conf.contourf.merge('t',
+		plotconf = conf.plotf.merge('850', 't',
 				overlays=overlays,
 				cmap=cm.t, # Set a colormap
 				scale=range(-34,36,2),
 				ticks=range(-30,31,10),
 				**self.std_plotconf
 		)
-		fig.map(data['t', '850']-273.15, static, **plotconf)
+		fig.map(data['t', '850'], static, **plotconf)
 
 		return True
 
 
 # Equivelent potential temperature@850hPa shading and wind barbs
-class the850_wind(the):
+class the850_wind(eqpt):
 	requires = [('t', '850'), ('q', '850'), ('u', '850'), ('v', '850')]
-	requires_diagnostic = [(the.cal_the, '850'), ]
+	requires_diagnostic = [(eqpt.cal_eqpt, '850'), ]
 	plotname = 'the850_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
-		done = the.plot(self, data, static, dateinit, datevalid)
+		done = eqpt.plot(self, data, static, dateinit, datevalid)
 		if done:
 			return True
 
-		plotconf = conf.contourf.merge('t',
+		overlays = [
+			fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **conf.plot.merge('850', 'u') ),
+		]
+
+		plotconf = conf.plotf.merge('850', 'eqpt',
 				cmap=cm.t, # Set a colormap
 				scale=np.arange(250,351,2.5),
 				ticks=range(250,351,10),
+				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','850'], data['v','850'], static, dat=data['the', '850'], **plotconf)
+		fig.map(data['eqpt', '850'], static, **plotconf)
 
 		return True
 
@@ -289,23 +295,23 @@ class z500_msl(z_msl):
 			return True
 
 		overlays = [
-			fig.map_overlay_dat(data['msl','sfc']/100, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc','msl',  
 				contour_labels=True, 
 				linewidths=[1], 
 				scale=range(900,1070,5) ) ),
-			fig.map_overlay_dat(data['z','500']/98.0665, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
 				contour_labels=True, 
 				colors='white',
 				linewidths=[1],
 				linestyles='dashed',
 				scale=range(472,601,16) ) ),
-			fig.map_overlay_dat(data['z','500']/98.0665, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
 				contour_labels=True, 
 				colors='white',
 				linewidths=[2],
 				scale=range(552,554,2) ) ), 
 		]
-		plotconf = conf.contourf.merge('z',
+		plotconf = conf.plotf.merge('500', 'z',
 				overlays=overlays,
 				cmap=cm.z,
 				scale=range(476,604,4),
@@ -329,15 +335,16 @@ class q850_wind(precip):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['crr','sfc']*1000, static, **conf.contour.merge('default', 
+		overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **conf.plot.merge('sfc', 'crr',
 				scale=[1.0, 3.0, 10.0],
 				colors='c', ) ), 
-			 fig.map_overlay_dat(data['lsrr','sfc']*1000, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
+			fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **conf.plot.merge('850', 'u') ),
 		]
 
-		plotconf = conf.contourf.merge('q',
+		plotconf = conf.plotf.merge('850', 'q',
 				overlays=overlays,
 				cmap=cm.q,
 				scale=np.arange(0,16,1),
@@ -345,7 +352,7 @@ class q850_wind(precip):
 				extend='max',
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','850'], data['v','850'], static, dat=data['q','850'], **plotconf) 
+		fig.map(data['q','850'], static, **plotconf) 
 
 		return True
 
@@ -360,14 +367,15 @@ class pvpt300_wind_npolar(pv_wind,npolar):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['pv','pt300']*1e6, static, **conf.contour.merge('pv', 
+		overlays=[fig.map_overlay_contour(data['pv','pt300'], static, **conf.plot.merge('pt300', 'pv', 
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_barbs(data['u','pt300'], data['v','pt300'], static, **conf.plot.merge('pt300', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		plotconf = conf.contourf.merge('pv',
+		plotconf = conf.plotf.merge('pt300', 'pv',
 				overlays=overlays,
 				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -375,7 +383,7 @@ class pvpt300_wind_npolar(pv_wind,npolar):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pt300'], data['v','pt300'], static, dat=data['pv','pt300']*1e6, **plotconf) 
+		fig.map(data['pv','pt300'], static, **plotconf) 
 
 		return True
 
@@ -390,14 +398,15 @@ class pvpt315_wind_npolar(pv_wind,npolar):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['pv','pt315']*1e6, static, **conf.contour.merge('pv', 
+		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_barbs(data['u','pt315'], data['v','pt315'], static, **conf.plot.merge('pt315', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		plotconf = conf.contourf.merge('pv',
+		plotconf = conf.plotf.merge('pt315', 'pv',
 				overlays=overlays,
 				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -405,7 +414,7 @@ class pvpt315_wind_npolar(pv_wind,npolar):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pt315'], data['v','pt315'], static, dat=data['pv','pt315']*1e6, **plotconf) 
+		fig.map(data['pv','pt315'], static, **plotconf) 
 
 		return True
 
@@ -420,14 +429,15 @@ class pvpt330_wind_npolar(pv_wind,npolar):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['pv','pt330']*1e6, static, **conf.contour.merge('pv', 
+		overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_barbs(data['u','pt330'], data['v','pt330'], static, **conf.plot.merge('pt330', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		plotconf = conf.contourf.merge('pv',
+		plotconf = conf.plotf.merge('pt330', 'pv',
 				overlays=overlays,
 				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -435,7 +445,7 @@ class pvpt330_wind_npolar(pv_wind,npolar):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pt330'], data['v','pt330'], static, dat=data['pv','pt330']*1e6, **plotconf) 
+		fig.map(data['pv','pt330'], static, **plotconf) 
 
 		return True
 
@@ -450,14 +460,15 @@ class pvpt350_wind_npolar(pv_wind,npolar):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['pv','pt350']*1e6, static, **conf.contour.merge('pv', 
+		overlays=[fig.map_overlay_contour(data['pv','pt350'], static, **conf.plot.merge('pt350', 'pv', 
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_barbs(data['u','pt350'], data['v','pt350'], static, **conf.plot.merge('pt350', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		plotconf = conf.contourf.merge('pv',
+		plotconf = conf.plotf.merge('pt350', 'pv',
 				overlays=overlays,
 				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -465,7 +476,7 @@ class pvpt350_wind_npolar(pv_wind,npolar):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pt350'], data['v','pt350'], static, dat=data['pv','pt350']*1e6, **plotconf) 
+		fig.map(data['pv','pt350'], static, **plotconf) 
 
 		return True
 
@@ -480,14 +491,15 @@ class pvpt300_wind(pv_wind):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['pv','pt300']*1e6, static, **conf.contour.merge('pv', 
+		overlays=[fig.map_overlay_contour(data['pv','pt300'], static, **conf.plot.merge('pt300', 'pv', 
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_barbs(data['u','pt300'], data['v','pt300'], static, **conf.plot.merge('pt300', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		plotconf = conf.contourf.merge('pv',
+		plotconf = conf.plotf.merge('pt300', 'pv',
 				overlays=overlays,
 				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -495,7 +507,7 @@ class pvpt300_wind(pv_wind):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pt300'], data['v','pt300'], static, dat=data['pv','pt300']*1e6, **plotconf) 
+		fig.map(data['pv','pt300'], static, **plotconf) 
 
 		return True
 
@@ -510,14 +522,15 @@ class pvpt315_wind(pv_wind):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['pv','pt315']*1e6, static, **conf.contour.merge('pv', 
+		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
-		]
+			fig.map_overlay_barbs(data['u','pt315'], data['v','pt315'], static, **conf.plot.merge('pt315', 'u') ),
+	]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		plotconf = conf.contourf.merge('pv',
+		plotconf = conf.plotf.merge('pt315', 'pv',
 				overlays=overlays,
 				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -525,7 +538,7 @@ class pvpt315_wind(pv_wind):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pt315'], data['v','pt315'], static, dat=data['pv','pt315']*1e6, **plotconf) 
+		fig.map(data['pv','pt315'], static, **plotconf) 
 
 		return True
 
@@ -540,14 +553,15 @@ class pvpt330_wind(pv_wind):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['pv','pt330']*1e6, static, **conf.contour.merge('pv', 
+		overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_barbs(data['u','pt330'], data['v','pt330'], static, **conf.plot.merge('pt330', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		plotconf = conf.contourf.merge('pv',
+		plotconf = conf.plotf.merge('pt330', 'pv',
 				overlays=overlays,
 				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -555,7 +569,7 @@ class pvpt330_wind(pv_wind):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pt330'], data['v','pt330'], static, dat=data['pv','pt330']*1e6, **plotconf) 
+		fig.map(data['pv','pt330'], static, **plotconf) 
 
 		return True
 
@@ -570,14 +584,15 @@ class pvpt350_wind(pv_wind):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['pv','pt350']*1e6, static, **conf.contour.merge('pv', 
+		overlays=[fig.map_overlay_contour(data['pv','pt350'], static, **conf.plot.merge('pt350', 'pv', 
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_barbs(data['u','pt350'], data['v','pt350'], static, **conf.plot.merge('pt350', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		plotconf = conf.contourf.merge('pv',
+		plotconf = conf.plotf.merge('pt350', 'pv',
 				overlays=overlays,
 				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -585,7 +600,7 @@ class pvpt350_wind(pv_wind):
 				ticks=st,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pt350'], data['v','pt350'], static, dat=data['pv','pt350']*1e6, **plotconf) 
+		fig.map(data['pv','pt350'], static, **plotconf) 
 
 		return True
 
@@ -600,14 +615,17 @@ class ptpv2_wind(pt_wind):
 		if done:
 			return True
 		
-		plotconf = conf.contourf.merge('pt',
-				overlays=[],
+		overlays = [fig.map_overlay_barbs(data['u','pv2000'], data['v','pv2000'], static, **conf.plot.merge('pv2000', 'u') ),
+		]
+	
+		plotconf = conf.plotf.merge('pv2000', 'pt',
+				overlays=overlays,
 				cmap=cm.t,
 				scale=np.arange(270,396,5),
 				ticks=[270,285,300,315,330,350,370,395],
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u', 'pv2000'], data['v', 'pv2000'], static, dat=data['pt', 'pv2000'], **plotconf)
+		fig.map(data['pt', 'pv2000'], static, **plotconf)
 
 		return True
 
@@ -622,14 +640,17 @@ class ptpv2_wind_npolar(pt_wind,npolar):
 		if done:
 			return True
 		
-		plotconf = conf.contourf.merge('pt',
-				overlays=[],
+		overlays = [fig.map_overlay_barbs(data['u','pv2000'], data['v','pv2000'], static, **conf.plot.merge('pv2000', 'u') ),
+		]
+
+		plotconf = conf.plotf.merge('pv2000', 'pt',
+				overlays=overlays,
 				cmap=cm.t,
 				scale=np.arange(270,396,5),
 				ticks=[270,285,300,315,330,350,370,395],
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u', 'pv2000'], data['v', 'pv2000'], static, dat=data['pt', 'pv2000'], **plotconf)
+		fig.map(data['pt', 'pv2000'], static, **plotconf)
 
 		return True
 
@@ -649,8 +670,8 @@ class tp(precip):
 
 		s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
 		st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
-		plotconf = conf.contourf.merge('tp', 	# Get configuration for q, but override with the other arguments, like
-				cmap=cm.prec_bl, # Set a colormap
+		plotconf = conf.plotf.merge('sfc', 'trr',
+				cmap=cm.prec_bl,
 				norm=mpl.colors.BoundaryNorm(st, 256),
 				cb_tickspacing='uniform',
 				extend='max',
@@ -658,7 +679,7 @@ class tp(precip):
 				ticks=s,
 				**self.std_plotconf
 		)
-		fig.map(data['trr','sfc']*1000+1e-10, static, **plotconf)
+		fig.map(data['trr','sfc'], static, **plotconf)
 
 		return True
 
@@ -682,15 +703,16 @@ class tcwv(precip,iwvtrans):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['crr','sfc']*1000, static, **conf.contour.merge('default', 
+		overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **conf.plot.merge('sfc', 'crr',
 				scale=[1.0, 3.0, 10.0],
 				colors='c', ) ), 
-			 fig.map_overlay_dat(data['lsrr','sfc']*1000, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
+			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
 		]
 
-		plotconf = conf.contourf.merge('tcwv', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('sfc', 'tcwv',
 				overlays=overlays,
 				cmap=cm.q,
 				scale=range(4,45,2),
@@ -699,7 +721,7 @@ class tcwv(precip,iwvtrans):
 				quiver_length=1.5,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, dat=data['tcwv','sfc'], **plotconf)
+		fig.map(data['tcwv','sfc'], static, **plotconf)
 
 		return True
 
@@ -723,15 +745,16 @@ class tcwv_npolar(precip,iwvtrans,npolar):
 		if done:
 			return True
 
-		overlays=[fig.map_overlay_dat(data['crr','sfc']*1000, static, **conf.contour.merge('default', 
+		overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **conf.plot.merge('sfc', 'crr',
 				scale=[1.0, 3.0, 10.0],
 				colors='c', ) ), 
-			 fig.map_overlay_dat(data['lsrr','sfc']*1000, static, **conf.contour.merge('default', 
+			 fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
+			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
 		]
 
-		plotconf = conf.contourf.merge('tcwv', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('sfc', 'tcwv',
 				overlays=overlays,
 				cmap=cm.q,
 				scale=range(4,65,2),
@@ -740,7 +763,7 @@ class tcwv_npolar(precip,iwvtrans,npolar):
 				quiver_length=1.5,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, dat=data['tcwv','sfc'], **plotconf)
+		fig.map(data['tcwv','sfc'], static, **plotconf)
 
 		return True
 
@@ -757,7 +780,7 @@ class tcc(plotter):
 
 		s = np.array([0,] + list(np.arange(0.0625,0.95,0.125)) + [1,])
 		t = (s[1:]+s[:-1])/2.0
-		plotconf = conf.contourf.merge('tcc', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('sfc', 'tcc',
 				cmap=cm.q_r, # Set a colormap
 				scale=s,
 				ticks=t,
@@ -781,14 +804,18 @@ class ff10_wind(ff10):
 		if done:
 			return True
 		
+		overlays = [fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10') ),
+		]
+
 		s = np.arange(5.0,32.6,2.5)
-		plotconf = conf.contourf.merge('u', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('sfc', 'u10',
 				cmap=cm.ff, 
 				scale=s,
 				extend='both',
+				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u10','sfc'], data['v10','sfc'], static, dat=data['ff10','sfc'], **plotconf)
+		fig.map(data['ff10','sfc'], static, **plotconf)
 
 		return True
 
@@ -804,14 +831,18 @@ class ff850_wind(ff):
 		if done:
 			return True
 
+		overlays = [fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10') ),
+		]
+
 		s=np.arange(10.0,46.0,2.5)
-		plotconf = conf.contourf.merge('u', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('850', 'u',
 				cmap=cm.ff, # Set a colormap
 				scale=s,
 				extend='both',
+				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','850'], data['v','850'], static, dat=data['ff','850'], **plotconf)
+		fig.map(data['ff','850'], static, **plotconf)
 
 		return True
 
@@ -828,7 +859,7 @@ class deform850_msl(deform):
 			return True
 
 		overlays = [
-			fig.map_overlay_dat(data['msl','sfc']/100, static, **conf.contour.merge('default', 
+			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl',
 				contour_labels=True, 
 				contour_labels_format='%1.0f',
 				contour_labels_scale=range(940,1060,20), 
@@ -836,15 +867,16 @@ class deform850_msl(deform):
 				colors='b',
 				alpha=0.7,
 				scale=range(900,1070,10) ) ), 
+			fig.map_overlay_dilatation(data['defabs','850'], data['defang','850'], static, **conf.plot.merge('850', 'defabs') ),
 		]
 
 		s=np.arange(10,46,2.5)
-		plotconf = conf.contourf.merge('defabs', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('850', 'defabs',
 				overlays=overlays,
 				scale=np.arange(6,31,3),
 				**self.std_plotconf
 		)
-		fig.map_deform(data['defabs','850'], data['defang','850'], static, **plotconf)
+		fig.map(data['defabs','850'], static, **plotconf)
 
 		return True
 
@@ -863,9 +895,10 @@ class ffpv2_wind(jets):
 		overlays = [
 			fig.map_overlay_lines(data['jetaxis','pv2000'], data['jaoff','pv2000'], static, linecolor='k', linewidth=6), 
 			fig.map_overlay_lines(data['jetaxis','pv2000'], data['jaoff','pv2000'], static, linecolor='w', linewidth=4), 
+			fig.map_overlay_barbs(data['u','pv2000'], data['v','pv2000'], static, **conf.plot.merge('pv2000', 'ff') ),
 		]
 
-		plotconf = conf.contourf.merge('u', 	# Get configuration for q, but override with the other arguments, like
+		plotconf = conf.plotf.merge('pv2000', 'u',
 				cmap=cm.ff, 
 				scale=np.arange(15,76,5),
 				ticks=np.arange(15,76,15),
@@ -873,7 +906,7 @@ class ffpv2_wind(jets):
 				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map_barb(data['u','pv2000'], data['v','pv2000'], static, dat=data['ff','pv2000'], **plotconf)
+		fig.map(data['ff','pv2000'], static, **plotconf)
 
 		return True
 
@@ -890,7 +923,7 @@ else:
 		forecast -= td(1,0)
 
 # Override
-#forecast = dt(2015,6,9,12)
+#forecast = dt(2015,7,15,0)
 plot_only_init = False
 
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
@@ -910,7 +943,7 @@ for plot in plots:
 	for q, plev in plot.requires:
 		if (q,plev) not in data:
 			try:
-				f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qi[q]}, q)
+				f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
 			except RuntimeError:
 				print 'Error loading data: ', (q, plev)
 				plot.error = True
