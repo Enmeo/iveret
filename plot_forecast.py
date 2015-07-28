@@ -71,7 +71,7 @@ class plotter(object):
 
 		if not data_available:
 			fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-			plt.savefig(self.std_plotconf['save'])
+			plt.savefig(conf.plotpath + '/' + self.std_plotconf['save'])
 			return True
 
 		else:
@@ -944,7 +944,7 @@ for plot in plots:
 		if (q,plev) not in data:
 			try:
 				f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
-			except RuntimeError:
+			except ValueError:
 				print 'Error loading data: ', (q, plev)
 				plot.error = True
 				continue
