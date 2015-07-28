@@ -26,7 +26,7 @@ class plotter(object):
 	opath = conf.opath
 	
 	# Add colorbar and legend
-	decorations = False
+	decorations = True
 
 	# Which data is required for the plot
 	requires=[]
@@ -58,6 +58,7 @@ class plotter(object):
 		if self.decorations:
 			fi = plt.figure(figsize=self.figsize_deco, dpi=96)
 			self.std_plotconf['show_legend'] = True
+			self.std_plotconf['cb_orientation'] = 'vertical'
 			
 		else:
 			fi = plt.figure(figsize=self.figsize, dpi=96)
@@ -247,7 +248,6 @@ class t850_msl(t_msl):
 		]
 		plotconf = conf.plotf.merge('850', 't',
 				overlays=overlays,
-				cmap=cm.t, # Set a colormap
 				scale=range(-34,36,2),
 				ticks=range(-30,31,10),
 				**self.std_plotconf
@@ -296,24 +296,24 @@ class z500_msl(z_msl):
 
 		overlays = [
 			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc','msl',  
+				alpha=0.8,
 				contour_labels=True, 
 				linewidths=[1], 
 				scale=range(900,1070,5) ) ),
+			#fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
+			#	contour_labels=True, 
+			#	colors='white',
+			#	linewidths=[1],
+			#	linestyles='dashed',
+			#	scale=range(472,601,16) ) ),
 			fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
-				contour_labels=True, 
-				colors='white',
-				linewidths=[1],
-				linestyles='dashed',
-				scale=range(472,601,16) ) ),
-			fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
-				contour_labels=True, 
+				contour_labels=False, 
 				colors='white',
 				linewidths=[2],
 				scale=range(552,554,2) ) ), 
 		]
 		plotconf = conf.plotf.merge('500', 'z',
 				overlays=overlays,
-				cmap=cm.z,
 				scale=range(476,604,4),
 				ticks=range(480,601,20),
 				**self.std_plotconf
@@ -324,11 +324,11 @@ class z500_msl(z_msl):
 
 
 # Specific humidity@850hPa shading and wind barbs
-class q850_wind(precip):
-	requires = [('q', '850'), ('u', '850'), ('v', '850'), ('cp', 'sfc'), ('lsp', 'sfc')]
+class q850_msl(precip):
+	requires = [('q', '850'), ('msl', 'sfc'), ('cp', 'sfc'), ('lsp', 'sfc')]
 	requires_diagnostic = [ (precip.cal_crainrate, 'sfc'), 
 				(precip.cal_lsrainrate, 'sfc') ]
-	plotname = 'q850_wind'
+	plotname = 'q850_msl'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = precip.plot(self, data, static, dateinit, datevalid)
@@ -341,13 +341,16 @@ class q850_wind(precip):
 			fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
-			fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **conf.plot.merge('850', 'u') ),
+			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc','msl',  
+				alpha=0.8,
+				contour_labels=True, 
+				linewidths=[1], 
+				scale=range(900,1070,5) ) ),
 		]
 
 		plotconf = conf.plotf.merge('850', 'q',
 				overlays=overlays,
-				cmap=cm.q,
-				scale=np.arange(0,16,1),
+				scale=np.arange(0,19,1),
 				ticks=range(0,16,5),
 				extend='max',
 				**self.std_plotconf
@@ -554,7 +557,7 @@ class pvpt330_wind(pv_wind):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_barbs(data['u','pt330'], data['v','pt330'], static, **conf.plot.merge('pt330', 'u') ),
@@ -563,7 +566,6 @@ class pvpt330_wind(pv_wind):
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt330', 'pv',
 				overlays=overlays,
-				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
 				ticks=st,
@@ -923,18 +925,18 @@ else:
 		forecast -= td(1,0)
 
 # Override
-#forecast = dt(2015,7,15,0)
+forecast = dt(2015,7,16,12)
 plot_only_init = False
 
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 
 # Everything
-plots = [
-	t850_msl(), z500_msl(), the850_wind(), q850_wind(), deform850_msl(), 
-	pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
-	ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
-	pvpt300_wind_npolar(), pvpt315_wind_npolar(), pvpt330_wind_npolar(), pvpt350_wind_npolar(), 
-	tcwv_npolar(), ptpv2_wind_npolar(),
+plots = [t850_msl(),
+#	t850_msl(), z500_msl(), the850_wind(), q850_msl(), deform850_msl(), 
+#	pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
+#	ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
+#	pvpt300_wind_npolar(), pvpt315_wind_npolar(), pvpt330_wind_npolar(), pvpt350_wind_npolar(), 
+#	tcwv_npolar(), ptpv2_wind_npolar(),
 ]
 
 data = {}

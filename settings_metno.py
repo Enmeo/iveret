@@ -9,9 +9,6 @@ from settings_common import conf, proj, cm
 
 conf.datapath.insert(1, '/Data/gfi/metno/thredds/arome25')
 
-# Set the default output location (e.g. for plots)
-conf.plotpath = '/Data/gfi/metno/visualisation/web/plots'
-
 
 # Variable definitions
 # ====================

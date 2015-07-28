@@ -11,8 +11,6 @@ import dynlib.context.derived as d
 conf.datapath.insert(1, '/Data/gfi/metno/ecmwf')
 conf.file_std = '%(time)d/ec.for.%(time)d.%(plev)s.%(q)s'
 
-# Set the default output location (e.g. for plots)
-conf.plotpath = '/Data/gfi/metno/visualisation/web/plots'
 
 # Variable definitions
 # ====================
@@ -97,5 +95,12 @@ conf.plotf[None,'lsrr','hook'] = lambda lsrr: lsrr*1.0e3 + 1.0e-100
 conf.plot[None,'lsrr','hook'] = lambda lsrr: lsrr*1.0e3 + 1.0e-100
 conf.plotf[None,'trr','hook'] = lambda trr: trr*1.0e3 + 1.0e-100
 conf.plot[None,'trr','hook'] = lambda trr: trr*1.0e3 + 1.0e-100
+
+conf.plot[None, None, 'cb_orientation'] = 'vertical'
+
+conf.plotf[None, 'z', 'cmap'] = cm.z_new
+conf.plotf[None, 'q', 'cmap'] = cm.q_new
+conf.plotf[None, 'pv', 'cmap'] = cm.pv_new
+conf.plotf[None, 't', 'cmap'] = cm.t_new
 
 # that's it

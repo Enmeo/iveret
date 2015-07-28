@@ -4,6 +4,7 @@ html, body {
 	margin: 0;
 	padding: 0;
 	font-family: Palatino, Utopia, Times, serif;
+	height: 100%;
 }
 
 div.header {
@@ -20,7 +21,9 @@ div.header select {
 div.content {
 	margin: 0;
 	width: 94%;
-	padding: 5px 3% 5px 3%;
+	padding: 5px 3% 0 3%;
+	height: 90%; /* Fallback for old browsers */
+	height: calc(100% - 40px);
 }
 div.content h1 {
 	font-size: 1.5em;
@@ -112,23 +115,32 @@ div#time_controls li#but_play a, div#time_controls li#but_pause a {
 	border-radius: 1.4em;
 }
 
-div.map {
+div.plot {
+	height: 80%; /* Fallback for old browsers */
+	height: calc(100% - 90px);
+}
+
+div#map_container {
 	position: relative;
-	width: 90%;
+	max-width: 90%;
+	max-height: 100%;
 	float: left;
 }
 img#map {
-	width: 100%;
+	max-width: 100%;
+	max-height: 100%;
 	display: block;
 }
 
 div#cbar_container {
-	width: 10%;
+	max-width: 10%;
+	max-height: 100%;
 	float: left;
 	position: relative;
 }
 img#cbar {
-	width: 100%;
+	max-width: 100%;
+	max-height: 100%;
 }
 div#cbar_units {
 	position: absolute;

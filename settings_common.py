@@ -5,6 +5,15 @@ import matplotlib as mpl
 from dynlib.settings import conf, cm, proj
 import dynlib.context.plot
 
+from clemens_Z_new import test_cm as z_new
+from q_high_homogeneous import test_cm as q_new
+from pv_jump_homogeneous import test_cm as pv_new
+from RdYlCyBu_homogeneous import test_cm as t_new
+
+
+# Set the default output location (e.g. for plots)
+conf.plotpath = './web/plots'
+
 
 # Define colorbars.
 
@@ -139,37 +148,6 @@ cm.prec_bl = mpl.colors.LinearSegmentedColormap('my_defabs',cdict5,256)
 
 del cdict5
 
-cdict4={'red':    ((0.0, 0.9, 0.9),
-                   (0.1, 0.4, 0.4),
-                   (0.225, 0.1, 0.1),
-                   (0.25, 0.1, 0.1),
-                   (0.35, 0.1, 0.1),
-                   (0.5, 0.9, 0.9),
-                   (0.8, 1.0, 1.0),
-                   (1.0, 0.5, 0.5)),
-
-         'green': ((0.0, 1.0, 1.0),
-                   (0.1, 1.0, 1.0),
-                   (0.225, 0.7, 0.7),
-                   (0.25, 0.9, 0.9),
-                   (0.35, 0.7, 0.7), 
-                   (0.5, 0.9, 0.9),
-                   (0.8, 0.1, 0.1),
-                   (1.0, 0.1, 0.1)),
-
-         'blue':  ((0.0, 1.0, 1.0),
-                   (0.1, 1.0, 1.0),
-                   (0.225, 0.5, 0.5),
-                   (0.25, 0.7, 0.7),
-                   (0.35, 0.1, 0.1),
-                   (0.5, 0.1, 0.1),
-                   (0.8, 0.1, 0.1),
-                   (1.0, 0.2, 0.2))
-        }
-cm.pv = mpl.colors.LinearSegmentedColormap('my_defabs',cdict4,256)
-
-del cdict4
-
 cdict6 = {'red':  ((0.0, 0.0, 0.0),
                    (0.15, 0.1, 0.1),
                    (0.35, 0.1, 0.1),
@@ -229,8 +207,13 @@ cdict7={'red':    ((0.0, 1.0, 1.0),
                    (0.8, 0.1, 0.1),
                    (1.0, 0.2, 0.2))
         }
-cm.pv_new = mpl.colors.LinearSegmentedColormap('my_defabs',cdict7,256)
+cm.pv = mpl.colors.LinearSegmentedColormap('my_defabs',cdict7,256)
 
 del cdict7
+
+cm.z_new = z_new
+cm.q_new = q_new
+cm.pv_new = pv_new
+cm.t_new = t_new
 
 
