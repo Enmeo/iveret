@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
 
-from settings_common import conf, proj, cm
+from common import conf, proj, cm
 
 
 # General settings

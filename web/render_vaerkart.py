@@ -5,14 +5,16 @@ import codecs
 
 from datetime import datetime as dt, timedelta as td
 
+from settings.common import conf
+
 from django.conf import settings
 from django.template import Context, loader
 
+
 # Where to save the weather map; 
-# TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
-basepath = '/Data/gfi/metno/visualisation'
-filepath = basepath+'/web/vaerkart.html'
-settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
+filepath = conf.plotpath+'/../vaerkart.html'
+print conf.plotpath+'/..'
+settings.configure(TEMPLATE_DIRS = (conf.plotpath+'/..', ), DEFAULT_CHARSET='utf-8')
 
 
 # The only free parameter for the entire script
@@ -25,7 +27,7 @@ else:
 		date_base -= td(1,0)
 
 # Override
-#date_base = dt(2015,6,9,12)
+date_base = dt(2015,7,16,12)
 
 print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
 
@@ -104,8 +106,8 @@ plotlist = [
 		name='850 hPa Temperature and SLP'),
 	plot(u'the850_wind', the850, [o('black', barbs850, None), ],
 		name='850 hPa Equiv. pot. temperature and winds'),
-	plot(u'q850_wind', q850, [o('black', barbs850, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
-		name='850 hPa Spec. humidity, precipitation and winds'),
+	plot(u'q850_msl', q850, [o('black', msl, 5), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
+		name='850 hPa Spec. humidity, precipitation and SLP'),
 	plot(u'ff850_wind', ff850, [o('black', barbs850, None), ],
 		name='850 hPa Wind speed and direction'),
 	plot(u'deform850_msl', def850, [o('black double-arrows', defang850, None), o('blue', msl, 10), ],

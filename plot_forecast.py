@@ -13,7 +13,7 @@ import dynlib.diag
 import dynlib.sphere
 
 from dynlib.shorthands import *
-from settings_ecmwf import *
+from settings.ecmwf import *
 
 
 ######################################################
@@ -931,7 +931,7 @@ plot_only_init = False
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 
 # Everything
-plots = [t850_msl(),
+plots = [q850_msl(),
 #	t850_msl(), z500_msl(), the850_wind(), q850_msl(), deform850_msl(), 
 #	pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
 #	ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 

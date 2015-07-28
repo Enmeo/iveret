@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
 
-from settings_common import conf, cm, proj
+from common import conf, cm, proj
 import dynlib.context.derived as d
 
 # General settings
