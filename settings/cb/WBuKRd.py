@@ -265,18 +265,13 @@ cm_data = [[ 0.99825994,  0.99988592,  0.9994606 ],
        [ 0.78140679,  0.07689437,  0.01022912],
        [ 0.79369468,  0.07198995,  0.0085792 ]]
 
-test_cm = LinearSegmentedColormap.from_list(__file__, cm_data)
+WBuKRd = LinearSegmentedColormap.from_list(__file__, cm_data)
+WBuKRd_r = LinearSegmentedColormap.from_list(__file__, cm_data[::-1])
 
+# Make a clean "from <colormap> import *"
+__all__ = ['WBuKRd', 'WBuKRd_r']
 
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    import numpy as np
+# For use with viscm
+test_cm = WBuKRd
 
-    try:
-        from pycam02ucs.cm.viscm import viscm
-        viscm(test_cm)
-    except ImportError:
-        print("pycam02ucs not found, falling back on simple display")
-        plt.imshow(np.linspace(0, 100, 256)[None, :], aspect='auto',
-                   cmap=test_cm)
-    plt.show()
+# the end

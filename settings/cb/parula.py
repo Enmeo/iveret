@@ -42,19 +42,13 @@ cm_data = [[0.2081, 0.1663, 0.5292], [0.2116238095, 0.1897809524, 0.5776761905],
   0.0948380952], [0.9661, 0.9514428571, 0.0755333333], 
  [0.9763, 0.9831, 0.0538]]
 
-parula_map = LinearSegmentedColormap.from_list('parula', cm_data)
+parula = LinearSegmentedColormap.from_list('parula', cm_data)
+parula_r = LinearSegmentedColormap.from_list('parula', cm_data[::-1])
+
+# Make a clean "from <colormap> import *"
+__all__ = ['parula', 'parula_r']
+
 # For use of "viscm view"
-test_cm = parula_map
+test_cm = parula
 
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    try:
-        from pycam02ucs.cm.viscm import viscm
-        viscm(parula_map)
-    except ImportError:
-        print("pycam02ucs not found, falling back on simple display")
-        plt.imshow(np.linspace(0, 100, 256)[None, :], aspect='auto',
-                   cmap=parula_map)
-    plt.show()
+# the end

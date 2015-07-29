@@ -265,19 +265,13 @@ cm_data = [[ 0.08581988,  0.0564396 ,  0.14560495],
        [ 0.99155553,  0.99497378,  0.98949476],
        [ 0.99864957,  0.99881415,  0.99569091]]
 
-test_cm = LinearSegmentedColormap.from_list(__file__, cm_data)
-test_cm_r = LinearSegmentedColormap.from_list(__file__, cm_data[::-1])
+KPiBuGnW = LinearSegmentedColormap.from_list(__file__, cm_data)
+KPiBuGnW_r = LinearSegmentedColormap.from_list(__file__, cm_data[::-1])
 
+# Make a clean "from <colormap> import *"
+__all__ = ['KPiBuGnW', 'KPiBuGnW_r']
 
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    import numpy as np
+# For use with viscm
+test_cm = KPiBuGnW
 
-    try:
-        from pycam02ucs.cm.viscm import viscm
-        viscm(test_cm)
-    except ImportError:
-        print("pycam02ucs not found, falling back on simple display")
-        plt.imshow(np.linspace(0, 100, 256)[None, :], aspect='auto',
-                   cmap=test_cm)
-    plt.show()
+# the end

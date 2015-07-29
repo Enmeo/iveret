@@ -273,7 +273,6 @@ class the850_wind(eqpt):
 		]
 
 		plotconf = conf.plotf.merge('850', 'eqpt',
-				cmap=cm.t, # Set a colormap
 				scale=np.arange(250,351,2.5),
 				ticks=range(250,351,10),
 				overlays=overlays,
@@ -380,7 +379,6 @@ class pvpt300_wind_npolar(pv_wind,npolar):
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt300', 'pv',
 				overlays=overlays,
-				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
 				ticks=st,
@@ -411,7 +409,6 @@ class pvpt315_wind_npolar(pv_wind,npolar):
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt315', 'pv',
 				overlays=overlays,
-				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
 				ticks=st,
@@ -442,7 +439,6 @@ class pvpt330_wind_npolar(pv_wind,npolar):
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt330', 'pv',
 				overlays=overlays,
-				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
 				ticks=st,
@@ -473,7 +469,6 @@ class pvpt350_wind_npolar(pv_wind,npolar):
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt350', 'pv',
 				overlays=overlays,
-				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
 				ticks=st,
@@ -504,7 +499,6 @@ class pvpt300_wind(pv_wind):
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt300', 'pv',
 				overlays=overlays,
-				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
 				ticks=st,
@@ -535,7 +529,6 @@ class pvpt315_wind(pv_wind):
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt315', 'pv',
 				overlays=overlays,
-				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
 				ticks=st,
@@ -596,7 +589,6 @@ class pvpt350_wind(pv_wind):
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt350', 'pv',
 				overlays=overlays,
-				cmap=cm.pv_new,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
 				ticks=st,
@@ -622,7 +614,6 @@ class ptpv2_wind(pt_wind):
 	
 		plotconf = conf.plotf.merge('pv2000', 'pt',
 				overlays=overlays,
-				cmap=cm.t,
 				scale=np.arange(270,396,5),
 				ticks=[270,285,300,315,330,350,370,395],
 				**self.std_plotconf
@@ -647,7 +638,6 @@ class ptpv2_wind_npolar(pt_wind,npolar):
 
 		plotconf = conf.plotf.merge('pv2000', 'pt',
 				overlays=overlays,
-				cmap=cm.t,
 				scale=np.arange(270,396,5),
 				ticks=[270,285,300,315,330,350,370,395],
 				**self.std_plotconf
@@ -716,9 +706,8 @@ class tcwv(precip,iwvtrans):
 
 		plotconf = conf.plotf.merge('sfc', 'tcwv',
 				overlays=overlays,
-				cmap=cm.q,
-				scale=range(4,45,2),
-				ticks=range(10,41,10),
+				scale=range(4,51,2),
+				ticks=range(10,51,10),
 				quiver=True,
 				quiver_length=1.5,
 				**self.std_plotconf
@@ -758,7 +747,6 @@ class tcwv_npolar(precip,iwvtrans,npolar):
 
 		plotconf = conf.plotf.merge('sfc', 'tcwv',
 				overlays=overlays,
-				cmap=cm.q,
 				scale=range(4,65,2),
 				ticks=range(10,61,10),
 				quiver=True,
@@ -771,8 +759,8 @@ class tcwv_npolar(precip,iwvtrans,npolar):
 
 
 # Total cloud cover
-class tcc(plotter):
-	requires = [('tcc', 'sfc'), ]
+class cc(plotter):
+	requires = [('hcc', 'sfc'), ('mcc', 'sfc'),  ('lcc', 'sfc'), ]
 	plotname = 'tcc'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -782,15 +770,29 @@ class tcc(plotter):
 
 		s = np.array([0,] + list(np.arange(0.0625,0.95,0.125)) + [1,])
 		t = (s[1:]+s[:-1])/2.0
-		plotconf = conf.plotf.merge('sfc', 'tcc',
-				cmap=cm.q_r, # Set a colormap
+
+		overlays=[fig.map_overlay_shading(data['mcc','sfc'], static, **conf.plotf.merge('sfc', 'mcc',
+				alpha=0.5,
+				scale=s,
+				extend='neither',
+				antialiased=True,
+			) ), 
+			 fig.map_overlay_shading(data['hcc','sfc'], static, **conf.plotf.merge('sfc', 'hcc',
+				alpha=0.4, 
+				scale=s,
+				extend='neither',
+				antialiased=True,
+			) ), 
+		]
+		plotconf = conf.plotf.merge('sfc', 'lcc',
+				overlays=overlays,
 				scale=s,
 				ticks=t,
 				ticklabels=["0/8","1/8", "2/8", "3/8", "4/8", "5/8", "6/8", "7/8", "8/8"],
 				extend='neither',
 				**self.std_plotconf
 		)
-		fig.map(data['tcc','sfc'], static, **plotconf)
+		fig.map(data['lcc','sfc'], static, **plotconf)
 
 		return True
 
@@ -811,7 +813,6 @@ class ff10_wind(ff10):
 
 		s = np.arange(5.0,32.6,2.5)
 		plotconf = conf.plotf.merge('sfc', 'u10',
-				cmap=cm.ff, 
 				scale=s,
 				extend='both',
 				overlays=overlays,
@@ -838,7 +839,6 @@ class ff850_wind(ff):
 
 		s=np.arange(10.0,46.0,2.5)
 		plotconf = conf.plotf.merge('850', 'u',
-				cmap=cm.ff, # Set a colormap
 				scale=s,
 				extend='both',
 				overlays=overlays,
@@ -901,7 +901,6 @@ class ffpv2_wind(jets):
 		]
 
 		plotconf = conf.plotf.merge('pv2000', 'u',
-				cmap=cm.ff, 
 				scale=np.arange(15,76,5),
 				ticks=np.arange(15,76,15),
 				extend='both',
@@ -931,10 +930,10 @@ plot_only_init = False
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 
 # Everything
-plots = [q850_msl(),
+plots = [cc(),
 #	t850_msl(), z500_msl(), the850_wind(), q850_msl(), deform850_msl(), 
 #	pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
-#	ptpv2_wind(), tcwv(), tcc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
+#	ptpv2_wind(), tcwv(), cc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
 #	pvpt300_wind_npolar(), pvpt315_wind_npolar(), pvpt330_wind_npolar(), pvpt350_wind_npolar(), 
 #	tcwv_npolar(), ptpv2_wind_npolar(),
 ]

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
 
+from reverse import reverse_cm
 from matplotlib.colors import LinearSegmentedColormap
 from numpy import nan, inf
 
@@ -29,21 +30,13 @@ cm_data = {'red': ((0.0, 0.0, 0.0),
 		   (1.0, 0.0, 0.0))
 }
 
+RdYlCyBu2 = LinearSegmentedColormap(__file__, cm_data)
+RdYlCyBu2_r = LinearSegmentedColormap(__file__, reverse_cm(cm_data))
 
-test_cm = LinearSegmentedColormap(__file__, cm_data)
+# Make a clean "from <colormap> import *"
+__all__ = ['RdYlCyBu2', 'RdYlCyBu2_r']
 
-
-if __name__ == "__main__":
-	import matplotlib.pyplot as plt
-	import numpy as np
-
-	try:
-		from pycam02ucs.cm.viscm import viscm
-		viscm(test_cm)
-	except ImportError:
-		print("pycam02ucs not found, falling back on simple display")
-		plt.imshow(np.linspace(0, 100, 256)[None, :], aspect='auto',
-				   cmap=test_cm)
-	plt.show()
+# For use with viscm
+test_cm = RdYlCyBu2
 
 # the end

@@ -265,18 +265,13 @@ cm_data = [[ 0.99825994,  0.99988592,  0.9994606 ],
        [ 0.74258836,  0.04127847,  0.51477848],
        [ 0.75542684,  0.02653809,  0.52049118]]
 
-test_cm = LinearSegmentedColormap.from_list(__file__, cm_data)
+WYlBuKPi = LinearSegmentedColormap.from_list(__file__, cm_data)
+WYlBuKPi_r = LinearSegmentedColormap.from_list(__file__, cm_data[::-1])
 
+# Make a clean "from <colormap> import *"
+__all__ = ['WYlBuKPi', 'WYlBuKPi_r']
 
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    import numpy as np
+# For use with viscm
+test_cm = WYlBuKPi
 
-    try:
-        from pycam02ucs.cm.viscm import viscm
-        viscm(test_cm)
-    except ImportError:
-        print("pycam02ucs not found, falling back on simple display")
-        plt.imshow(np.linspace(0, 100, 256)[None, :], aspect='auto',
-                   cmap=test_cm)
-    plt.show()
+# the end
