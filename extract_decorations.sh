@@ -6,7 +6,7 @@
 ipath="/Home/siv22/csp001/work/iveret/vaerkart/web/plots"
 opath="/Home/siv22/csp001/work/iveret/vaerkart/web/static/deco"
 
-plotdomain="no_for_full"
+plotdomain="ec_for_npolar"
 
 # Aspect 3:2; for ec_for
 #geometry="120x720+1080+0"
