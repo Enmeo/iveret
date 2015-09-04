@@ -11,9 +11,9 @@ plotdomain="ec_for_npolar"
 # Aspect 3:2; for ec_for
 #geometry="120x720+1080+0"
 # Aspect 1:1; for ec_for_npolar and no_for
-#geometry="107x960+960+0"
+geometry="106x960+960+0"
 # Aspect about 4:5; for no_for_full
-geometry="89x1019+800+0"
+#geometry="89x1019+800+0"
 
 # Extract the init date from the last changed file 
 last_img=`ls -tr $ipath/${plotdomain}* | tail -n 1`
