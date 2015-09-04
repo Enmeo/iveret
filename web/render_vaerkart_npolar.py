@@ -68,9 +68,13 @@ class overlay(object):
 # Defining stuff
 tcwv = variable(u'Total column water vapour', 'kg/m²', u'')
 pvpt300 = variable(u'Potential vorticity', 'PVU', u'300 K')
+ffpt300 = variable(u'Wind speed', 'm/s', u'300 K')
 pvpt315 = variable(u'Potential vorticity', 'PVU', u'315 K')
+ffpt315 = variable(u'Wind speed', 'm/s', u'315 K')
 pvpt330 = variable(u'Potential vorticity', 'PVU', u'330 K')
+ffpt330 = variable(u'Wind speed', 'm/s', u'330 K')
 pvpt350 = variable(u'Potential vorticity', 'PVU', u'350 K')
+ffpt350 = variable(u'Wind speed', 'm/s', u'350 K')
 ptpv2 = variable(u'Potential temperature', 'K', u'PV 2')
 ffpv2 = variable(u'Wind speed', 'm/s', u'PV 2')
 
@@ -86,13 +90,13 @@ jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
 
 o = overlay
 plotlist = [
-	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), ],
+	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), o('blue', ffpt300, 30), ],
 		name='300 K Pot. Vorticity and winds'),
-	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), ],
+	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), o('blue', ffpt315, 30), ],
 		name='315 K Pot. Vorticity and winds'),
-	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), ],
+	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), o('blue', ffpt330, 30), ],
 		name='330 K Pot. Vorticity and winds'),
-	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), ],
+	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), o('blue', ffpt350, 30), ],
 		name='350 K Pot. Vorticity and winds'),
 	plot(u'ptpv2_wind', ptpv2, [o('black', barbspv2, None), ],
 		name='PV2 Pot. temperature and winds'),

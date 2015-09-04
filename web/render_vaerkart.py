@@ -71,16 +71,20 @@ z500 = variable(u'Geopotential', u'gpdm', u'500 hPa')
 t850 = variable(u'Temperature', u'°C', u'850 hPa')
 the850 = variable(u'Eq. Pot. Temperature', 'K', u'850 hPa')
 q850 = variable(u'Spec. Humidity', 'g/kg', u'850 hPa')
-ff850 = variable(u'Wind speed', 'm/s', u'850 hPa')
+ff700 = variable(u'Wind speed', 'm/s', u'700 hPa')
 def850 = variable(u'Deformation', '10⁻⁵/s', u'850 hPa')
 ff10 = variable(u'10 m wind speed', 'm/s', u'')
 tcwv = variable(u'Total column water vapour', 'kg/m²', u'')
-tcc = variable(u'Total cloud cover', '', u'')
+tcc = variable(u'Cloud cover (lower: blue, mid: orange, upper: gray)', '', u'')
 tp = variable(u'Precipitiation', 'mm/h', u'')
 pvpt300 = variable(u'Potential vorticity', 'PVU', u'300 K')
+ffpt300 = variable(u'Wind speed', 'm/s', u'300 K')
 pvpt315 = variable(u'Potential vorticity', 'PVU', u'315 K')
+ffpt315 = variable(u'Wind speed', 'm/s', u'315 K')
 pvpt330 = variable(u'Potential vorticity', 'PVU', u'330 K')
+ffpt330 = variable(u'Wind speed', 'm/s', u'330 K')
 pvpt350 = variable(u'Potential vorticity', 'PVU', u'350 K')
+ffpt350 = variable(u'Wind speed', 'm/s', u'350 K')
 ptpv2 = variable(u'Potential temperature', 'K', u'PV 2')
 ffpv2 = variable(u'Wind speed', 'm/s', u'PV 2')
 
@@ -97,6 +101,8 @@ barbspv2 = variable(u'Wind barbs', u'm/s', u'PV 2')
 defang850 = variable(u'Axes of dilatation', u'', u'850 hPa')
 icwvt = variable(u'Integrated column water vapour transport', u'', u'')
 jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
+sshff = variable(u'Surface sensible heat flux', u'W/m²', u'')
+slhff = variable(u'Surface latent heat flux', u'W/m²', u'')
 
 o = overlay
 plotlist = [
@@ -112,19 +118,20 @@ plotlist = [
 		name='850 hPa Wind speed and direction'),
 	plot(u'deform850_msl', def850, [o('black double-arrows', defang850, None), o('blue', msl, 10), ],
 		name='850 hPa Horizontal deformation and SLP'),
-	plot(u'ff10_wind', ff10, [o('black', barbs10, None), ],
-		name='10 m Wind speed and direction'),
+	plot(u'ff10_flux', ff10, 
+		[o('black', barbs10, None), o('cyan', slhff, [-300, -150, 150, 300]), o('magenta', sshff, [-300, -150, 150, 300]), ],
+		name='10 m Winds and surface heat fluxes'),
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
 		name='Total column water vapour, integrated fluxes and precipitation'),
 	plot(u'tcc', tcc),
 	plot(u'tp', tp),
-	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), ],
+	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), o('blue', ffpt300, 15),],
 		name='300 K Pot. Vorticity and winds'),
-	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), ],
+	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), o('blue', ffpt315, 15),, ],
 		name='315 K Pot. Vorticity and winds'),
-	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), ],
+	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), o('blue', ffpt330, 15),, ],
 		name='330 K Pot. Vorticity and winds'),
-	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), ],
+	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), o('blue', ffpt350, 15),, ],
 		name='350 K Pot. Vorticity and winds'),
 	plot(u'ptpv2_wind', ptpv2, [o('black', barbspv2, None), ],
 		name='PV2 Pot. temperature and winds'),

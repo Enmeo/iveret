@@ -12,11 +12,16 @@ crr = ('crr', 'crr', 'Convective rain rate', 'm h**-1')
 lsrr = ('lsrr', 'lsrr', 'Large-scale rain rate', 'm h**-1')
 trr = ('trr', 'trr', 'Total rain rate', 'm h**-1')
 ff10 = ('ff10', 'ff10', '10 metre wind speed', 'm s**-1')
+sshff = ('sshff', 'sshff', 'Surface sensible heat flux', 'W m**2')
+slhff = ('slhff', 'slhff', 'Surface latent heat flux', 'W m**2')
 
 # Surface variables
 conf.sfclevs = ['sfc', ]
-conf.register_variable([tp, crr, lsrr, trr, ff10], conf.sfclevs)
+conf.register_variable([tp, crr, lsrr, trr, ff10, sshff, slhff], conf.sfclevs)
 
+# Derived variables on specific surfaces
+conf.register_variable([d.eqpt, d.defabs, ], ['850',])
+conf.register_variable([d.ff, ], ['pv2000', '700', 'pt300', 'pt315', 'pt330', 'pt350'])
 
 
 def map_tmp():
@@ -52,6 +57,7 @@ conf.plot[None, None, 'cb_orientation'] = 'vertical'
 conf.plotf[None, 'z', 'cmap'] = cm.z
 conf.plotf[None, 'pv', 'cmap'] = cm.pv
 conf.plotf[None, 'ff', 'cmap'] = cm.ff
+conf.plotf[None, 'ff10', 'cmap'] = cm.ff
 conf.plotf[None, 't', 'cmap'] = cm.t
 conf.plotf[None, 'pt', 'cmap'] = cm.t
 conf.plotf[None, 'eqpt', 'cmap'] = cm.t
@@ -60,5 +66,7 @@ conf.plotf[None, 'tcwv', 'cmap'] = cm.q
 conf.plotf[None, 'lcc', 'cmap'] = cm.lcc
 conf.plotf[None, 'mcc', 'cmap'] = cm.mcc
 conf.plotf[None, 'hcc', 'cmap'] = cm.hcc
+conf.plotf[None, 'trr', 'cmap'] = cm.trr
+conf.plotf[None, 'defabs', 'cmap'] = cm.deform
 
 # that's it

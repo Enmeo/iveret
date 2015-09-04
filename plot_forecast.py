@@ -11,6 +11,7 @@ import dynlib.humidity
 import dynlib.detect
 import dynlib.diag
 import dynlib.sphere
+import dynlib.utils
 
 from dynlib.shorthands import *
 from settings.ecmwf import *
@@ -26,7 +27,7 @@ class plotter(object):
 	opath = conf.opath
 	
 	# Add colorbar and legend
-	decorations = True
+	decorations = False
 
 	# Which data is required for the plot
 	requires=[]
@@ -44,8 +45,8 @@ class plotter(object):
 		'title': None,
 	}
 
-	figsize = (10.8,7.2)
-	figsize_deco = (12.0,7.2)
+	figsize = (7.2,4.8)
+	figsize_deco = (8,4.8)
 	
 	# Do the art; to be overriden in derived classes
 	def plot(self, data, static, dateinit, datevalid):
@@ -86,8 +87,8 @@ class npolar(plotter):
 	std_plotconf = copy.copy(plotter.std_plotconf)
 	std_plotconf['m'] = proj.n_hemisphere
 
-	figsize = (9.6,9.6)
-	figsize_deco = (10.67,9.6)
+	figsize = (6.4,6.4)
+	figsize_deco = (7.1111,6.4)
 
 
 
@@ -117,6 +118,28 @@ class pv_wind(plotter):
 class pt_wind(plotter):
 	pass
 
+# (Integrated) Fluxes
+class flux(plotter):
+	# From integrated flux to flux (in W/m²)
+	def __normalise(self, cum_flux, static):
+		dates = static.t_parsed
+		intlens = np.array([(dates[i+1]-dates[i]).total_seconds() for i in range(len(dates)-1)])
+		flux = np.zeros(cum_flux.shape)
+		flux[1:] = cum_flux[1:]-cum_flux[:-1]
+		flux[1:] /= intlens[:,np.newaxis,np.newaxis]
+
+		return -1*flux
+
+	def cal_sensible(self, data, plev, static):
+		if not ('sshff', plev) in data:
+			data['sshff',plev] = dynlib.utils.smooth_xy(
+					self.__normalise(data['sshf',plev], static), 3)
+
+	def cal_latent(self, data, plev, static):
+		if not ('slhff', plev) in data:
+			data['slhff',plev] = dynlib.utils.smooth_xy(
+					self.__normalise(data['slhf',plev], static), 3)
+
 # Precipitation
 class precip(plotter):
 	# From cumulative precipitation to precip per hour
@@ -140,7 +163,6 @@ class precip(plotter):
 	def cal_trainrate(self, data, plev, static):
 		if not ('trr', plev) in data:
 			data['trr',plev] = data['crr',plev] + data['lsrr',plev]
-
 
 # Integrated water vapour constant, based on a given set of pressure levels
 class iwvtrans(plotter):
@@ -205,14 +227,14 @@ class jets(ff):
 	def cal_jetaxis(self, data, plev, static):
 		dynfor.config.nsmooth = 0
 		dynfor.config.minlen = 2.0e6 
-		dynfor.config.jetint_thres = 0.4e-8
+		dynfor.config.jetint_thres = 0.55e-8
 		dynfor.config.searchrad = 1.5
 		
 		if not ('jetaxis', plev) in data:
-			# Interpolation to T42 resolution
+			# Interpolation to T63 resolution
 			br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(data['u',plev], data['v',plev])
-			dynlib.sphere.trunc_triangular(br, bi, 42)
-			dynlib.sphere.trunc_triangular(cr, ci, 42)
+			dynlib.sphere.trunc_triangular(br, bi, 63)
+			dynlib.sphere.trunc_triangular(cr, ci, 63)
 			us, vs = dynlib.sphere.sh_synthesis_vector(data['u',plev].shape[2], br,bi,cr,ci)
 			
 			# Jet axis detections
@@ -360,8 +382,9 @@ class q850_msl(precip):
 
 
 # Potential vorticity@300K shading and wind barbs
-class pvpt300_wind_npolar(pv_wind,npolar):
+class pvpt300_wind_npolar(pv_wind,npolar,jets):
 	requires = [('pv', 'pt300'), ('u', 'pt300'), ('v', 'pt300')]
+	requires_diagnostic = [ (jets.cal_ff, 'pt300'), ]
 	plotname = 'pvpt300_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -373,6 +396,11 @@ class pvpt300_wind_npolar(pv_wind,npolar):
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_contour(data['ff','pt300'], static, **conf.plot.merge('pt300', 'ff', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(30,100,30), 
+				colors='b')  ), 
 			fig.map_overlay_barbs(data['u','pt300'], data['v','pt300'], static, **conf.plot.merge('pt300', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -390,8 +418,9 @@ class pvpt300_wind_npolar(pv_wind,npolar):
 
 
 # Potential vorticity@300K shading and wind barbs
-class pvpt315_wind_npolar(pv_wind,npolar):
+class pvpt315_wind_npolar(pv_wind,npolar,jets):
 	requires = [('pv', 'pt315'), ('u', 'pt315'), ('v', 'pt315')]
+	requires_diagnostic = [ (jets.cal_ff, 'pt315'), ]
 	plotname = 'pvpt315_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -403,6 +432,11 @@ class pvpt315_wind_npolar(pv_wind,npolar):
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_contour(data['ff','pt315'], static, **conf.plot.merge('pt315', 'ff', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(30,100,30), 
+				colors='b')  ), 
 			fig.map_overlay_barbs(data['u','pt315'], data['v','pt315'], static, **conf.plot.merge('pt315', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -420,8 +454,9 @@ class pvpt315_wind_npolar(pv_wind,npolar):
 
 
 # Potential vorticity@350K shading and wind barbs
-class pvpt330_wind_npolar(pv_wind,npolar):
+class pvpt330_wind_npolar(pv_wind,npolar,jets):
 	requires = [('pv', 'pt330'), ('u', 'pt330'), ('v', 'pt330')]
+	requires_diagnostic = [ (jets.cal_ff, 'pt330'), ]
 	plotname = 'pvpt330_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -433,6 +468,11 @@ class pvpt330_wind_npolar(pv_wind,npolar):
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_contour(data['ff','pt330'], static, **conf.plot.merge('pt330', 'ff', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(30,100,30), 
+				colors='b')  ), 
 			fig.map_overlay_barbs(data['u','pt330'], data['v','pt330'], static, **conf.plot.merge('pt330', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -450,8 +490,9 @@ class pvpt330_wind_npolar(pv_wind,npolar):
 
 
 # Potential vorticity@350K shading and wind barbs
-class pvpt350_wind_npolar(pv_wind,npolar):
+class pvpt350_wind_npolar(pv_wind,npolar,jets):
 	requires = [('pv', 'pt350'), ('u', 'pt350'), ('v', 'pt350')]
+	requires_diagnostic = [ (jets.cal_ff, 'pt350'), ]
 	plotname = 'pvpt350_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -463,6 +504,11 @@ class pvpt350_wind_npolar(pv_wind,npolar):
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_contour(data['ff','pt350'], static, **conf.plot.merge('pt350', 'ff', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(30,100,30), 
+				colors='b')  ), 
 			fig.map_overlay_barbs(data['u','pt350'], data['v','pt350'], static, **conf.plot.merge('pt350', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -480,8 +526,9 @@ class pvpt350_wind_npolar(pv_wind,npolar):
 
 
 # Potential vorticity@300K shading and wind barbs
-class pvpt300_wind(pv_wind):
+class pvpt300_wind(pv_wind,jets):
 	requires = [('pv', 'pt300'), ('u', 'pt300'), ('v', 'pt300')]
+	requires_diagnostic = [ (jets.cal_ff, 'pt300'), ]
 	plotname = 'pvpt300_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -493,6 +540,11 @@ class pvpt300_wind(pv_wind):
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_contour(data['ff','pt300'], static, **conf.plot.merge('pt300', 'ff', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(15,100,15),
+				colors='b')  ), 
 			fig.map_overlay_barbs(data['u','pt300'], data['v','pt300'], static, **conf.plot.merge('pt300', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -510,8 +562,9 @@ class pvpt300_wind(pv_wind):
 
 
 # Potential vorticity@300K shading and wind barbs
-class pvpt315_wind(pv_wind):
+class pvpt315_wind(pv_wind,jets):
 	requires = [('pv', 'pt315'), ('u', 'pt315'), ('v', 'pt315')]
+	requires_diagnostic = [ (jets.cal_ff, 'pt315'), ]
 	plotname = 'pvpt315_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -523,6 +576,11 @@ class pvpt315_wind(pv_wind):
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_contour(data['ff','pt315'], static, **conf.plot.merge('pt315', 'ff', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(15,100,15),
+				colors='b')  ), 
 			fig.map_overlay_barbs(data['u','pt315'], data['v','pt315'], static, **conf.plot.merge('pt315', 'u') ),
 	]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -540,8 +598,9 @@ class pvpt315_wind(pv_wind):
 
 
 # Potential vorticity@350K shading and wind barbs
-class pvpt330_wind(pv_wind):
+class pvpt330_wind(pv_wind,jets):
 	requires = [('pv', 'pt330'), ('u', 'pt330'), ('v', 'pt330')]
+	requires_diagnostic = [ (jets.cal_ff, 'pt330'), ]
 	plotname = 'pvpt330_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -553,6 +612,11 @@ class pvpt330_wind(pv_wind):
 				contour_labels=False, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_contour(data['ff','pt330'], static, **conf.plot.merge('pt330', 'ff', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(15,100,15),
+				colors='b')  ), 
 			fig.map_overlay_barbs(data['u','pt330'], data['v','pt330'], static, **conf.plot.merge('pt330', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -570,8 +634,9 @@ class pvpt330_wind(pv_wind):
 
 
 # Potential vorticity@350K shading and wind barbs
-class pvpt350_wind(pv_wind):
+class pvpt350_wind(pv_wind,jets):
 	requires = [('pv', 'pt350'), ('u', 'pt350'), ('v', 'pt350')]
+	requires_diagnostic = [ (jets.cal_ff, 'pt350'), ]
 	plotname = 'pvpt350_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -583,6 +648,11 @@ class pvpt350_wind(pv_wind):
 				contour_labels=True, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
+			fig.map_overlay_contour(data['ff','pt350'], static, **conf.plot.merge('pt350', 'ff', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(15,100,15),
+				colors='b')  ), 
 			fig.map_overlay_barbs(data['u','pt350'], data['v','pt350'], static, **conf.plot.merge('pt350', 'u') ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -663,7 +733,6 @@ class tp(precip):
 		s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
 		st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
 		plotconf = conf.plotf.merge('sfc', 'trr',
-				cmap=cm.prec_bl,
 				norm=mpl.colors.BoundaryNorm(st, 256),
 				cb_tickspacing='uniform',
 				extend='max',
@@ -798,21 +867,32 @@ class cc(plotter):
 
 
 # Near surface winds.
-class ff10_wind(ff10):
-	requires = [('u10', 'sfc'), ('v10', 'sfc')]
-	requires_diagnostic = [(ff10.cal_ff10, 'sfc'), ]
-	plotname = 'ff10_wind' 
+class ff10_flux(ff10,flux):
+	requires = [('u10', 'sfc'), ('v10', 'sfc'), ('sshf', 'sfc'), ('slhf', 'sfc'), ]
+	requires_diagnostic = [(ff10.cal_ff10, 'sfc'), (flux.cal_sensible, 'sfc'), (flux.cal_latent, 'sfc'), ]
+	plotname = 'ff10_flux' 
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = plotter.plot(self, data, static, dateinit, datevalid)
 		if done:
 			return True
 		
-		overlays = [fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10') ),
+		overlays = [
+			fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10') ),
+			fig.map_overlay_contour(data['sshff','sfc'], static, **conf.plot.merge('sfc', 'sshff',
+				linewidths=[2], 
+				colors='m',
+				alpha=0.7,
+				scale=[-300, -150, 150, 300, ] ) ), 
+			fig.map_overlay_contour(data['slhff','sfc'], static, **conf.plot.merge('sfc', 'slhff',
+				linewidths=[2], 
+				colors='c',
+				alpha=0.7,
+				scale=[-300,-150, 150, 300, ] ) ), 
 		]
 
 		s = np.arange(5.0,32.6,2.5)
-		plotconf = conf.plotf.merge('sfc', 'u10',
+		plotconf = conf.plotf.merge('sfc', 'ff10',
 				scale=s,
 				extend='both',
 				overlays=overlays,
@@ -824,27 +904,27 @@ class ff10_wind(ff10):
 
 
 # Near surface winds.
-class ff850_wind(ff):
-	requires = [('u', '850'), ('v', '850')]
-	requires_diagnostic = [(ff.cal_ff, '850'), ]
-	plotname = 'ff850_wind'
+class ff700_wind(ff):
+	requires = [('u', '700'), ('v', '700')]
+	requires_diagnostic = [(ff.cal_ff, '700'), ]
+	plotname = 'ff700_wind'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = plotter.plot(self, data, static, dateinit, datevalid)
 		if done:
 			return True
 
-		overlays = [fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10') ),
+		overlays = [fig.map_overlay_barbs(data['u','700'], data['v','700'], static, **conf.plot.merge('700', 'ff') ),
 		]
 
 		s=np.arange(10.0,46.0,2.5)
-		plotconf = conf.plotf.merge('850', 'u',
+		plotconf = conf.plotf.merge('700', 'ff',
 				scale=s,
 				extend='both',
 				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map(data['ff','850'], static, **plotconf)
+		fig.map(data['ff','700'], static, **plotconf)
 
 		return True
 
@@ -860,6 +940,10 @@ class deform850_msl(deform):
 		if done:
 			return True
 
+		defabs, defang = data['defabs','850'], data['defang','850']
+		defabs[defabs < 3.0e-5] = np.nan
+		defang[defabs < 3.0e-5] = np.nan
+
 		overlays = [
 			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl',
 				contour_labels=True, 
@@ -869,10 +953,9 @@ class deform850_msl(deform):
 				colors='b',
 				alpha=0.7,
 				scale=range(900,1070,10) ) ), 
-			fig.map_overlay_dilatation(data['defabs','850'], data['defang','850'], static, **conf.plot.merge('850', 'defabs') ),
+			fig.map_overlay_dilatation(defabs, defang, static, **conf.plot.merge('850', 'defabs') ),
 		]
 
-		s=np.arange(10,46,2.5)
 		plotconf = conf.plotf.merge('850', 'defabs',
 				overlays=overlays,
 				scale=np.arange(6,31,3),
@@ -900,7 +983,7 @@ class ffpv2_wind(jets):
 			fig.map_overlay_barbs(data['u','pv2000'], data['v','pv2000'], static, **conf.plot.merge('pv2000', 'ff') ),
 		]
 
-		plotconf = conf.plotf.merge('pv2000', 'u',
+		plotconf = conf.plotf.merge('pv2000', 'ff',
 				scale=np.arange(15,76,5),
 				ticks=np.arange(15,76,15),
 				extend='both',
@@ -924,18 +1007,18 @@ else:
 		forecast -= td(1,0)
 
 # Override
-forecast = dt(2015,7,16,12)
+#forecast = dt(2015,9,2,12)
 plot_only_init = False
 
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 
 # Everything
-plots = [cc(),
-#	t850_msl(), z500_msl(), the850_wind(), q850_msl(), deform850_msl(), 
-#	pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
-#	ptpv2_wind(), tcwv(), cc(), tp(), ff10_wind(), ffpv2_wind(), ff850_wind(), 
-#	pvpt300_wind_npolar(), pvpt315_wind_npolar(), pvpt330_wind_npolar(), pvpt350_wind_npolar(), 
-#	tcwv_npolar(), ptpv2_wind_npolar(),
+plots = [
+	t850_msl(), z500_msl(), the850_wind(), q850_msl(), deform850_msl(), 
+	pvpt300_wind(), pvpt315_wind(), pvpt330_wind(), pvpt350_wind(), 
+	ptpv2_wind(), tcwv(), cc(), tp(), ff10_flux(), ffpv2_wind(), ff700_wind(), 
+	pvpt300_wind_npolar(), pvpt315_wind_npolar(), pvpt330_wind_npolar(), pvpt350_wind_npolar(), 
+	tcwv_npolar(), ptpv2_wind_npolar(),
 ]
 
 data = {}
@@ -945,7 +1028,7 @@ for plot in plots:
 		if (q,plev) not in data:
 			try:
 				f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
-			except ValueError:
+			except (ValueError, RuntimeError):
 				print 'Error loading data: ', (q, plev)
 				plot.error = True
 				continue

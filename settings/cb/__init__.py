@@ -19,6 +19,7 @@ from RdYlCyBu3 import *
 from WBuKRd import *
 from WBuPi import *
 from WBuPi2 import *
+from WCyBuPi import *
 from WCyGnRd import *
 from WCyGnYlRd import *
 from WYlBuKPi import *

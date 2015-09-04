@@ -5,9 +5,9 @@ from reverse import reverse_cm
 from matplotlib.colors import LinearSegmentedColormap
 from numpy import nan, inf
 
-cm_data = {'red':   ((0.0, 0.0, 0.0), (1.0, 0.8, 0.8)),
-	   'green': ((0.0, 0.0, 0.0), (1.0, 0.5, 0.5)),
-	   'blue':  ((0.0, 0.0, 0.0), (1.0, 0.2, 0.2))  }
+cm_data = {'red':   ((0.0, 0.0, 0.0), (1.0, 1.0, 1.0)),
+	   'green': ((0.0, 0.0, 0.0), (1.0, 0.6, 0.6)),
+	   'blue':  ((0.0, 0.0, 0.0), (1.0, 0.3, 0.3))  }
 
 KOr = LinearSegmentedColormap(__file__, cm_data)
 KOr_r = LinearSegmentedColormap(__file__, reverse_cm(cm_data))

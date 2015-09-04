@@ -18,5 +18,7 @@ cm.ff = cb.WYlGn
 cm.lcc = cb.KBu
 cm.mcc = cb.KOr
 cm.hcc = cm.gray
+cm.trr = cb.WBuPi2
+cm.deform = cb.WBuKRd
 
 # the end

@@ -37,8 +37,8 @@ class plotter(object):
 		'title': None,
 	}
 	
-	figsize = (9.6,9.6)
-	figsize_deco = (10.67,9.6)
+	figsize = (6.4,6.4)
+	figsize_deco = (7.1111,6.4)
 	
 	# Do the art; to be overriden in derived classes
 	def plot(self, data, static, dateinit, datevalid):
@@ -77,8 +77,8 @@ class scandies(plotter):
 	std_plotconf = copy.copy(plotter.std_plotconf)
 	std_plotconf['m'] = proj.Scandimap
 
-	figsize = (8.0,10.2)
-	figsize_deco = (8.89,10.2)
+	figsize = (5.0,6.375)
+	figsize_deco = (5.5556,6.375)
 
 
 ######################################################
