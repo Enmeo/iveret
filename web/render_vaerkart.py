@@ -27,7 +27,7 @@ else:
 		date_base -= td(1,0)
 
 # Override
-date_base = dt(2015,7,16,12)
+#date_base = dt(2015,7,16,12)
 
 print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
 
@@ -92,6 +92,7 @@ msl = variable(u'Sea level pressure', 'hPa', u'')
 cp = variable(u'Convective precipitation', 'mm/h', u'')
 lp = variable(u'Large-scale precipitation', 'mm/h', u'')
 barbs850 = variable(u'Wind barbs', u'm/s', u'850 hPa')
+barbs700 = variable(u'Wind barbs', u'm/s', u'700 hPa')
 barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
 barbspt300 = variable(u'Wind barbs', u'm/s', u'300 K')
 barbspt315 = variable(u'Wind barbs', u'm/s', u'315 K')
@@ -106,7 +107,7 @@ slhff = variable(u'Surface latent heat flux', u'W/m²', u'')
 
 o = overlay
 plotlist = [
-	plot(u'z500_msl', z500, [o('white', z500, 16), o('black', msl, 5)], 
+	plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
 		name='500 hPa Geopotential and SLP'), 
 	plot(u't850_msl', t850, [o('black dashes', t850, [0,]), o('black', msl, 5)],
 		name='850 hPa Temperature and SLP'),
@@ -114,10 +115,10 @@ plotlist = [
 		name='850 hPa Equiv. pot. temperature and winds'),
 	plot(u'q850_msl', q850, [o('black', msl, 5), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
 		name='850 hPa Spec. humidity, precipitation and SLP'),
-	plot(u'ff850_wind', ff850, [o('black', barbs850, None), ],
-		name='850 hPa Wind speed and direction'),
 	plot(u'deform850_msl', def850, [o('black double-arrows', defang850, None), o('blue', msl, 10), ],
 		name='850 hPa Horizontal deformation and SLP'),
+	plot(u'ff700_wind', ff700, [o('black', barbs700, None), ],
+		name='700 hPa Wind speed and direction'),
 	plot(u'ff10_flux', ff10, 
 		[o('black', barbs10, None), o('cyan', slhff, [-300, -150, 150, 300]), o('magenta', sshff, [-300, -150, 150, 300]), ],
 		name='10 m Winds and surface heat fluxes'),
@@ -127,11 +128,11 @@ plotlist = [
 	plot(u'tp', tp),
 	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), o('blue', ffpt300, 15),],
 		name='300 K Pot. Vorticity and winds'),
-	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), o('blue', ffpt315, 15),, ],
+	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), o('blue', ffpt315, 15), ],
 		name='315 K Pot. Vorticity and winds'),
-	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), o('blue', ffpt330, 15),, ],
+	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), o('blue', ffpt330, 15), ],
 		name='330 K Pot. Vorticity and winds'),
-	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), o('blue', ffpt350, 15),, ],
+	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), o('blue', ffpt350, 15), ],
 		name='350 K Pot. Vorticity and winds'),
 	plot(u'ptpv2_wind', ptpv2, [o('black', barbspv2, None), ],
 		name='PV2 Pot. temperature and winds'),
@@ -142,6 +143,7 @@ plotlist = [
 plotdomains = [
 	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
+	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
 ]

@@ -10,7 +10,8 @@ from django.template import Context, loader
 
 # Where to save the weather map; 
 # TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
-basepath = '/Data/gfi/metno/visualisation'
+#basepath = '/Data/gfi/metno/visualisation'
+basepath = '/home/dfelt/metno/visualisation'
 filepath = basepath+'/web/vaerkart_npolar.html'
 settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
 
@@ -100,6 +101,8 @@ plotlist = [
 		name='350 K Pot. Vorticity and winds'),
 	plot(u'ptpv2_wind', ptpv2, [o('black', barbspv2, None), ],
 		name='PV2 Pot. temperature and winds'),
+	plot(u'ffpv2_wind', ffpv2, [o('black', barbspv2, None), o('white', jetaxespv2, None), ],
+		name='PV2 Wind speed, direction and jet axes'),
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
 		name='Total column water vapour, integrated fluxes and precipitation'),
 ]
@@ -107,6 +110,7 @@ plotlist = [
 plotdomains = [
 	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
+	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
 ]

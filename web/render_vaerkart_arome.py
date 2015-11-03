@@ -10,7 +10,8 @@ from django.template import Context, loader
 
 # Where to save the weather map; 
 # TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
-basepath = '/Data/gfi/metno/visualisation'
+#basepath = '/Data/gfi/metno/visualisation'
+basepath = '/home/dfelt/metno/visualisation'
 filepath = basepath+'/web/vaerkart_arome.html'
 settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
 
@@ -87,6 +88,7 @@ plotlist = [
 plotdomains = [
 	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
+	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
 ]
@@ -104,7 +106,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = loader.get_template(template_name='template.html')
 c = Context({
 	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[2][0],
+	'plot_domain': plotdomains[3][0],
 	'plot_prefix': 'no_for',
 	'plotlist': plotlist, 
 	'timlist': timlist,
