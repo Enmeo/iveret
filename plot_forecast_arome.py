@@ -7,8 +7,9 @@ import matplotlib as mpl
 mpl.use('Agg')
 
 from dynlib.shorthands import *
-from settings_metno import *
+from settings.metno import *
 
+print conf.plotpath
 
 ######################################################
 # The base of _everything_
@@ -200,7 +201,7 @@ class tp(precip):
 		s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
 		st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
 		plotconf = conf.plotf.merge('sfc', 'trr',
-				cmap=cm.prec_bl, # Set a colormap
+				cmap=cm.trr, # Set a colormap
 				norm=mpl.colors.BoundaryNorm(st, 256),
 				cb_tickspacing='uniform',
 				extend='max',

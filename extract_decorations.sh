@@ -1,16 +1,13 @@
 #!/bin/bash
 
-#ipath="/Data/gfi/users/csp001/forecasts/web/plots"
-#opath="/Data/gfi/users/csp001/forecasts/web/static/deco"
+ipath="/Data/gfi/metno/visualisation/web/plots"
+opath="/Data/gfi/metno/visualisation/web/static/deco"
 
-ipath="/Home/siv22/csp001/work/iveret/vaerkart/web/plots"
-opath="/Home/siv22/csp001/work/iveret/vaerkart/web/static/deco"
-
-plotdomain="ec_for_npolar"
+plotdomain="ec_for_spolar"
 
 # Aspect 3:2; for ec_for
 #geometry="120x720+1080+0"
-# Aspect 1:1; for ec_for_npolar and no_for
+# Aspect 1:1; for ec_for_npolar, ec_for_spolar and no_for
 geometry="106x960+960+0"
 # Aspect about 4:5; for no_for_full
 #geometry="89x1019+800+0"

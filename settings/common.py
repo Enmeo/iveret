@@ -8,7 +8,8 @@ import dynlib.context.plot
 import cb
 
 # Set the default output location (e.g. for plots)
-conf.plotpath = './web/plots'
+#conf.plotpath = '/Data/gfi/metno/visualisation/web/plots'
+conf.plotpath = '/home/dfelt/metno/visualisation/web/plots'
 
 cm.z = cb.KPiRdYl1
 cm.q = cb.WYlBuKPi

@@ -4,6 +4,7 @@
 basepath='/Data/gfi/metno/visualisation'
 logpath='/Data/gfi/metno/log'
 
+
 # Make the scripts find dynlib and django and the matplotlib config
 export PYTHONPATH="$PYTHONPATH:/Data/gfi/users/local/lib/python2.7/site-packages"
 export MPLCONFIGDIR="$basepath/mpl_config"

@@ -90,16 +90,18 @@ jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
 
 o = overlay
 plotlist = [
-	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), o('blue', ffpt300, 30), ],
+	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), ],
 		name='300 K Pot. Vorticity and winds'),
-	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), o('blue', ffpt315, 30), ],
+	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), ],
 		name='315 K Pot. Vorticity and winds'),
-	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), o('blue', ffpt330, 30), ],
+	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), ],
 		name='330 K Pot. Vorticity and winds'),
-	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), o('blue', ffpt350, 30), ],
+	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), ],
 		name='350 K Pot. Vorticity and winds'),
 	plot(u'ptpv2_wind', ptpv2, [o('black', barbspv2, None), ],
 		name='PV2 Pot. temperature and winds'),
+	plot(u'ffpv2_wind', ffpv2, [o('black', barbspv2, None), o('white', jetaxespv2, None), ],
+		name='PV2 Wind speed, direction and jet axes'),
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
 		name='Total column water vapour, integrated fluxes and precipitation'),
 ]
@@ -107,6 +109,7 @@ plotlist = [
 plotdomains = [
 	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
+	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
 ]
