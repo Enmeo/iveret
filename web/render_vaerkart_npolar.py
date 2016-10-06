@@ -10,8 +10,7 @@ from django.template import Context, loader
 
 # Where to save the weather map; 
 # TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
-#basepath = '/Data/gfi/metno/visualisation'
-basepath = '/home/dfelt/metno/visualisation'
+basepath = '/Data/gfi/metno/visualisation'
 filepath = basepath+'/web/vaerkart_npolar.html'
 settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
 
@@ -91,13 +90,13 @@ jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
 
 o = overlay
 plotlist = [
-	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), o('blue', ffpt300, 30), ],
+	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), ],
 		name='300 K Pot. Vorticity and winds'),
-	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), o('blue', ffpt315, 30), ],
+	plot(u'pvpt315_wind', pvpt315, [o('black', barbspt315, None), ],
 		name='315 K Pot. Vorticity and winds'),
-	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), o('blue', ffpt330, 30), ],
+	plot(u'pvpt330_wind', pvpt330, [o('black', barbspt330, None), ],
 		name='330 K Pot. Vorticity and winds'),
-	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), o('blue', ffpt350, 30), ],
+	plot(u'pvpt350_wind', pvpt350, [o('black', barbspt350, None), ],
 		name='350 K Pot. Vorticity and winds'),
 	plot(u'ptpv2_wind', ptpv2, [o('black', barbspv2, None), ],
 		name='PV2 Pot. temperature and winds'),

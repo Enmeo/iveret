@@ -1,10 +1,7 @@
 #!/bin/bash
 
-#ipath="/Data/gfi/users/csp001/forecasts/web/plots"
-#opath="/Data/gfi/users/csp001/forecasts/web/static/deco"
-
-ipath="/home/dfelt/metno/visualisation/web/plots"
-opath="/home/dfelt/metno/visualisation/web/static/deco"
+ipath="/Data/gfi/metno/visualisation/web/plots"
+opath="/Data/gfi/metno/visualisation/web/static/deco"
 
 plotdomain="ec_for_spolar"
 
