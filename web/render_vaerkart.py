@@ -7,6 +7,7 @@ from datetime import datetime as dt, timedelta as td
 
 from settings.common import conf
 
+import django
 from django.conf import settings
 from django.template import Context, loader
 
@@ -15,6 +16,7 @@ from django.template import Context, loader
 filepath = conf.plotpath+'/../vaerkart.html'
 print conf.plotpath+'/..'
 settings.configure(TEMPLATE_DIRS = (conf.plotpath+'/..', ), DEFAULT_CHARSET='utf-8')
+django.setup()
 
 
 # The only free parameter for the entire script
@@ -27,7 +29,7 @@ else:
 		date_base -= td(1,0)
 
 # Override
-#date_base = dt(2015,7,16,12)
+date_base = dt(2016,10,5,12)
 
 print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
 
@@ -75,7 +77,7 @@ ff700 = variable(u'Wind speed', 'm/s', u'700 hPa')
 def850 = variable(u'Deformation', '10⁻⁵/s', u'850 hPa')
 ff10 = variable(u'10 m wind speed', 'm/s', u'')
 tcwv = variable(u'Total column water vapour', 'kg/m²', u'')
-tcc = variable(u'Cloud cover (lower: blue, mid: orange, upper: gray)', '', u'')
+tcc = variable(u'Cloud cover', '', u'')
 tp = variable(u'Precipitiation', 'mm/h', u'')
 pvpt300 = variable(u'Potential vorticity', 'PVU', u'300 K')
 ffpt300 = variable(u'Wind speed', 'm/s', u'300 K')
@@ -123,7 +125,7 @@ plotlist = [
 		[o('black', barbs10, None), o('cyan', slhff, [-300, -150, 150, 300]), o('magenta', sshff, [-300, -150, 150, 300]), ],
 		name='10 m Winds and surface heat fluxes'),
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
-		name='Total column water vapour, integrated fluxes and precipitation'),
+		name='Total column water vapour, fluxes and precip.'),
 	plot(u'tcc', tcc),
 	plot(u'tp', tp, [o('red', t850, [-5,]), o('black', msl, 5)], 
 		name='Total precipitation and SLP'),

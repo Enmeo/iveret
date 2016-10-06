@@ -151,7 +151,7 @@ function chvar(newvar) {
 		$('#cbar_units').text('['+units[prefix]+']');
 	else 
 		$('#cbar_units').text('');
-	$('#vartitle').text(get_varname_by_prefix(newvar));
+	//$('#vartitle').text(get_varname_by_prefix(newvar));
 
 	// Remove focus from drop down to avoid changes due to arrow key strokes
 	$('#varselect').blur();
@@ -270,7 +270,23 @@ $( document ).ready(function() {
 		$('#time_controls').stop(true);
 		$('#time_controls').slideUp(200);
 	});
-});
 
+  $( '#domainselect' ).selectmenu({
+    change: function( event, ui ) {
+      window.location.replace(ui.item.value);
+    }
+  }).selectmenu( "option", "width", 320 );
+  $( '#fcselect' ).selectmenu({
+    change: function( event, ui ) {
+      chfc(ui.item.value);
+    }
+  }).selectmenu( "option", "width", 320 );
+
+  $( '#varselect' ).selectmenu({
+    change: function( event, ui ) {
+      chvar(ui.item.value);
+    }
+  }).selectmenu( "option", "width", 550 );
+});
 
 // the end

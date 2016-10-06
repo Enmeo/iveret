@@ -192,3 +192,17 @@ ul.overlay li:before {
 .red {
 	color: #CC0000;
 }
+
+span.ui-button {
+  padding-left: 0;
+}
+div.ui-selectmenu-open ul {
+  background-color: #221111;
+  color: #ffffff;
+}
+div.ui-selectmenu-open ul#varselect-menu {
+  background-color: #ffffff;
+  color: #221111;
+  border: 1px solid #221111;
+}
+
