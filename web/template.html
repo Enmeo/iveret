@@ -15,21 +15,21 @@
 	var avail_fcs = [{% for fc in fclist %}moment.utc("{{ fc|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
 	var avail_leads = [{% for lead in leadlist %}{{ lead }}{% if not forloop.last %}, {% endif %}{% endfor %}];
 
+	// Constants
+	var browse_tims = [{% for tim in timlist %}moment.utc("{{ tim|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
+	var plot_prefix = '{{ plot_prefix }}';
+	var plotdir = '{{ plotdir }}';
+	var units = {}; {% for plot in plotlist %}
+	units['{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}
+
 	// Initial values
+	var cur_leads = avail_leads;
 	var prefix = '{{ initplot.prefix }}';
 	var date_fc = avail_fcs[0];
 	var date_vis = moment.utc("{{ date_init|date:"Y-m-d H" }}");
 	var lead_vis = 0;
 	var display_details = {{ display_details|lower }};
-
-	// Constants
-	var plot_prefix = '{{ plot_prefix }}';
-	var base_date = moment.utc("{{ date_init|date:"Y-m-d H" }}");
-	var base_leads = [{% for lead in leadlist %}{{ lead }}{% if not forloop.last %}, {% endif %}{% endfor %}];
-	var base_tims = [{% for tim in timlist %}moment.utc("{{ tim|date:"Y-m-d H" }}"){% if not forloop.last %}, {% endif %}{% endfor %}];
-	var plotdir = '{{ plotdir }}';
-	var units = {}; {% for plot in plotlist %}
-	units['{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}
+	var _shifted = false;
   </script>
 </head>
 <body>
@@ -37,8 +37,10 @@
     <select id="domainselect" name="domainselect">{% for name, link in plot_domains %}
       <option value="{{ link }}"{% if name == plot_domain %} selected="selected"{% endif %}>{{ name }}</option>{% endfor %}
     </select>
+    From:&nbsp;&nbsp;&nbsp;&nbsp;
     <select id="fcselect" name="fcselect">{% for fc in fclist %}
-      <option value="{{ forloop.counter0 }}"{% if forloop.first %} selected="selected"{% endif %}>From: {{ fc|date:"l, d M Y, H" }} UTC</option>{% endfor %}
+      <option value="{{ forloop.counter0 }}"{% if forloop.first %} selected="selected"{% endif %}>{{ fc|date:"l, d M Y, H" }} UTC</option>{% endfor %}
+      <option value="older" id="fc_older">Archive of 6 hour forecasts &hellip;</select>
     </select>
   </div>
   <div class="content">
@@ -62,23 +64,23 @@
         </div>--!>
         <div id="time_controls">
           <ul id="play_controls">
-            <li id="but_first"><a href="javascript:firsttim()">&#8739;&#8201;&#8810;</a></li> 
-            <li id="but_prev"><a href="javascript:prevtim()">&#8810;</a></li>
-            <li id="but_play"><a href="javascript:play()">&#8201;&#9658;</a></li>
-            <li id="but_pause" style="display: none;"><a href="javascript:pause()">&#10074;&#10074;</a></li>
-            <li id="but_next"><a href="javascript:nexttim()">&#8811;</a></li>
+            <li id="but_first"><span onclick="firsttim()">&#8739;&#8201;&#8810;</span></li> 
+            <li id="but_prev"><span onclick="prevtim()">&#8810;</span></li>
+            <li id="but_play"><span onclick="play()">&#8201;&#9658;</span></li>
+            <li id="but_pause" style="display: none;"><span onclick="pause()">&#10074;&#10074;</span></li>
+            <li id="but_next"><span onclick="nexttim()">&#8811;</span></li>
           </ul><br />
           <p>Lead time:</p>
           <ul id="timselect">{% for lead in leadlist_link %}
-            <li><a href="javascript:chtim({{ lead }})" id="timselect_{{ lead }}">{{ lead }}</a></li>{% endfor %}
+            <li><span class="link" onclick="chtim({{ lead }})" id="timselect_{{ lead }}">{{ lead }}</span></li>{% endfor %}
           </ul>
         </div>
       </div>
       <div id="cbar_container">
         <img id="cbar" src="./static/deco/cbar_{{ plot_prefix }}_{{ initplot.prefix }}.png" />
-	<div id="cbar_units">[{{ initplot.shading.units }}]</div>
+        <div id="cbar_units">[{{ initplot.shading.units }}]</div>
       </div>
-    </div>    
+    </div>
   </div>
 </body>
 </html>

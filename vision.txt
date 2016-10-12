@@ -1,22 +1,21 @@
+Change log
+----------
+
+ * UI change: Drop down menus now created by jqueryUI for consistent appearance
+ * UI change: Reusing the plot title as drop down menu to reduce duplication
+ * UI change: Ability to browse forecasts for the past using shift key
+ * UI change: Carry forecast init and lead when switching between areas
+
+
+
 Next steps iveret
 -----------------
 
 UI improvements
 
- * UI change: Ability to browse forecasts for the past
- * UI change: Can I reuse the plot title as drop down menu?
- * UI change: Allow arrow keys to move into past, even before lead=0
- * UI change: Indicate when forecast init changes
- * UI change: Call plots for lead=0 "Analysis"
- * UI change: Carry forecast init and lead when switching between areas
- * UI change: Allow multiple shadings (-> cloud cover, front map)
  * UI addition: Analysis archive -> Probably most intuitive to add to "From: Earlier dates (only analysis)"
  * UI addition: Add ability to add (up to three?) additional panels
  * UI addition: Overall help
- * UI addition: Overall settings
-	- disable browsing the past
-	- number of rows / columns for panels
-
 
 Chart changes
 

@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
+
+from __future__ import print_function, absolute_import, division, unicode_literals
+
 import matplotlib as mpl
 
 from dynlib.settings import conf, cm, proj
 import dynlib.context.plot
 
-import cb
+from . import cb
 
 # Set the default output location (e.g. for plots)
 #conf.plotpath = '/Data/gfi/metno/visualisation/web/plots'
@@ -20,6 +23,5 @@ cm.lcc = cb.KBu
 cm.mcc = cb.KOr
 cm.hcc = cm.gray
 cm.trr = cb.WBuPi2
-cm.deform = cb.WBuKRd
 
 # the end

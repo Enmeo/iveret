@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- encoding: utf8
 
+from __future__ import print_function, absolute_import, division, unicode_literals
+
 import codecs
 
 from datetime import datetime as dt, timedelta as td
@@ -10,12 +12,18 @@ from settings.common import conf
 import django
 from django.conf import settings
 from django.template import Context, loader
+import django.template.exceptions
 
 
 # Where to save the weather map; 
 filepath = conf.plotpath+'/../vaerkart.html'
-print conf.plotpath+'/..'
-settings.configure(TEMPLATE_DIRS = (conf.plotpath+'/..', ), DEFAULT_CHARSET='utf-8')
+settings.configure(
+	TEMPLATES=[{
+		'DIRS': [conf.plotpath+'/..', ],
+		'BACKEND': 'django.template.backends.django.DjangoTemplates',
+	}, ], 
+	DEFAULT_CHARSET='utf-8'
+)
 django.setup()
 
 
@@ -31,7 +39,7 @@ else:
 # Override
 date_base = dt(2016,10,5,12)
 
-print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
+print('Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC'))
 
 
 
@@ -77,7 +85,9 @@ ff700 = variable(u'Wind speed', 'm/s', u'700 hPa')
 def850 = variable(u'Deformation', '10⁻⁵/s', u'850 hPa')
 ff10 = variable(u'10 m wind speed', 'm/s', u'')
 tcwv = variable(u'Total column water vapour', 'kg/m²', u'')
-tcc = variable(u'Cloud cover', '', u'')
+lcc = variable(u'Low cloud cover', '', u'')
+mcc = variable(u'Mid-level cloud cover', '', u'')
+hcc = variable(u'High cloud cover', '', u'')
 tp = variable(u'Precipitiation', 'mm/h', u'')
 pvpt300 = variable(u'Potential vorticity', 'PVU', u'300 K')
 ffpt300 = variable(u'Wind speed', 'm/s', u'300 K')
@@ -126,7 +136,8 @@ plotlist = [
 		name='10 m Winds and surface heat fluxes'),
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
 		name='Total column water vapour, fluxes and precip.'),
-	plot(u'tcc', tcc),
+	plot(u'tcc', lcc, [o('orange shading', mcc, None), o('white shading', hcc, None)],
+		name='Cloud cover'),
 	plot(u'tp', tp, [o('red', t850, [-5,]), o('black', msl, 5)], 
 		name='Total precipitation and SLP'),
 	plot(u'pvpt300_wind', pvpt300, [o('black', barbspt300, None), ],
@@ -154,7 +165,7 @@ plotdomains = [
 fclist = [date_base - td(0.5)*i for i in range(11)]
 date_fc = fclist[0]
 
-leadlist = range(0,144,3)
+leadlist = list(range(0,144,3))
 leadlist.extend(range(144,241,6))
 
 leadlist_link = range(0,241,12)
@@ -163,8 +174,12 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 
 
 # Rendering
+try:
+	t = loader.get_template(template_name='template.html')
+except django.template.exceptions.TemplateDoesNotExist as e:
+	print('Tried paths: '+str(e.tried))
+	raise e
 
-t = loader.get_template(template_name='template.html')
 c = Context({
 	'plot_domains': plotdomains,
 	'plot_domain': plotdomains[0][0],

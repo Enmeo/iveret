@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
 
-from reverse import reverse_cm
+from __future__ import print_function, absolute_import, division, unicode_literals
+
+from .reverse import reverse_cm
 from matplotlib.colors import LinearSegmentedColormap
 from numpy import nan, inf
 

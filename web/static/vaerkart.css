@@ -12,7 +12,7 @@ div.header {
 	color: #ffffff;
 	width: 94%;
 	margin: 0;
-	padding: 5px 3% 5px 3%;
+	padding: 0 3% 0 3%;
 }
 div.header select {
 	display: inline-block;
@@ -68,7 +68,7 @@ div#time_controls li {
 	display: inline-block;
 	font-size: 0.85em;
 }
-div#time_controls a {
+div#time_controls span {
 	display: inline-block;
 	width: 2em;
 	height: 1.15em;
@@ -78,8 +78,9 @@ div#time_controls a {
 	padding: 2px;
 	color: #dddddd;
 	text-decoration: none;
+	cursor: pointer;
 }
-div#time_controls a.disabled {
+div#time_controls span.disabled {
 	opacity: 0.2;
 }
 
@@ -108,10 +109,10 @@ div#time_controls li#but_first, div#time_controls li#but_prev, div#time_controls
 div#time_controls li#but_play, div#time_controls li#but_pause {
 	font-size: 2.5em;
 }
-div#time_controls li#but_first a, div#time_controls li#but_prev a, div#time_controls li#but_next a {
+div#time_controls li#but_first span, div#time_controls li#but_prev span, div#time_controls li#but_next span {
 	border-radius: 1.2em;
 }
-div#time_controls li#but_play a, div#time_controls li#but_pause a {
+div#time_controls li#but_play span, div#time_controls li#but_pause span {
 	border-radius: 1.4em;
 }
 
@@ -192,17 +193,24 @@ ul.overlay li:before {
 .red {
 	color: #CC0000;
 }
+.orange {
+	color: #DD9900;
+}
 
 span.ui-button {
-  padding-left: 0;
+	margin-left: -0.85em;
+	padding-left: 0;
+}
+span.ui-selectmenu-text:before {
+	content: '▾ ';
 }
 div.ui-selectmenu-open ul {
-  background-color: #221111;
-  color: #ffffff;
+	background-color: #221111;
+	color: #ffffff;
 }
 div.ui-selectmenu-open ul#varselect-menu {
-  background-color: #ffffff;
-  color: #221111;
-  border: 1px solid #221111;
+	background-color: #ffffff;
+	color: #221111;
+	border: 1px solid #221111;
 }
 

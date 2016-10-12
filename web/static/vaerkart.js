@@ -3,7 +3,11 @@
 // Bind the arrow keys to functions
 document.onkeydown = function(e) {
 	e = e || window.event;
+	_shifted = e.shiftKey;
 	switch(e.which || e.keyCode) {
+		case 16: // shift: do nothing, but prevent default
+		break;
+
 		case 37: // left
 			prevtim();
 		break;
@@ -24,6 +28,11 @@ document.onkeydown = function(e) {
 	}
 	e.preventDefault(); // prevent the default action (scroll / move caret)
 };
+document.onkeyup = function(e) {
+	e = e || window.event;
+	_shifted = e.shiftKey;
+	return;
+}
 
 // Get long variable / level names by prefix by looking through varselect dropwdown list
 function get_varname_by_prefix(prefix) {
@@ -49,6 +58,11 @@ function filename(date) {
 	return date.format('YYYYMMDDHH');
 }
 
+// moment-js string, a format directly feedable to moment.utc();
+function momentfmt(date) {
+	return date.format('YYYY-MM-DD HH');
+}
+
 // Create a new time / forecast title from date_vis and date_fc
 function get_timtitle() {
 	return 'Forecast from '+humanize(date_fc)+' for '+humanize(date_vis)+' [+'+lead_vis+'h]';
@@ -66,6 +80,8 @@ function chlead(newlead) {
 	lead_vis = newlead;
 	date_vis = moment(date_fc);
 	date_vis.add(newlead, 'hours');
+	
+	document.cookie="date_vis="+momentfmt(date_vis);
 
 	// Update map, heading
 	$('#map').attr('src',get_current_filename());
@@ -75,12 +91,18 @@ function chlead(newlead) {
 // Change the lead time for untrusted input
 function chtim(newlead) {
 	// Find closest available valid time using the new fc data
+	if (_shifted || date_vis < avail_fcs[0]) {
+		leads = avail_leads;
+	}
+	else {
+		leads = cur_leads;
+	}
 	diff = 9999;
-	for (i = 0; i <= avail_leads.length; i++) {
-		diff_ = Math.abs(newlead - avail_leads[i]);
+	for (i = 0; i <= leads.length; i++) {
+		diff_ = Math.abs(newlead - leads[i]);
 		if ( diff_ < diff ) {
 			diff = diff_;
-			lead_vis = avail_leads[i];
+			lead_vis = leads[i];
 		}
 	}
 	chlead(lead_vis);
@@ -102,29 +124,37 @@ function chfc(fcidx) {
 	// Set new current forecast init time
 	date_fc = avail_fcs[fcidx];
 
+	document.cookie = "date_fc="+momentfmt(date_fc);
+
 	// Recreate available times
-	avail_leads = [];
-	for (i = 0; i < base_leads.length; i++) {
-		date = moment(date_fc).add(base_leads[i], 'hours');
-		if (date_array_contains(date, base_tims) > -1) {
-			avail_leads.push(base_leads[i]);
-			if ( $('#timselect_'+base_leads[i].toString()).length > 0 ) {
-				$('#timselect_'+base_leads[i].toString()).removeClass('disabled');
+	cur_leads = [];
+	for (i = 0; i < avail_leads.length; i++) {
+		date = moment(date_fc).add(avail_leads[i], 'hours');
+		if (date_array_contains(date, browse_tims) > -1) {
+			cur_leads.push(avail_leads[i]);
+			if ( $('#timselect_'+avail_leads[i].toString()).length > 0 ) {
+				$('#timselect_'+avail_leads[i].toString()).removeClass('disabled');
 			}
 		}
-		else if ( $('#timselect_'+base_leads[i].toString()).length > 0) {
-			$('#timselect_'+base_leads[i].toString()).addClass('disabled');
+		else if ( $('#timselect_'+avail_leads[i].toString()).length > 0) {
+			$('#timselect_'+avail_leads[i].toString()).addClass('disabled');
 		}
 	}
 
 	// Find closest available valid time using the new fc data
+	if (date_vis < avail_fcs[0]) {
+		leads = avail_leads;
+	}
+	else {
+		leads = cur_leads;
+	}
 	diff = 9999;
-	for (i = 0; i <= avail_leads.length; i++) {
-		date = moment(date_fc).add(avail_leads[i], 'hours');
+	for (i = 0; i <= leads.length; i++) {
+		date = moment(date_fc).add(leads[i], 'hours');
 		diff_ = Math.abs(date_vis.diff(date, 'hours'));
 		if ( diff_ < diff ) {
 			diff = diff_;
-			lead_vis = avail_leads[i];
+			lead_vis = leads[i];
 		}
 	}
 	chlead(lead_vis);
@@ -132,7 +162,7 @@ function chfc(fcidx) {
 	// Update map, heading and drop-down box; remove focus from drop down box
 	$('#map').attr('src',get_current_filename());
 	$('#timtitle').text(get_timtitle());
-	$('#fcselect').val(fcidx).blur();
+	$('#fcselect').val(fcidx).selectmenu("refresh");
 }
 
 // Change the forecast origin
@@ -143,6 +173,8 @@ function chvar(newvar) {
 	prefix = newvar;
 	if ( display_details ) 
 		$('#'+prefix+'_details').css('display', 'block');
+
+	document.cookie = "chart_prefix="+prefix
 
 	// Update map, colorbar and heading
 	$('#map').attr('src', get_current_filename());
@@ -172,25 +204,39 @@ function toggle_details() {
 function nexttim() {
 	clear_timeouts(); 
 
-	var idx = avail_leads.indexOf(lead_vis);
-	idx = Math.min(idx+1, avail_leads.length-1);
-	chlead(avail_leads[idx]);
+	if (date_vis < avail_fcs[0]) {
+		leads = avail_leads;
+	}
+	else {
+		leads = cur_leads;
+	}
+
+	var idx = leads.indexOf(lead_vis);
+	idx = Math.min(idx+1, leads.length-1);
+	chlead(leads[idx]);
 }
 
-// Change to the next time step (increase lead time)
+// Change to the previous time step (decrease lead time), but restrict movement to past
 function prevtim() {
 	clear_timeouts();
 
-	var idx = avail_leads.indexOf(lead_vis);
+	if (_shifted || date_vis < avail_fcs[0]) {
+		leads = avail_leads;
+	}
+	else {
+		leads = cur_leads;
+	}
+
+	var idx = leads.indexOf(lead_vis);
 	idx = Math.max(idx-1, 0);
-	chlead(avail_leads[idx]);
+	chlead(leads[idx]);
 }
 
 // Skip back to first time step
 function firsttim() {
 	clear_timeouts();
 
-	chlead(avail_leads[0]);
+	chlead(cur_leads[0]);
 }
 
 // Change to the next time step (increase lead time)
@@ -217,8 +263,8 @@ function play() {
 	$('#but_play').css('display', 'none');
 	$('#but_pause').css('display', 'inline-block');
 
-	var idx = avail_leads.indexOf(lead_vis);
-	var maxidx = avail_leads.length-1;
+	var idx = cur_leads.indexOf(lead_vis);
+	var maxidx = cur_leads.length-1;
 	
 	for (i=idx+1; i <= maxidx; i++) {
 		set_timeout(i, idx);
@@ -235,7 +281,7 @@ function pause() {
 // Set timeout for the play function (needs to be separate, because javascript is stupid)
 function set_timeout(i, idx) {
 	setTimeout(function() {
-		chlead(avail_leads[i]);
+		chlead(cur_leads[i]);
 	}, (i-idx-1)*500+50);
 }
 
@@ -244,8 +290,20 @@ function clear_timeouts() {
 	var id = window.setTimeout(function() {}, 0);
 
 	while (id--) {
-	    window.clearTimeout(id); 
+		window.clearTimeout(id); 
 	}
+}
+
+// From: http://www.quirksmode.org/js/cookies.html
+function get_cookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
 }
 
 
@@ -271,22 +329,51 @@ $( document ).ready(function() {
 		$('#time_controls').slideUp(200);
 	});
 
-  $( '#domainselect' ).selectmenu({
-    change: function( event, ui ) {
-      window.location.replace(ui.item.value);
-    }
-  }).selectmenu( "option", "width", 320 );
-  $( '#fcselect' ).selectmenu({
-    change: function( event, ui ) {
-      chfc(ui.item.value);
-    }
-  }).selectmenu( "option", "width", 320 );
+	$( '#domainselect' ).selectmenu({
+		change: function( event, ui ) {
+			window.location.replace(ui.item.value);
+		}
+	}).selectmenu( "option", "width", 320 );
+	$( '#fcselect' ).selectmenu({
+		change: function( event, ui ) {
+			chfc(ui.item.value);
+		}
+	}).selectmenu( "option", "width", 320 );
 
-  $( '#varselect' ).selectmenu({
-    change: function( event, ui ) {
-      chvar(ui.item.value);
-    }
-  }).selectmenu( "option", "width", 550 );
+	$( '#varselect' ).selectmenu({
+		change: function( event, ui ) {
+			chvar(ui.item.value);
+		}
+	}).selectmenu( "option", "width", 550 );
+
+	$( '#fc_older' ).datepicker({
+		changeMonth: true, changeYear: true
+	});
+
+	// Take into account saved state
+	_prefix = get_cookie('chart_prefix');
+	_date_fc = moment.utc(get_cookie('date_fc'));
+	_date_vis = moment.utc(get_cookie('date_vis'));
+	if (_prefix in units) {
+		prefix = _prefix;
+		chvar(prefix);
+		$('#varselect').val(prefix).selectmenu("refresh");
+	}
+	else {
+		document.cookie = 'chart_prefix='+prefix;
+	}
+	if (_date_fc != null) {
+		idx = date_array_contains(_date_fc, avail_fcs);
+		if (idx > -1) {
+			if (_date_vis != null) {
+				date_vis = _date_vis;
+			}
+			chfc(idx);
+		}
+	}
+	else {
+		document.cookie = 'date_fc='+momentfmt(date_fc);
+	}
 });
 
 // the end
