@@ -51,6 +51,7 @@
       <option value="12">1x2</option>
       <option value="22">2x2</option>
     </select>
+    <p class="right"><span class="link" onclick="view_help()">Help</span></p>
   </div>
   <div class="content">
     <h2 id="timtitle">Forecasts from {{ date_init|date:"l, d M Y, H" }} UTC for {{ date_begin|date:"l, d M Y, H" }} UTC [+0h]</h2>
@@ -156,5 +157,11 @@
       </ul>
     </div>
   </div> <!-- content -->
+  <div id="help_modal" title="Help and key bindings">
+    <p><b>Left and right keys</b></p>
+    <p>Switch backward and forward through lead times. Forecasts for past times are by default unreachable. To be able to cross the boundary, press Shift-left arrow. Once browsing forecasts for the past Shift is no longer required to navigate.</p>
+    <p><b>Up and down keys</b></p>
+    <p>Switch forward and backward through different forecast initialisation times.</p>
+  </div>
 </body>
 </html>

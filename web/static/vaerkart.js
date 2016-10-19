@@ -349,6 +349,10 @@ function chpanel(id) {
 	}
 }
 
+function view_help() {
+	$('#help_modal').dialog('open');	
+}
+
 
 // Startup definitions
 $( document ).ready(function() {
@@ -406,7 +410,6 @@ $( document ).ready(function() {
 	// Take into account saved state when switching between forecast areas
 	for (i = 1; i <= 4; i++) {
 		_prefix = get_cookie('chart_prefix'+i);
-		alert(''+i+'/'+_prefix);
 		if (_prefix in units) {
 			prefix[i] = _prefix;
 			chvar(i, prefix[i]);
@@ -435,6 +438,16 @@ $( document ).ready(function() {
 	else {
 		document.cookie = 'date_fc='+momentfmt(date_fc);
 	}
+
+	$( "#help_modal" ).dialog({
+		modal: true,
+		autoOpen: false,
+		buttons: {
+			Close: function() {
+				$( this ).dialog( "close" );
+			}
+		}
+	});
 });
 
 // the end
