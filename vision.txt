@@ -13,9 +13,15 @@ Next steps iveret
 
 UI improvements
 
- * UI addition: Analysis archive -> Probably most intuitive to add to "From: Earlier dates (only analysis)"
+ * UI addition: Analysis archive
+   - Add date picker 
+   - Add arrow navigation
  * UI addition: Add ability to add (up to three?) additional panels
  * UI addition: Overall help
+
+Backend improvements
+
+ * Write customized script for deleting obsolete plots
 
 Chart changes
 

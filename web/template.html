@@ -24,11 +24,13 @@
 
 	// Initial values
 	var cur_leads = avail_leads;
-	var prefix = '{{ initplot.prefix }}';
+	var prefix = {}; {% for i in "1234" %} 
+	prefix[{{ i }}] ='{{ initplot.prefix }}'; {% endfor %}
 	var date_fc = avail_fcs[0];
 	var date_vis = moment.utc("{{ date_init|date:"Y-m-d H" }}");
 	var lead_vis = 0;
 	var display_details = {{ display_details|lower }};
+	var cur_panels = 11;
 	var _shifted = false;
   </script>
 </head>
@@ -37,50 +39,122 @@
     <select id="domainselect" name="domainselect">{% for name, link in plot_domains %}
       <option value="{{ link }}"{% if name == plot_domain %} selected="selected"{% endif %}>{{ name }}</option>{% endfor %}
     </select>
-    From:&nbsp;&nbsp;&nbsp;&nbsp;
+    <p>From:&nbsp;&nbsp;&nbsp;&nbsp;</p>
     <select id="fcselect" name="fcselect">{% for fc in fclist %}
       <option value="{{ forloop.counter0 }}"{% if forloop.first %} selected="selected"{% endif %}>{{ fc|date:"l, d M Y, H" }} UTC</option>{% endfor %}
-      <option value="older" id="fc_older">Archive of 6 hour forecasts &hellip;</select>
+      <option value="older" id="fc_older">Archive of 6 hour forecasts &hellip;</option>
+    </select>
+    <p>Panels:&nbsp;&nbsp;&nbsp;&nbsp;</p>
+    <select id="panelselect">
+      <option value="11" selected="selected">1x1</option>
+      <option value="21">2x1</option>
+      <option value="12">1x2</option>
+      <option value="22">2x2</option>
     </select>
   </div>
   <div class="content">
-    <h1 id="vartitle">
-      <select id="varselect" name="varselect">{% for var in plotlist %}
-        <option value="{{ var.prefix }}"{% if forloop.first %} selected="selected"{% endif %}>{{ var.name }}{% if var.level %} on {{ var.level }}{% endif %}</option>{% endfor %}
-      </select>
-    </h1> <sup id="details_toggle"><a href="javascript:toggle_details()">&#8505;</a></sup>
-    {% for plot in plotlist %}<div id="{{ plot.prefix }}_details"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
-      <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
-      <ul class="overlay">{% for o in plot.overlays %}
-        <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
-      </ul>{% endif %}
-    </div>{% endfor %}
-    <h2 id="timtitle">Forecast from {{ date_init|date:"l, d M Y, H" }} UTC for {{ date_begin|date:"l, d M Y, H" }} UTC [+0h]</h2>
-    <div class="plot">
-      <div id="map_container" class="map">
-        <img id="map" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init|date:"YmdH" }}_for_{{ date_begin|date:"YmdH" }}.png" />
-        <!--<div id="legend_controls">
-          <a href="">&#8505;</a>
-        </div>--!>
-        <div id="time_controls">
-          <ul id="play_controls">
-            <li id="but_first"><span onclick="firsttim()">&#8739;&#8201;&#8810;</span></li> 
-            <li id="but_prev"><span onclick="prevtim()">&#8810;</span></li>
-            <li id="but_play"><span onclick="play()">&#8201;&#9658;</span></li>
-            <li id="but_pause" style="display: none;"><span onclick="pause()">&#10074;&#10074;</span></li>
-            <li id="but_next"><span onclick="nexttim()">&#8811;</span></li>
-          </ul><br />
-          <p>Lead time:</p>
-          <ul id="timselect">{% for lead in leadlist_link %}
-            <li><span class="link" onclick="chtim({{ lead }})" id="timselect_{{ lead }}">{{ lead }}</span></li>{% endfor %}
-          </ul>
+    <h2 id="timtitle">Forecasts from {{ date_init|date:"l, d M Y, H" }} UTC for {{ date_begin|date:"l, d M Y, H" }} UTC [+0h]</h2>
+    <div class="panel panel_top panel_left" id="panel_top_left" style="width=100%; display: inline-block;">
+      <h1 id="vartitle1">
+        <select id="varselect1" name="varselect">{% for var in plotlist %}
+          <option value="{{ var.prefix }}"{% if forloop.first %} selected="selected"{% endif %}>{{ var.name }}{% if var.level %} on {{ var.level }}{% endif %}</option>{% endfor %}
+        </select>
+      </h1> <sup class="details_toggle" id="details_toggle1"><a href="javascript:toggle_details()">&#8505;</a></sup>
+      {% for plot in plotlist %}<div id="{{ plot.prefix }}_details1"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
+        <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
+        <ul class="overlay">{% for o in plot.overlays %}
+          <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+        </ul>{% endif %}
+      </div>{% endfor %}
+      <div class="plot">
+        <div id="map_container1" class="map">
+          <img id="map1" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init|date:"YmdH" }}_for_{{ date_begin|date:"YmdH" }}.png" />
         </div>
-      </div>
-      <div id="cbar_container">
-        <img id="cbar" src="./static/deco/cbar_{{ plot_prefix }}_{{ initplot.prefix }}.png" />
-        <div id="cbar_units">[{{ initplot.shading.units }}]</div>
-      </div>
+        <div class="cbar_container">
+          <img class="cbar" id="cbar1" src="./static/deco/cbar_{{ plot_prefix }}_{{ initplot.prefix }}.png" />
+          <div class="cbar_units" id="cbar_units1">[{{ initplot.shading.units }}]</div>
+        </div>
+      </div> <!-- plot -->
+    </div> <!-- panel -->
+    <div class="panel panel_top panel_right" id="panel_top_right" style="width=49.5%; display: none;">
+      <h1 id="vartitle2">
+        <select id="varselect2" name="varselect">{% for var in plotlist %}
+          <option value="{{ var.prefix }}"{% if forloop.first %} selected="selected"{% endif %}>{{ var.name }}{% if var.level %} on {{ var.level }}{% endif %}</option>{% endfor %}
+        </select>
+      </h1> <sup class="details_toggle" id="details_toggle2"><a href="javascript:toggle_details()">&#8505;</a></sup>
+      {% for plot in plotlist %}<div id="{{ plot.prefix }}_details2"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
+        <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
+        <ul class="overlay">{% for o in plot.overlays %}
+          <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+        </ul>{% endif %}
+      </div>{% endfor %}
+      <div class="plot">
+        <div id="map_container2" class="map">
+          <img id="map2" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init|date:"YmdH" }}_for_{{ date_begin|date:"YmdH" }}.png" />
+        </div>
+        <div class="cbar_container">
+          <img class="cbar" id="cbar2" src="./static/deco/cbar_{{ plot_prefix }}_{{ initplot.prefix }}.png" />
+          <div class="cbar_units" id="cbar_units2">[{{ initplot.shading.units }}]</div>
+        </div>
+      </div> <!-- plot -->
+    </div> <!-- panel -->
+    <div class="panel panel_bottom panel_left" id="panel_bottom_left" style="width=100%; display: none;">
+      <h1 id="vartitle3">
+        <select id="varselect3" name="varselect">{% for var in plotlist %}
+          <option value="{{ var.prefix }}"{% if forloop.first %} selected="selected"{% endif %}>{{ var.name }}{% if var.level %} on {{ var.level }}{% endif %}</option>{% endfor %}
+        </select>
+      </h1> <sup class="details_toggle" id="details_toggle3"><a href="javascript:toggle_details()">&#8505;</a></sup>
+      {% for plot in plotlist %}<div id="{{ plot.prefix }}_details3"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
+        <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
+        <ul class="overlay">{% for o in plot.overlays %}
+          <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+        </ul>{% endif %}
+      </div>{% endfor %}
+      <div class="plot">
+        <div id="map_container3" class="map">
+          <img id="map3" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init|date:"YmdH" }}_for_{{ date_begin|date:"YmdH" }}.png" />
+        </div>
+        <div class="cbar_container">
+          <img class="cbar" id="cbar3" src="./static/deco/cbar_{{ plot_prefix }}_{{ initplot.prefix }}.png" />
+          <div class="cbar_units" id="cbar_units3">[{{ initplot.shading.units }}]</div>
+        </div>
+      </div> <!-- plot -->
+    </div> <!-- panel -->
+    <div class="panel panel_bottom panel_right" id="panel_bottom_right" style="width=49.5%; display: none;">
+      <h1 id="vartitle4">
+        <select id="varselect4" name="varselect">{% for var in plotlist %}
+          <option value="{{ var.prefix }}"{% if forloop.first %} selected="selected"{% endif %}>{{ var.name }}{% if var.level %} on {{ var.level }}{% endif %}</option>{% endfor %}
+        </select>
+      </h1> <sup class="details_toggle" id="details_toggle4"><a href="javascript:toggle_details()">&#8505;</a></sup>
+      {% for plot in plotlist %}<div id="{{ plot.prefix }}_details4"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
+        <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
+        <ul class="overlay">{% for o in plot.overlays %}
+          <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+        </ul>{% endif %}
+      </div>{% endfor %}
+      <div class="plot">
+        <div id="map_container4" class="map">
+          <img id="map4" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init|date:"YmdH" }}_for_{{ date_begin|date:"YmdH" }}.png" />
+        </div>
+        <div class="cbar_container">
+          <img class="cbar" id="cbar4" src="./static/deco/cbar_{{ plot_prefix }}_{{ initplot.prefix }}.png" />
+          <div class="cbar_units" id="cbar_units4">[{{ initplot.shading.units }}]</div>
+        </div>
+      </div> <!-- plot -->
+    </div> <!-- panel -->
+    <div id="time_controls">
+      <ul id="play_controls">
+        <li id="but_first"><span onclick="firsttim()">&#8739;&#8201;&#8810;</span></li> 
+        <li id="but_prev"><span onclick="prevtim()">&#8810;</span></li>
+        <li id="but_play"><span onclick="play()">&#8201;&#9658;</span></li>
+        <li id="but_pause" style="display: none;"><span onclick="pause()">&#10074;&#10074;</span></li>
+        <li id="but_next"><span onclick="nexttim()">&#8811;</span></li>
+      </ul><br />
+      <p>Lead time:</p>
+      <ul id="timselect">{% for lead in leadlist_link %}
+        <li><span class="link" onclick="chtim({{ lead }})" id="timselect_{{ lead }}">{{ lead }}</span></li>{% endfor %}
+      </ul>
     </div>
-  </div>
+  </div> <!-- content -->
 </body>
 </html>

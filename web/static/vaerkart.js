@@ -36,7 +36,7 @@ document.onkeyup = function(e) {
 
 // Get long variable / level names by prefix by looking through varselect dropwdown list
 function get_varname_by_prefix(prefix) {
-	var sel = document.getElementById('varselect');
+	var sel = document.getElementById('varselect1');
 	var opts = sel.childNodes;
 
 	for (i=0; i <= opts.length; i++) {
@@ -69,8 +69,8 @@ function get_timtitle() {
 }
 
 // Create filename based on current state
-function get_current_filename() {
-	return './'+plotdir+'/'+plot_prefix+'_'+prefix+'_from_'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
+function get_current_filename(i) {
+	return './'+plotdir+'/'+plot_prefix+'_'+prefix[i]+'_from_'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
 }
 
 
@@ -84,7 +84,9 @@ function chlead(newlead) {
 	document.cookie="date_vis="+momentfmt(date_vis);
 
 	// Update map, heading
-	$('#map').attr('src',get_current_filename());
+	for (i = 1; i <= 4; i++) {
+		$('#map'+i).attr('src',get_current_filename(i));
+	}
 	$('#timtitle').text(get_timtitle());
 }
 
@@ -160,44 +162,48 @@ function chfc(fcidx) {
 	chlead(lead_vis);
 
 	// Update map, heading and drop-down box; remove focus from drop down box
-	$('#map').attr('src',get_current_filename());
+	for (i = 1; i <= 4; i++) {
+		$('#map').attr('src',get_current_filename(i));
+	}
 	$('#timtitle').text(get_timtitle());
 	$('#fcselect').val(fcidx).selectmenu("refresh");
 }
 
 // Change the forecast origin
-function chvar(newvar) {
+function chvar(i, newvar) {
 	// Set the new current variable and update plot details
 	if ( display_details ) 
-		$('#'+prefix+'_details').css('display', 'none');
-	prefix = newvar;
+		$('#'+prefix[i]+'_details'+i).css('display', 'none');
+	prefix[i] = newvar;
 	if ( display_details ) 
-		$('#'+prefix+'_details').css('display', 'block');
-
-	document.cookie = "chart_prefix="+prefix
+		$('#'+prefix[i]+'_details'+i).css('display', 'block');
+	
+	document.cookie = "chart_prefix"+i+"="+prefix[i];
 
 	// Update map, colorbar and heading
-	$('#map').attr('src', get_current_filename());
-	$('#cbar').attr('src', './static/deco/cbar_'+plot_prefix+'_'+prefix+'.png');
-	if ( units[prefix].length > 0 ) 
-		$('#cbar_units').text('['+units[prefix]+']');
+	$('#map'+i).attr('src', get_current_filename(i));
+	$('#cbar'+i).attr('src', './static/deco/cbar_'+plot_prefix+'_'+prefix[i]+'.png');
+	if ( units[prefix[i]].length > 0 ) 
+		$('#cbar_units'+i).text('['+units[prefix[i]]+']');
 	else 
-		$('#cbar_units').text('');
+		$('#cbar_units'+i).text('');
 	//$('#vartitle').text(get_varname_by_prefix(newvar));
 
 	// Remove focus from drop down to avoid changes due to arrow key strokes
-	$('#varselect').blur();
+	$('#varselect'+i).blur();
 }
 
 function toggle_details() {
-	if ( display_details ) {
-		$('#'+prefix+'_details').css('display', 'none');
-		display_details = false;
+	for (i = 1; i <= 4; i++) {
+		if ( display_details ) {
+			$('#'+prefix[i]+'_details'+i).css('display', 'none');
+		}
+		else {
+			$('#'+prefix[i]+'_details'+i).css('display', 'block');
+		}
 	}
-	else {
-		$('#'+prefix+'_details').css('display', 'block');
-		display_details = true;
-	}
+
+	display_details = !display_details;
 }
 
 // Change to the next time step (increase lead time)
@@ -296,14 +302,51 @@ function clear_timeouts() {
 
 // From: http://www.quirksmode.org/js/cookies.html
 function get_cookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for(var i=0;i < ca.length;i++) {
-        var c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
-    }
-    return null;
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}
+
+function chpanel(id) {
+	cur_panels = id;
+	document.cookie = 'panels='+id;
+
+	if (id == 21 || id == 22) {
+		$('#panel_top_left').css('width', '49.5%');
+		$('#panel_bottom_left').css('width', '49.5%');
+	}
+	else {
+		$('#panel_top_left').css('width', '100%');
+		$('#panel_bottom_left').css('width', '100%');
+	}
+	$('#panel_top_right').css('width', '49.5%');
+	$('#panel_bottom_right').css('width', '49.5%');
+
+	if (id == 11) {
+		$('#panel_top_right').css('display', 'none');
+		$('#panel_bottom_left').css('display', 'none');
+		$('#panel_bottom_right').css('display', 'none');
+	}
+	else if (id == 12) {
+		$('#panel_top_right').css('display', 'none');
+		$('#panel_bottom_left').css('display', 'inline-block');
+		$('#panel_bottom_right').css('display', 'none');
+	}
+	else if (id == 21) {
+		$('#panel_top_right').css('display', 'inline-block');
+		$('#panel_bottom_left').css('display', 'none');
+		$('#panel_bottom_right').css('display', 'none');
+	}
+	else if (id == 22) {
+		$('#panel_top_right').css('display', 'inline-block');
+		$('#panel_bottom_left').css('display', 'inline-block');
+		$('#panel_bottom_right').css('display', 'inline-block');
+	}
 }
 
 
@@ -320,15 +363,6 @@ $( document ).ready(function() {
 	$( '#time_controls' ).mouseleave(function() {
 		$('#time_controls').delay(2000).slideUp(500);
 	});
-	$( '#map_container' ).mouseenter(function() {
-		$('#time_controls').stop(true);
-		$('#time_controls').slideDown(200).delay(2000).slideUp(500);
-	});
-	$( '#map_container' ).mouseleave(function() {
-		$('#time_controls').stop(true);
-		$('#time_controls').slideUp(200);
-	});
-
 	$( '#domainselect' ).selectmenu({
 		change: function( event, ui ) {
 			window.location.replace(ui.item.value);
@@ -338,29 +372,56 @@ $( document ).ready(function() {
 		change: function( event, ui ) {
 			chfc(ui.item.value);
 		}
-	}).selectmenu( "option", "width", 320 );
+	}).selectmenu( "option", "width", 300 );
+	
+	for (i = 1; i <= 4; i++) {
+		$( '#map_container'+i ).mouseenter(function() {
+			$('#time_controls').stop(true);
+			$('#time_controls').slideDown(200).delay(2000).slideUp(500);
+		});
+		$( '#map_container'+i ).mouseleave(function() {
+			$('#time_controls').stop(true);
+			$('#time_controls').slideUp(200);
+		});
 
-	$( '#varselect' ).selectmenu({
-		change: function( event, ui ) {
-			chvar(ui.item.value);
-		}
-	}).selectmenu( "option", "width", 550 );
+		$( '#varselect'+i ).selectmenu({
+			change: function( event, ui ) {
+				id = parseInt(event.target.id.slice(-1));
+				chvar(id, ui.item.value);
+			}
+		}).selectmenu( "option", "width", 550 );
+	}
 
 	$( '#fc_older' ).datepicker({
 		changeMonth: true, changeYear: true
 	});
 
-	// Take into account saved state
-	_prefix = get_cookie('chart_prefix');
+	$( '#panelselect' ).selectmenu({
+		change: function( event, ui ) {
+			chpanel(ui.item.value);
+		}
+	}).selectmenu( "option", "width", 80 );
+
+
+	// Take into account saved state when switching between forecast areas
+	for (i = 1; i <= 4; i++) {
+		_prefix = get_cookie('chart_prefix'+i);
+		alert(''+i+'/'+_prefix);
+		if (_prefix in units) {
+			prefix[i] = _prefix;
+			chvar(i, prefix[i]);
+			$('#varselect'+i).val(prefix[i]).selectmenu("refresh");
+		}
+		else {
+			document.cookie = 'chart_prefix'+i+'='+prefix[i];
+		}
+	}
 	_date_fc = moment.utc(get_cookie('date_fc'));
 	_date_vis = moment.utc(get_cookie('date_vis'));
-	if (_prefix in units) {
-		prefix = _prefix;
-		chvar(prefix);
-		$('#varselect').val(prefix).selectmenu("refresh");
-	}
-	else {
-		document.cookie = 'chart_prefix='+prefix;
+	_panels = get_cookie('panels');
+	if (_panels != null) {
+		chpanel(_panels);
+		$('#panelselect').val(_panels).selectmenu("refresh");
 	}
 	if (_date_fc != null) {
 		idx = date_array_contains(_date_fc, avail_fcs);
