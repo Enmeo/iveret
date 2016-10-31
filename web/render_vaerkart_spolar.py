@@ -1,18 +1,30 @@
 #!/usr/bin/env python
 # -*- encoding: utf8
 
+from __future__ import print_function, absolute_import, division, unicode_literals
+
 import codecs
 
 from datetime import datetime as dt, timedelta as td
 
+from settings.common import conf
+
+import django
 from django.conf import settings
 from django.template import Context, loader
+import django.template.exceptions
+
 
 # Where to save the weather map; 
-# TODO: How to avoid the full path info here? The full path should only be defined once in the calling shell script.
-basepath = '/Data/gfi/metno/visualisation'
-filepath = basepath+'/web/vaerkart_spolar.html'
-settings.configure(TEMPLATE_DIRS = (basepath+'/web', ), DEFAULT_CHARSET='utf-8')
+filepath = conf.plotpath+'/../vaerkart_spolar.html'
+settings.configure(
+	TEMPLATES=[{
+		'DIRS': [conf.plotpath+'/..', ],
+		'BACKEND': 'django.template.backends.django.DjangoTemplates',
+	}, ], 
+	DEFAULT_CHARSET='utf-8'
+)
+django.setup()
 
 
 # The only free parameter for the entire script
@@ -27,7 +39,7 @@ else:
 # Override
 #date_base = dt(2015,6,9,12)
 
-print 'Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC')
+print('Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC'))
 
 
 
@@ -97,7 +109,7 @@ plotdomains = [
 fclist = [date_base - td(0.5)*i for i in range(11)]
 date_fc = fclist[0]
 
-leadlist = range(0,144,3)
+leadlist = list(range(0,144,3))
 leadlist.extend(range(144,241,6))
 
 leadlist_link = range(0,241,12)
