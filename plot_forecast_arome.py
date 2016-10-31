@@ -9,7 +9,6 @@ mpl.use('Agg')
 from dynlib.shorthands import *
 from settings.metno import *
 
-print conf.plotpath
 
 ######################################################
 # The base of _everything_

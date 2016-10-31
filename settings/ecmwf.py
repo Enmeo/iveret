@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
 
-from common import conf, cm, proj
-#import dynlib.context.ecmwf_fc
-import ecmwf_fc
+import dynlib.context.ecmwf_fc
 import dynlib.context.derived as d
+
+from common import conf, cm, proj
 
 
 # Non-dynlib derived variables
@@ -69,6 +69,6 @@ conf.plotf[None, 'lcc', 'cmap'] = cm.lcc
 conf.plotf[None, 'mcc', 'cmap'] = cm.mcc
 conf.plotf[None, 'hcc', 'cmap'] = cm.hcc
 conf.plotf[None, 'trr', 'cmap'] = cm.trr
-conf.plotf[None, 'defabs', 'cmap'] = cm.deform
+conf.plotf[None, 'defabs', 'cmap'] = cm.defabs
 
 # that's it

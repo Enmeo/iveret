@@ -7,10 +7,10 @@ import matplotlib as mpl
 mpl.use('Agg')
 
 import dynlib
-import dynlib.humidity
 import dynlib.detect
 import dynlib.diag
 import dynlib.sphere
+import dynlib.thermodyn
 import dynlib.utils
 
 from dynlib.shorthands import *
@@ -207,7 +207,7 @@ class eqpt(plotter):
 	def cal_eqpt(self, data, plev, static):
 		if not ('eqpt', plev) in data:
 			p = np.ones(data['q',plev].shape)*float(plev)*100
-			data['eqpt',plev] = dynlib.humidity.thetae_from_q(data['q',plev], data['t',plev], p)
+			data['eqpt',plev] = dynlib.thermodyn.thetae_from_q(data['q',plev], data['t',plev], p)
 
 
 # Deformation
@@ -1081,8 +1081,8 @@ else:
 		forecast -= td(1,0)
 
 # Override
-#forecast = dt(2015,9,2,12)
-plot_only_init = False
+forecast = dt(2016,10,5,12)
+plot_only_init = True
 
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 
