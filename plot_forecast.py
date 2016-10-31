@@ -1081,8 +1081,8 @@ else:
 		forecast -= td(1,0)
 
 # Override
-forecast = dt(2016,10,5,12)
-plot_only_init = True
+#forecast = dt(2016,10,5,12)
+plot_only_init = False
 
 print 'Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 

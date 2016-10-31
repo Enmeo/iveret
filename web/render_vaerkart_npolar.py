@@ -35,7 +35,7 @@ else:
 		date_base -= td(1,0)
 
 # Override
-date_base = dt(2016,10,5,12)
+#date_base = dt(2016,10,5,12)
 
 print('Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC'))
 
