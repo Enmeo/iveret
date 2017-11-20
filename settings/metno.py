@@ -8,7 +8,8 @@ from common import conf, proj, cm
 # ================
 
 #conf.datapath.insert(1, '/Data/gfi/metno/thredds/arome25')
-conf.datapath.insert(1, '/home/dfelt/metno/thredds/arome25')
+#conf.datapath.insert(1, '/home/dfelt/metno/thredds/arome25')
+conf.datapath.insert(1, '/home/dfelt/metno/thredds/meps25')
 
 
 # Variable definitions
