@@ -9,22 +9,13 @@ from datetime import datetime as dt, timedelta as td
 
 from settings.common import conf
 
-import django
-from django.conf import settings
-from django.template import Context, loader
-import django.template.exceptions
+from jinja2 import FileSystemLoader, Environment
 
 
 # Where to save the weather map; 
 filepath = conf.plotpath+'/../vaerkart_arome_scandies.html'
-settings.configure(
-	TEMPLATES=[{
-		'DIRS': [conf.plotpath+'/..', ],
-		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-	}, ], 
-	DEFAULT_CHARSET='utf-8'
-)
-django.setup()
+
+env = Environment(loader=FileSystemLoader(searchpath=conf.plotpath+'/..'))
 
 
 # The only free parameter for the entire script
@@ -82,7 +73,7 @@ class overlay(object):
 # Defining stuff
 t2 = variable(u'2m Temperature', u'°C', u'')
 ff10 = variable(u'10 m wind speed', 'm/s', u'')
-tp = variable(u'Precipitiation', 'mm/?', u'')
+tp = variable(u'Precipitiation', 'mm/h', u'')
 
 msl = variable(u'Sea level pressure', 'hPa', u'')
 barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
@@ -114,8 +105,8 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 
 
 # Rendering
-t = loader.get_template(template_name='template.html')
-c = Context({
+t = env.get_template('template_jinja.html')
+c = {
 	'plot_domains': plotdomains,
 	'plot_domain': plotdomains[4][0],
 	'plot_prefix': 'no_for_full',
@@ -129,7 +120,7 @@ c = Context({
 	'date_init': date_fc,
 	'plotdir': 'plots',
 	'display_details': False,
-})
+}
 
 f = codecs.open(filepath, mode='w', encoding='utf-8')
 f.write(t.render(c))

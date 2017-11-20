@@ -21,6 +21,11 @@
 	var plotdir = '{{ plotdir }}';
 	var units = {}; {% for plot in plotlist %}
 	units['{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}
+	{% if archive %}var archive_available = true;
+	var archive_start = moment.utc("{{ archive.start|date:"Y-m-d H" }}");
+	var archive_vars = [{% for plot in archive.plots %}"{{ plot }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+	var archive_step = {{ archive.step }};
+	{% else %}var archive_available = false;{% endif %}
 
 	// Initial values
 	var cur_leads = avail_leads;
@@ -32,6 +37,7 @@
 	var display_details = {{ display_details|lower }};
 	var cur_panels = 11;
 	var _shifted = false;
+	var _archive = false;
   </script>
 </head>
 <body>
@@ -41,8 +47,7 @@
     </select>
     <p>From:&nbsp;&nbsp;&nbsp;&nbsp;</p>
     <select id="fcselect" name="fcselect">{% for fc in fclist %}
-      <option value="{{ forloop.counter0 }}"{% if forloop.first %} selected="selected"{% endif %}>{{ fc|date:"l, d M Y, H" }} UTC</option>{% endfor %}
-      <option value="older" id="fc_older">Archive of 6 hour forecasts &hellip;</option>
+      <option value="{{ forloop.counter0 }}"{% if forloop.first %} selected="selected"{% endif %}>{{ fc|date:"D, d M Y, H" }}Z{% if forloop.first and archive %} or archive{% endif %}</option>{% endfor %}
     </select>
     <p>Panels:&nbsp;&nbsp;&nbsp;&nbsp;</p>
     <select id="panelselect">
@@ -54,7 +59,7 @@
     <p class="right"><span class="link" onclick="view_help()">Help</span></p>
   </div>
   <div class="content">
-    <h2 id="timtitle">Forecasts from {{ date_init|date:"l, d M Y, H" }} UTC for {{ date_begin|date:"l, d M Y, H" }} UTC [+0h]</h2>
+    <h2 id="timtitle">Forecasts from {{ date_init|date:"D, d M Y, H" }}Z for {{ date_begin|date:"D, d M Y, H" }}Z [+0h]</h2>
     <div class="panel panel_top panel_left" id="panel_top_left" style="width=100%; display: inline-block;">
       <h1 id="vartitle1">
         <select id="varselect1" name="varselect">{% for var in plotlist %}

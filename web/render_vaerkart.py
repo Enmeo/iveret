@@ -194,6 +194,11 @@ c = Context({
 	'date_init': date_fc,
 	'plotdir': 'plots',
 	'display_details': False,
+	'archive': {
+		'start': dt(2017,9,22),
+		'plots': ['z500_msl', 't850_msl', 'tcwv'],
+		'step': 12,
+	},
 })
 
 f = codecs.open(filepath, mode='w', encoding='utf-8')
