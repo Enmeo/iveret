@@ -153,6 +153,10 @@ class ff10_wind(ff10):
 	requires = ['x_wind_10m', 'y_wind_10m']
 	requires_diagnostic = [ff10.cal_ff10, ]
 	plotname = 'ff10_wind' 
+	
+	std_plotconf = ff10.std_plotconf
+	std_plotconf['vector_disable_interpolation'] = True
+	std_plotconf['vector_space_interval'] = 10
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = plotter.plot(self, data, static, dateinit, datevalid)
@@ -182,6 +186,7 @@ class ff10_wind_scandies(ff10_wind,scandies):
 	plotname = 'ff10_wind' 
 
 	std_plotconf = scandies.std_plotconf
+	std_plotconf['vector_disable_interpolation'] = True
 	std_plotconf['vector_space_interval'] = 30
 	std_plotconf['cb_shrink'] = 0.65
 
@@ -245,8 +250,10 @@ plots = [
 	ff10_wind_scandies(), t2m_msl_scandies(), tp_scandies(), 
 ]
 
-try:
-	f, static = metopen('arome_metcoop_default2_5km_%s' % forecast.strftime('%Y%m%d_%H'))
+fname = 'meps_det_pp_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')
+try:	
+	#print('Looking for %s' % fname)
+	f, static = metopen(fname)
 
 	# We need to replace the auto-detected x dimension with the alternative lon dimension
 	static.x = f.variables['longitude'][::]
@@ -254,6 +261,7 @@ try:
 	static.gridtype = 'latlon'
 	#static.rebuild_grid()
 except ValueError:	
+	print('Warning: File %s not readable.' % fname)
 	class Bunch(dict):
 		def __init__(self,**kw):
 			dict.__init__(self,kw)
