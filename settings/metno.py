@@ -9,7 +9,7 @@ from common import conf, proj, cm
 
 #conf.datapath.insert(1, '/Data/gfi/metno/thredds/arome25')
 #conf.datapath.insert(1, '/home/dfelt/metno/thredds/arome25')
-conf.datapath.insert(1, '/home/dfelt/metno/thredds/meps25')
+conf.datapath.insert(1, '/home/dfelt/metno/thredds')
 
 
 # Variable definitions
@@ -38,6 +38,11 @@ def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=63, lat_ts=63, lon_0=15, resolution='h', 
 			llcrnrlon=2.0, llcrnrlat=52.5, urcrnrlon=41.5, urcrnrlat=72.0)
 proj.Scandimap = map_tmp
+
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=77.5, lat_ts=77.5, lon_0=-25, resolution='h', 
+			llcrnrlon=-16.0, llcrnrlat=69.5, urcrnrlon=67.5, urcrnrlat=71.5)
+proj.AromeArcticMap = map_tmp
 
 
 ##

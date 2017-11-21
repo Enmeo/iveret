@@ -250,7 +250,7 @@ plots = [
 	ff10_wind_scandies(), t2m_msl_scandies(), tp_scandies(), 
 ]
 
-fname = 'meps_det_pp_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')
+fname = 'meps25/meps_det_pp_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')
 try:	
 	#print('Looking for %s' % fname)
 	f, static = metopen(fname)
