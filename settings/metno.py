@@ -16,7 +16,11 @@ conf.datapath.insert(1, '/home/dfelt/metno/thredds')
 # ====================
 
 msl = ('msl', 'msl', 'Mean sea level pressure', 'Pa')
-t2m = ('t2m', 'T2', '2 metre temperature', 'K')
+t2m = ('t2m', 't2m', '2 metre temperature', 'K')
+rh2m = ('rh2m', 'rh2m', '2 metre relative humidity', '(0 - 1)')
+sic = ('sic', 'sic', 'Sea ice concentration', '(0 - 1)')
+sshff = ('sshff', 'sshff', 'Average surface sensible heat flux', 'W m**-2')
+slhff = ('slhff', 'slhff', 'Average surface latent heat flux', 'W m**-2')
 
 # Non-dynlib derived variables
 ff10 = ('ff10', 'ff10', '10 metre wind speed', 'm s**-1')
@@ -24,7 +28,7 @@ trr = ('trr', 'trr', 'Total rain rate', 'm h**-1')
 
 # 1. Surface variables
 conf.sfclevs = ['sfc', ]
-conf.register_variable([msl, t2m, ff10, trr], conf.sfclevs)
+conf.register_variable([msl, t2m, rh2m, sic, sshff, slhff, ff10, trr], conf.sfclevs)
 
 
 

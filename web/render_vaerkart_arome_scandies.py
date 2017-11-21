@@ -74,6 +74,7 @@ class overlay(object):
 t2 = variable(u'2m Temperature', u'°C', u'')
 ff10 = variable(u'10 m wind speed', 'm/s', u'')
 tp = variable(u'Precipitiation', 'mm/h', u'')
+rh2 = variable(u'2m Relative humidity', '%', u'')
 
 msl = variable(u'Sea level pressure', 'hPa', u'')
 barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
@@ -84,7 +85,8 @@ plotlist = [
 		name='2m Temperature and SLP'),
 	plot(u'ff10_wind', ff10, [o('black', barbs10, None), ],
 		name='10 m Wind speed and direction'),
-	plot(u'tp', tp),
+	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), ], 
+		name='2m Relative humidity and precipitation'),
 ]
 
 plotdomains = [

@@ -7,6 +7,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 
 from dynlib.shorthands import *
+from dynlib import utils
 from settings.metno import *
 
 
@@ -135,10 +136,10 @@ class t2m_msl(t_msl):
 
 
 # Near surface winds.
-class ff10_wind(ff10):
-	requires = ['x_wind_10m', 'y_wind_10m']
+class ff10_flux(ff10):
+	requires = ['x_wind_10m', 'y_wind_10m', 'H', 'LE', ]
 	requires_diagnostic = [ff10.cal_ff10, ]
-	plotname = 'ff10_wind' 
+	plotname = 'ff10_flux' 
 	
 	std_plotconf = ff10.std_plotconf
 	std_plotconf['vector_disable_interpolation'] = True
@@ -148,9 +149,23 @@ class ff10_wind(ff10):
 		done = plotter.plot(self, data, static, dateinit, datevalid)
 		if done:
 			return True
+		
+		sshff = utils.smooth_xy(data['H'][np.newaxis,:,:], 10)[0,:,:]
+		slhff = utils.smooth_xy(data['LE'][np.newaxis,:,:], 10)[0,:,:]
 
 		overlays = [
 			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
+			fig.map_overlay_contour(sshff, static, **conf.plot.merge('sfc', 'sshff',
+				linewidths=[2], 
+				colors='m',
+				alpha=0.7,
+				scale=[-600, -300, -150, 150, 300, 600] ) ), 
+			fig.map_overlay_contour(slhff, static, **conf.plot.merge('sfc', 'slhff',
+				linewidths=[2], 
+				colors='c',
+				alpha=0.7,
+				scale=[-600, -300,-150, 150, 300, 600] ) ), 
+
 		]
 
 		s = np.arange(5.0,32.6,2.5)
@@ -166,11 +181,11 @@ class ff10_wind(ff10):
 		return True
 
 
-# Total precipitation
-class tp(precip):
-	requires = ['precipitation_amount']
+# Near-surface relative humidity, total precipitation and MIZ
+class rh2m_tp(precip):
+	requires = ['relative_humidity_2m', 'precipitation_amount', 'SIC']
 	requires_diagnostic = [precip.zero_init_precip, ]
-	plotname = 'tp'
+	plotname = 'rh2m_tp'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = precip.plot(self, data, static, dateinit, datevalid)
@@ -179,16 +194,36 @@ class tp(precip):
 
 		s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
 		st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
-		plotconf = conf.plotf.merge('sfc', 'trr',
+		overlays = [
+			fig.map_overlay_shading(data['precipitation_amount'], static, **conf.plotf.merge('sfc', 'trr',
 				cmap=cm.trr, # Set a colormap
 				norm=mpl.colors.BoundaryNorm(st, 256),
 				cb_tickspacing='uniform',
 				extend='max',
+				alpha=0.5,
 				scale=s,
 				ticks=s,
+				cb_disable=self.std_plotconf['cb_disable'] ) ), 
+			fig.map_overlay_contour(data['SIC'], static, **conf.plot.merge('sfc', 'sic',
+				colors='salmon',
+				linewidths=[1],
+				scale=[0.2, 0.8] ) ),
+		]
+
+		s=[0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99] 
+		st=[-1, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99, 10.0] 
+		plotconf = conf.plotf.merge('sfc', 'rh2m',
+				cmap=cm.Greys_r, # Set a colormap
+				norm=mpl.colors.BoundaryNorm(st, 256),
+				#cb_tickspacing='uniform',
+				extend='both',
+				scale=s,
+				ticks=s,
+				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map(data['precipitation_amount'], static, **plotconf)
+		plotconf['cb_disable'] = True
+		fig.map(data['relative_humidity_2m'], static, **plotconf)
 
 		return True
 
@@ -215,15 +250,17 @@ plot_only_init = False
 print('Plotting the AROME Arctic %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 plots = [
-	ff10_wind(), 
+	ff10_flux(), 
 	t2m_msl(), 
-	tp(), 
+	rh2m_tp(),
 ]
 
 fname = 'arome25_arctic/arome_arctic_pp_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')
+fname2 = 'arome25_arctic/arome_arctic_sfx_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')
 try:	
 	#print('Looking for %s' % fname)
 	f, static = metopen(fname)
+	f2 = metopen(fname2, no_static=True)
 
 	# We need to replace the auto-detected x dimension with the alternative lon dimension
 	static.x = f.variables['longitude'][::]
@@ -247,10 +284,14 @@ for plot in plots:
 	plot.error = False
 	for q in plot.requires:
 		if q not in f.variables:
-			print('%s not available!' % q)
-			plot.error = True
+			if q not in f2.variables:
+				print('%s not available!' % q)
+				plot.error = True
+			else:
+				data[q] = utils.scale(f2.variables[q])[...,10:-10,10:-10].squeeze()
+				
 		elif q not in data:
-			data[q] = f.variables[q][::].squeeze()
+			data[q] = utils.scale(f.variables[q]).squeeze()
 	
 	if not plot.error:
 		for fun in plot.requires_diagnostic:
