@@ -3,6 +3,8 @@
 *.swp
 
 plots
-plots_npolar
 vaer*.html
 mpl_config
+
+plots_extra
+*_extra.py
