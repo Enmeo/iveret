@@ -262,9 +262,8 @@ plot_only_init = False
 print 'Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 
 plots = [
-	#ff10_wind(), t2m_msl(), rh2m_tp(), 
-	#ff10_wind_scandies(), t2m_msl_scandies(), rh2m_tp_scandies(), 
-	rh2m_tp(), rh2m_tp_scandies(),
+	ff10_wind(), t2m_msl(), rh2m_tp(), 
+	ff10_wind_scandies(), t2m_msl_scandies(), rh2m_tp_scandies(), 
 ]
 
 fname = 'meps25/meps_det_pp_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')

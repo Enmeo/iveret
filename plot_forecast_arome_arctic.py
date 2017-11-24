@@ -181,6 +181,77 @@ class ff10_flux(ff10):
 		return True
 
 
+# Surface sensible and latent heat fluxes, near surface wind barbs, dangerous winds and MIZ.
+class shf_winds(ff10):
+	requires = ['H', 'LE', 'x_wind_10m', 'y_wind_10m', 'SIC', 'SST']
+	requires_diagnostic = [ff10.cal_ff10, ]
+	plotname = 'shf_winds' 
+	
+	std_plotconf = ff10.std_plotconf
+	std_plotconf['vector_disable_interpolation'] = True
+	std_plotconf['vector_space_interval'] = 30
+
+	def plot(self, data, static, dateinit, datevalid):
+		done = plotter.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		shf = [0,50,100,200,300,500,700]
+		shft = [-1000,]+shf+[10000,]
+
+		overlays = [
+			fig.map_overlay_shading(data['H'], static, **conf.plotf.merge('sfc', 'sshff',
+				cmap=cm.Greens,
+				colors=None,
+				extend='both',
+				alpha=0.5,
+				scale=shf,
+				norm=mpl.colors.BoundaryNorm(shft, 256),
+			 	cb_disable=True,
+				cb_tickspacing='uniform' ) ),
+			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
+			fig.map_overlay_contour(data['ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+				colors='gold',
+				linewidths=[1],
+				scale=[17.2, ] ) ),
+			fig.map_overlay_contour(data['ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+				colors='coral',
+				linewidths=[1.5],
+				scale=[24.5, ] ) ),
+			fig.map_overlay_contour(data['ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+				colors='crimson',
+				linewidths=[2],
+				scale=[32.7, ] ) ),
+			fig.map_overlay_contour(data['SIC'], static, **conf.plot.merge('sfc', 'sic',
+				colors='royalblue',
+				linewidths=[1],
+				scale=[0.2, 0.8] ) ),
+			fig.map_overlay_contour(data['SST'], static, **conf.plot.merge('sfc', 'sst',
+				colors='k',
+				alpha=0.5,
+				linewidths=[0.7],
+				scale=[-1,1,2,3,4,6,7,8,9,11,12,13,14,16,17,18,19] ) ),
+			fig.map_overlay_contour(data['SST'], static, **conf.plot.merge('sfc', 'sst',
+				colors='k',
+				alpha=0.6,
+				linewidths=[1],
+				scale=np.arange(0,21,5) ) ),
+		]
+
+		plotconf = conf.plotf.merge('sfc', 'slhff',
+				cmap=cm.Blues,
+				scale=shf,
+				norm=mpl.colors.BoundaryNorm(shft, 256),
+				extend='both',
+				cb_tickspacing='uniform',
+				overlays=overlays,
+				**self.std_plotconf
+		)
+		fig.map(data['LE'], static, **plotconf)
+
+		return True
+
+
 # Near-surface relative humidity, total precipitation and MIZ
 class rh2m_tp(precip):
 	requires = ['relative_humidity_2m', 'precipitation_amount', 'SIC']
@@ -251,6 +322,7 @@ print('Plotting the AROME Arctic %s forecasts' % forecast.strftime('%Y-%m-%d %H'
 
 plots = [
 	ff10_flux(), 
+	shf_winds(),
 	t2m_msl(), 
 	rh2m_tp(),
 ]
