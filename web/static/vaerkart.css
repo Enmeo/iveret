@@ -17,6 +17,9 @@ div.header {
 div.header select {
 	display: inline-block;
 }
+div.header select.fcselect {
+	width: 35em;
+}
 div.header p {
 	display: inline-block;
 	padding: 0;
@@ -128,6 +131,10 @@ div#time_controls li#but_first span, div#time_controls li#but_prev span, div#tim
 }
 div#time_controls li#but_play span, div#time_controls li#but_pause span {
 	border-radius: 1.4em;
+}
+
+ul.ui-menu li.ui-state-disabled {
+	opacity: 0.2;
 }
 
 div.plot {

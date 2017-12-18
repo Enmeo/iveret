@@ -48,9 +48,9 @@ function get_varname_by_prefix(prefix) {
 	return 'Unknown prefix.'
 }
 
-// Humanize the date: Takes a moment object and returns "%d %M %Y, %H UTC"
+// Humanize the date: Takes a moment object and returns "%d %M %Y, %HZ"
 function humanize(date) {
-	return date.format('dddd, DD MMM YYYY, HH')+' UTC';
+	return date.format('ddd, DD MMM YYYY, HH')+'Z';
 }
 
 // Filename from date: Takes a moment object and returns "%Y%M%d%H".
@@ -70,7 +70,7 @@ function get_timtitle() {
 
 // Create filename based on current state
 function get_current_filename(i) {
-	return './'+plotdir+'/'+plot_prefix+'_'+prefix[i]+'_from_'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
+	return plotdir+'/'+plot_prefix+'_'+prefix[i]+'_from_'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
 }
 
 
@@ -124,7 +124,7 @@ function date_array_contains(date, array) {
 // Change the forecast origin
 function chfc(fcidx) {
 	// Set new current forecast init time
-	date_fc = avail_fcs[fcidx];
+	date_fc = avail_fcs[fcidx].clone();
 
 	document.cookie = "date_fc="+momentfmt(date_fc);
 
@@ -163,10 +163,40 @@ function chfc(fcidx) {
 
 	// Update map, heading and drop-down box; remove focus from drop down box
 	for (i = 1; i <= 4; i++) {
-		$('#map').attr('src',get_current_filename(i));
+		$('#map'+i).attr('src',get_current_filename(i));
 	}
 	$('#timtitle').text(get_timtitle());
 	$('#fcselect').val(fcidx).selectmenu("refresh");
+}
+
+// Change the forecast origin in archive mode
+function chfctim_archive(forward) {
+	// Set new current forecast init time
+	if (forward) {
+		timestep = archive_step;
+	}
+	else {
+		timestep = -archive_step;
+	}
+	date_fc.add(timestep, 'hours');
+	if (date_fc.isBefore(archive_start)) {
+		date_fc = archive_start.clone();
+	}
+	date_vis = date_fc;
+
+	document.cookie = "date_fc="+momentfmt(date_fc);
+
+	// Recreate available times
+	cur_leads = [];
+	for (i = 0; i < avail_leads.length; i++) {
+		$('#timselect_'+avail_leads[i].toString()).addClass('disabled');
+	}
+
+	// Update map, heading and drop-down box; remove focus from drop down box
+	for (i = 1; i <= 4; i++) {
+		$('#map'+i).attr('src',get_current_filename(i));
+	}
+	$('#timtitle').text(get_timtitle());
 }
 
 // Change the forecast origin
@@ -206,36 +236,75 @@ function toggle_details() {
 	display_details = !display_details;
 }
 
+function toggle_maps_for_archive(archive_mode) {
+	for (i = 1; i <= 4; i++) {
+		options = $('#varselect'+i+' option')
+		for (j = 0; j < options.length; j++) {
+			if (archive_mode & archive_vars.indexOf(options[j].value) < 0) {
+				$(options[j]).attr("disabled", true);
+			}
+			else {
+				$(options[j]).attr("disabled", false);
+			}
+		}
+		$('#varselect'+i).selectmenu("refresh");
+	}
+}
+
 // Change to the next time step (increase lead time)
 function nexttim() {
-	clear_timeouts(); 
+	clear_timeouts();
 
-	if (date_vis < avail_fcs[0]) {
-		leads = avail_leads;
+	if (_archive) {
+		chfctim_archive(true);
+
+		// Transition out of archive mode
+		if (date_vis - avail_fcs[0] >= 0) {
+			_archive = false;
+			toggle_maps_for_archive(_archive);
+			chfc(0);
+		}
 	}
 	else {
-		leads = cur_leads;
-	}
+		if (date_vis < avail_fcs[0]) {
+			leads = avail_leads;
+		}
+		else {
+			leads = cur_leads;
+		}
 
-	var idx = leads.indexOf(lead_vis);
-	idx = Math.min(idx+1, leads.length-1);
-	chlead(leads[idx]);
+		var idx = leads.indexOf(lead_vis);
+		idx = Math.min(idx+1, leads.length-1);
+		chlead(leads[idx]);
+	}
 }
 
 // Change to the previous time step (decrease lead time), but restrict movement to past
 function prevtim() {
 	clear_timeouts();
 
-	if (_shifted || date_vis < avail_fcs[0]) {
-		leads = avail_leads;
-	}
-	else {
-		leads = cur_leads;
+	// Transition into archive mode
+	if (_shifted && date_fc.diff(avail_fcs[0]) == 0 && date_vis.diff(avail_fcs[0]) == 0) {
+		_archive = true;
+		toggle_maps_for_archive(_archive);
+		chlead(0);
 	}
 
-	var idx = leads.indexOf(lead_vis);
-	idx = Math.max(idx-1, 0);
-	chlead(leads[idx]);
+	if (_archive) {
+		chfctim_archive(false);
+	}
+	else {
+		if (_shifted || date_vis < avail_fcs[0]) {
+			leads = avail_leads;
+		}
+		else {
+			leads = cur_leads;
+		}
+
+		var idx = leads.indexOf(lead_vis);
+		idx = Math.max(idx-1, 0);
+		chlead(leads[idx]);
+	}
 }
 
 // Skip back to first time step
@@ -249,18 +318,28 @@ function firsttim() {
 function nextfc() {
 	clear_timeouts();
 
-	var idx = avail_fcs.indexOf(date_fc);
-	idx = Math.min(idx+1, avail_fcs.length-1);
-	chfc(idx);
+	if (_archive) {
+		prevtim();
+	}
+	else {
+		var idx = date_array_contains(date_fc, avail_fcs);
+		idx = Math.min(idx+1, avail_fcs.length-1);
+		chfc(idx);
+	}
 }
 
 // Change to the next time step (increase lead time)
 function prevfc() {
 	clear_timeouts();
 
-	var idx = avail_fcs.indexOf(date_fc);
-	idx = Math.max(idx-1, 0);
-	chfc(idx);
+	if (_archive) {
+		nexttim();
+	}
+	else {
+		var idx = date_array_contains(date_fc, avail_fcs);
+		idx = Math.max(idx-1, 0);
+		chfc(idx);
+	}
 }
 
 function play() {
