@@ -35,7 +35,7 @@ else:
 		date_base -= td(1,0)
 
 # Override
-date_base = dt(2016,10,5,12)
+#date_base = dt(2016,10,5,12)
 
 print('Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H UTC'))
 
@@ -122,6 +122,7 @@ plotdomains = [
 	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
+	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(11)]

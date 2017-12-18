@@ -284,7 +284,7 @@ function prevtim() {
 	clear_timeouts();
 
 	// Transition into archive mode
-	if (_shifted && date_fc.diff(avail_fcs[0]) == 0 && date_vis.diff(avail_fcs[0]) == 0) {
+	if (archive_available && _shifted && date_fc.diff(avail_fcs[0]) == 0 && date_vis.diff(avail_fcs[0]) == 0) {
 		_archive = true;
 		toggle_maps_for_archive(_archive);
 		chlead(0);

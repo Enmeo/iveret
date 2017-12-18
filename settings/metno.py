@@ -8,14 +8,20 @@ from common import conf, proj, cm
 # ================
 
 #conf.datapath.insert(1, '/Data/gfi/metno/thredds/arome25')
-conf.datapath.insert(1, '/home/dfelt/metno/thredds/arome25')
+#conf.datapath.insert(1, '/home/dfelt/metno/thredds/arome25')
+conf.datapath.insert(1, '/home/dfelt/metno/thredds')
 
 
 # Variable definitions
 # ====================
 
 msl = ('msl', 'msl', 'Mean sea level pressure', 'Pa')
-t2m = ('t2m', 'T2', '2 metre temperature', 'K')
+t2m = ('t2m', 't2m', '2 metre temperature', 'K')
+rh2m = ('rh2m', 'rh2m', '2 metre relative humidity', '(0 - 1)')
+sic = ('sic', 'sic', 'Sea ice concentration', '(0 - 1)')
+sst = ('sst', 'sst', 'Sea surface temperature', 'K')
+sshff = ('sshff', 'sshff', 'Average surface sensibGle heat flux', 'W m**-2')
+slhff = ('slhff', 'slhff', 'Average surface latent heat flux', 'W m**-2')
 
 # Non-dynlib derived variables
 ff10 = ('ff10', 'ff10', '10 metre wind speed', 'm s**-1')
@@ -23,7 +29,7 @@ trr = ('trr', 'trr', 'Total rain rate', 'm h**-1')
 
 # 1. Surface variables
 conf.sfclevs = ['sfc', ]
-conf.register_variable([msl, t2m, ff10, trr], conf.sfclevs)
+conf.register_variable([msl, t2m, rh2m, sic, sst, sshff, slhff, ff10, trr], conf.sfclevs)
 
 
 
@@ -38,6 +44,11 @@ def map_tmp():
 			llcrnrlon=2.0, llcrnrlat=52.5, urcrnrlon=41.5, urcrnrlat=72.0)
 proj.Scandimap = map_tmp
 
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=77.5, lat_ts=77.5, lon_0=-25, resolution='h', 
+			llcrnrlon=-16.0, llcrnrlat=69.5, urcrnrlon=67.5, urcrnrlat=71.5)
+proj.AromeArcticMap = map_tmp
+
 
 ##
 # Local settings.
@@ -48,5 +59,7 @@ conf.plotf[None,'t2m','hook'] = lambda t: t - 273.15
 conf.plot[None,'t2m','hook'] = lambda t: t - 273.15
 conf.plotf[None,'trr','hook'] = lambda trr: trr + 1.0e-100
 conf.plot[None,'trr','hook'] = lambda trr: trr + 1.0e-100
+conf.plotf[None,'sst','hook'] = lambda sst: sst - 273.15
+conf.plot[None,'sst','hook'] = lambda sst: sst - 273.15
 
 # that's it

@@ -120,13 +120,13 @@ class t2m_msl(t_msl):
 			return True
 
 		overlays = [
-			fig.map_overlay_contour(data['air_pressure_at_sea_level'][0,::], static, **conf.plot.merge('sfc', 'msl', 
+			fig.map_overlay_contour(data['air_pressure_at_sea_level'], static, **conf.plot.merge('sfc', 'msl', 
 				contour_labels=True, 
 				contour_labels_format='%1.0f',
 				contour_labels_scale=range(940,1060,10), 
 				linewidths=[1], 
 				scale=range(900,1070,2) ) ), 
-			fig.map_overlay_contour(data['air_temperature_2m'][0,::], static, **conf.plot.merge('sfc', 't2m',
+			fig.map_overlay_contour(data['air_temperature_2m'], static, **conf.plot.merge('sfc', 't2m',
 				linewidths=[1], 
 				linestyles='dashed',
 				scale=range(0,2,2) ) ),
@@ -138,7 +138,7 @@ class t2m_msl(t_msl):
 				ticks=range(-30,31,10),
 				**self.std_plotconf
 		)
-		fig.map(data['air_temperature_2m'][0,::], static, **plotconf)
+		fig.map(data['air_temperature_2m'], static, **plotconf)
 
 		return True
 
@@ -153,6 +153,10 @@ class ff10_wind(ff10):
 	requires = ['x_wind_10m', 'y_wind_10m']
 	requires_diagnostic = [ff10.cal_ff10, ]
 	plotname = 'ff10_wind' 
+	
+	std_plotconf = ff10.std_plotconf
+	std_plotconf['vector_disable_interpolation'] = True
+	std_plotconf['vector_space_interval'] = 10
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = plotter.plot(self, data, static, dateinit, datevalid)
@@ -182,15 +186,16 @@ class ff10_wind_scandies(ff10_wind,scandies):
 	plotname = 'ff10_wind' 
 
 	std_plotconf = scandies.std_plotconf
+	std_plotconf['vector_disable_interpolation'] = True
 	std_plotconf['vector_space_interval'] = 30
 	std_plotconf['cb_shrink'] = 0.65
 
 
-# Total precipitation
-class tp(precip):
-	requires = ['precipitation_amount']
+# Near-surface relative humidity and total precipitation
+class rh2m_tp(precip):
+	requires = ['relative_humidity_2m', 'precipitation_amount']
 	requires_diagnostic = [precip.zero_init_precip, ]
-	plotname = 'tp'
+	plotname = 'rh2m_tp'
 
 	def plot(self, data, static, dateinit, datevalid):
 		done = precip.plot(self, data, static, dateinit, datevalid)
@@ -199,24 +204,40 @@ class tp(precip):
 
 		s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
 		st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
-		plotconf = conf.plotf.merge('sfc', 'trr',
+		overlays = [
+			fig.map_overlay_shading(data['precipitation_amount'], static, **conf.plotf.merge('sfc', 'trr',
 				cmap=cm.trr, # Set a colormap
 				norm=mpl.colors.BoundaryNorm(st, 256),
 				cb_tickspacing='uniform',
 				extend='max',
+				alpha=0.5,
 				scale=s,
 				ticks=s,
+				cb_disable=self.std_plotconf['cb_disable'] ) ), 
+		]
+
+		s=[0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99] 
+		st=[-1, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99, 10.0] 
+		plotconf = conf.plotf.merge('sfc', 'rh2m',
+				cmap=cm.Greys_r, # Set a colormap
+				norm=mpl.colors.BoundaryNorm(st, 256),
+				#cb_tickspacing='uniform',
+				extend='both',
+				scale=s,
+				ticks=s,
+				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map(data['precipitation_amount'], static, **plotconf)
+		plotconf['cb_disable'] = True
+		fig.map(data['relative_humidity_2m'], static, **plotconf)
 
 		return True
 
 
-class tp_scandies(tp,scandies):
-	requires = ['precipitation_amount']
+class rh2m_tp_scandies(rh2m_tp,scandies):
+	requires = ['relative_humidity_2m', 'precipitation_amount']
 	requires_diagnostic = [precip.zero_init_precip, ]
-	plotname = 'tp'
+	plotname = 'rh2m_tp'
 
 
 # -----------------------------------------------------------------------------
@@ -241,12 +262,14 @@ plot_only_init = False
 print 'Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H')
 
 plots = [
-	ff10_wind(), t2m_msl(), tp(), 
-	ff10_wind_scandies(), t2m_msl_scandies(), tp_scandies(), 
+	ff10_wind(), t2m_msl(), rh2m_tp(), 
+	ff10_wind_scandies(), t2m_msl_scandies(), rh2m_tp_scandies(), 
 ]
 
-try:
-	f, static = metopen('arome_metcoop_default2_5km_%s' % forecast.strftime('%Y%m%d_%H'))
+fname = 'meps25/meps_det_pp_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')
+try:	
+	#print('Looking for %s' % fname)
+	f, static = metopen(fname)
 
 	# We need to replace the auto-detected x dimension with the alternative lon dimension
 	static.x = f.variables['longitude'][::]
@@ -254,6 +277,7 @@ try:
 	static.gridtype = 'latlon'
 	#static.rebuild_grid()
 except ValueError:	
+	print('Warning: File %s not readable.' % fname)
 	class Bunch(dict):
 		def __init__(self,**kw):
 			dict.__init__(self,kw)
@@ -272,7 +296,7 @@ for plot in plots:
 			print '%s not available!' % q 
 			plot.error = True
 		elif q not in data:
-			data[q] = f.variables[q][::]
+			data[q] = utils.scale(f.variables[q]).squeeze()
 	
 	if not plot.error:
 		for fun in plot.requires_diagnostic:

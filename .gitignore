@@ -4,7 +4,10 @@
 
 plots
 plots_npolar
+plots_extra
+*_extra.py
 vaer*.html
 
+mpl_config
 .DS_Store
 myeasylog.log

@@ -16,6 +16,7 @@ python $basepath/web/render_vaerkart_npolar.py > $logpath/web_render_ec_npolar_o
 python $basepath/web/render_vaerkart_spolar.py > $logpath/web_render_ec_spolar_out.log 2> $logpath/web_render_ec_spolar_err.log
 
 # Clean-up old plots
-find $basepath/web/plots -ctime +13 -delete
+#find $basepath/web/plots -ctime +13 -delete
+python $basemap/cleanup.py
 
 # the end
