@@ -92,7 +92,7 @@ plotlist = [
 	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), o('pale red', sic, [0.2, 0.8] )], 
 		name='2m Relative humidity, precipitation and MIZ'),
 	plot(u'shf_winds', slhff, [o('green shading', sshff, [50,100,200,300,500,700]), o('grey', sst, 1), o('light blue', sic, [0.2, 0.8] ), o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
-		name='Surface fluxes, 10m winds and SSTs, MIT and dangerous winds'),
+		name='Surface fluxes, 10m winds and SSTs, MIZ and dangerous winds'),
 ]
 
 plotdomains = [
