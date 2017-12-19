@@ -20,8 +20,12 @@ t2m = ('t2m', 't2m', '2 metre temperature', 'K')
 rh2m = ('rh2m', 'rh2m', '2 metre relative humidity', '(0 - 1)')
 sic = ('sic', 'sic', 'Sea ice concentration', '(0 - 1)')
 sst = ('sst', 'sst', 'Sea surface temperature', 'K')
+
 sshff = ('sshff', 'sshff', 'Average surface sensibGle heat flux', 'W m**-2')
 slhff = ('slhff', 'slhff', 'Average surface latent heat flux', 'W m**-2')
+tshff = ('tshff', 'tshff', 'Average total surface heat flux', 'W m**-2')
+sshff_frac = ('sshff_frac', 'sshff_frac', 'Fraction of sensible component in average total surface heat flux', 'W m**-2')
+slhff_frac = ('slhff_frac', 'slhff_frac', 'Fraction of latent component in average total surface heat flux', 'W m**-2')
 
 # Non-dynlib derived variables
 ff10 = ('ff10', 'ff10', '10 metre wind speed', 'm s**-1')
@@ -29,7 +33,7 @@ trr = ('trr', 'trr', 'Total rain rate', 'm h**-1')
 
 # 1. Surface variables
 conf.sfclevs = ['sfc', ]
-conf.register_variable([msl, t2m, rh2m, sic, sst, sshff, slhff, ff10, trr], conf.sfclevs)
+conf.register_variable([msl, t2m, rh2m, sic, sst, sshff, slhff, tshff, sshff_frac, slhff_frac, ff10, trr], conf.sfclevs)
 
 
 
