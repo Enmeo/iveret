@@ -36,6 +36,7 @@ class plotter(object):
 		'grid_latmax': 90,
 		'show': False,
 		'title': None,
+		'cb_orientation': 'vertical',
 	}
 	
 	figsize = (5.0,6.375)
@@ -79,6 +80,16 @@ class plotter(object):
 # Temperature shading and MSLP contours
 class t_msl(plotter):
 	pass
+
+# Total surface fluxes, and surface flux ratios: latent/total, sensible/total
+class tshf(plotter):
+	def cal_tshf(self, data, static):
+		if not 'tshff' in data:
+			data['tshff'] = data['LE'] + data['H']
+		if not 'sshff_frac' in data:
+			data['sshff_frac'] = data['H'] / data['tshff']
+		if not 'slhf_frac' in data:
+			data['slhff_frac'] = data['LE'] / data['tshff']
 
 # Wind speed
 class ff(plotter):
@@ -135,56 +146,10 @@ class t2m_msl(t_msl):
 		return True
 
 
-# Near surface winds.
-class ff10_flux(ff10):
-	requires = ['x_wind_10m', 'y_wind_10m', 'H', 'LE', ]
-	requires_diagnostic = [ff10.cal_ff10, ]
-	plotname = 'ff10_flux' 
-	
-	std_plotconf = ff10.std_plotconf
-	std_plotconf['vector_disable_interpolation'] = True
-	std_plotconf['vector_space_interval'] = 30
-
-	def plot(self, data, static, dateinit, datevalid):
-		done = plotter.plot(self, data, static, dateinit, datevalid)
-		if done:
-			return True
-		
-		sshff = utils.smooth_xy(data['H'][np.newaxis,:,:], 10)[0,:,:]
-		slhff = utils.smooth_xy(data['LE'][np.newaxis,:,:], 10)[0,:,:]
-
-		overlays = [
-			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
-			fig.map_overlay_contour(sshff, static, **conf.plot.merge('sfc', 'sshff',
-				linewidths=[2], 
-				colors='m',
-				alpha=0.7,
-				scale=[-600, -300, -150, 150, 300, 600] ) ), 
-			fig.map_overlay_contour(slhff, static, **conf.plot.merge('sfc', 'slhff',
-				linewidths=[2], 
-				colors='c',
-				alpha=0.7,
-				scale=[-600, -300,-150, 150, 300, 600] ) ), 
-
-		]
-
-		s = np.arange(5.0,32.6,2.5)
-		plotconf = conf.plotf.merge('sfc', 'ff10',
-				cmap=cm.ff, 
-				scale=s,
-				extend='both',
-				overlays=overlays,
-				**self.std_plotconf
-		)
-		fig.map(data['ff_10m'], static, **plotconf)
-
-		return True
-
-
 # Surface sensible and latent heat fluxes, near surface wind barbs, dangerous winds and MIZ.
-class shf_winds(ff10):
+class shf_winds(tshf, ff10):
 	requires = ['H', 'LE', 'x_wind_10m', 'y_wind_10m', 'SIC', 'SST']
-	requires_diagnostic = [ff10.cal_ff10, ]
+	requires_diagnostic = [tshf.cal_tshf, ff10.cal_ff10, ]
 	plotname = 'shf_winds' 
 	
 	std_plotconf = ff10.std_plotconf
@@ -196,19 +161,10 @@ class shf_winds(ff10):
 		if done:
 			return True
 
-		shf = [0,50,100,200,300,500,700]
-		shft = [-1000,]+shf+[10000,]
+		shf = [-300,-200,-140,-100,-70,-50,-30,-20,-14,-10, 30,50,70,100,140,200,300,500,700,1000,]
+		shft = [-10000,]+shf+[10000,]
 
 		overlays = [
-			fig.map_overlay_shading(data['H'], static, **conf.plotf.merge('sfc', 'sshff',
-				cmap=cm.Greens,
-				colors=None,
-				extend='both',
-				alpha=0.5,
-				scale=shf,
-				norm=mpl.colors.BoundaryNorm(shft, 256),
-			 	cb_disable=True,
-				cb_tickspacing='uniform' ) ),
 			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
 			fig.map_overlay_contour(data['ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
 				colors='gold',
@@ -238,8 +194,8 @@ class shf_winds(ff10):
 				scale=np.arange(0,21,5) ) ),
 		]
 
-		plotconf = conf.plotf.merge('sfc', 'slhff',
-				cmap=cm.Blues,
+		plotconf = conf.plotf.merge('sfc', 'tshff',
+				cmap=cm.BrBG,
 				scale=shf,
 				norm=mpl.colors.BoundaryNorm(shft, 256),
 				extend='both',
@@ -247,7 +203,7 @@ class shf_winds(ff10):
 				overlays=overlays,
 				**self.std_plotconf
 		)
-		fig.map(data['LE'], static, **plotconf)
+		fig.map(data['tshff'], static, **plotconf)
 
 		return True
 
@@ -321,7 +277,6 @@ plot_only_init = False
 print('Plotting the AROME Arctic %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 plots = [
-	ff10_flux(), 
 	shf_winds(),
 	t2m_msl(), 
 	rh2m_tp(),
