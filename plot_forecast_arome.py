@@ -259,7 +259,7 @@ else:
 #forecast = dt(2015,7,15,6)
 plot_only_init = False
 
-print 'Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H')
+print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 plots = [
 	ff10_wind(), t2m_msl(), rh2m_tp(), 
@@ -293,7 +293,7 @@ for plot in plots:
 	plot.error = False
 	for q in plot.requires:
 		if q not in f.variables:
-			print '%s not available!' % q 
+			print('%s not available!' % q)
 			plot.error = True
 		elif q not in data:
 			data[q] = utils.scale(f.variables[q]).squeeze()
