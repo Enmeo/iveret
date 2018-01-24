@@ -27,11 +27,11 @@ django.setup()
 
 # The only free parameter for the entire script
 now = dt.now()
-if now.hour in range(11,23):
+if now.hour in range(10,22):
 	date_base = dt(now.year,now.month,now.day,0)
 else:
 	date_base = dt(now.year,now.month,now.day,12)
-	if now.hour < 11:
+	if now.hour < 10:
 		date_base -= td(1,0)
 
 # Override
@@ -128,8 +128,8 @@ plotdomains = [
 fclist = [date_base - td(0.5)*i for i in range(11)]
 date_fc = fclist[0]
 
-leadlist = list(range(0,144,3))
-leadlist.extend(range(144,241,6))
+leadlist = list(range(0,72,3))
+leadlist.extend(range(72,241,6))
 
 leadlist_link = range(0,241,12)
 
