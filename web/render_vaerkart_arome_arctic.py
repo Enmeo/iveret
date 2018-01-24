@@ -90,13 +90,14 @@ plotlist = [
 	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), o('pale red', sic, [0.2, 0.8] )], 
 		name='2m Relative humidity, precipitation and MIZ'),
 	plot(u'shf_winds', tshff, [o('grey', sst, 1), o('light blue', sic, [0.2, 0.8] ), o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
-		name='Surface fluxes, 10m winds and SSTs, MIZ and dangerous winds'),
+		name='Surface fluxes, 10m winds, SSTs, and MIZ'),
 ]
 
 plotdomains = [
 	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
 	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
+	('ECMWF forecasts Scandinavia', 'vaerkart_scandies.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
 	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
@@ -115,7 +116,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = env.get_template('template_jinja.html')
 c = { 
 	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[5][0],
+	'plot_domain': plotdomains[6][0],
 	'plot_prefix': 'no_for_arctic',
 	'plotlist': plotlist, 
 	'timlist': timlist,

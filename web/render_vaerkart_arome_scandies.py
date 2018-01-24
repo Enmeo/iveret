@@ -93,6 +93,7 @@ plotdomains = [
 	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
 	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
+	('ECMWF forecasts Scandinavia', 'vaerkart_scandies.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
 	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
@@ -111,7 +112,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = env.get_template('template_jinja.html')
 c = {
 	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[4][0],
+	'plot_domain': plotdomains[5][0],
 	'plot_prefix': 'no_for_full',
 	'plotlist': plotlist, 
 	'timlist': timlist,

@@ -9,22 +9,13 @@ from datetime import datetime as dt, timedelta as td
 
 from settings.common import conf
 
-import django
-from django.conf import settings
-from django.template import Context, loader
-import django.template.exceptions
+from jinja2 import FileSystemLoader, Environment
 
 
 # Where to save the weather map; 
 filepath = conf.plotpath+'/../vaerkart_spolar.html'
-settings.configure(
-	TEMPLATES=[{
-		'DIRS': [conf.plotpath+'/..', ],
-		'BACKEND': 'django.template.backends.django.DjangoTemplates',
-	}, ], 
-	DEFAULT_CHARSET='utf-8'
-)
-django.setup()
+
+env = Environment(loader=FileSystemLoader(searchpath=conf.plotpath+'/..'))
 
 
 # The only free parameter for the entire script
@@ -78,30 +69,42 @@ class overlay(object):
 
 
 # Defining stuff
+z500 = variable(u'Geopotential', u'gpdm', u'500 hPa')
 tcwv = variable(u'Total column water vapour', 'kg/m²', u'')
+pvpt315 = variable(u'Potential vorticity', 'PVU', u'315 K')
+pvpt330 = variable(u'Potential vorticity', 'PVU', u'330 K')
 ptpv2 = variable(u'Potential temperature', 'K', u'PV 2')
-ffpv2 = variable(u'Wind speed', 'm/s', u'PV 2')
 
+msl = variable(u'Sea level pressure', 'hPa', u'')
+t850 = variable(u'Temperature', u'°C', u'850 hPa')
 cp = variable(u'Convective precipitation', 'mm/h', u'')
 lp = variable(u'Large-scale precipitation', 'mm/h', u'')
-barbspv2 = variable(u'Wind barbs', u'm/s', u'PV 2')
+irbarbspt315 = variable(u'Irrot. wind barbs', u'm/s', u'315 K')
+irbarbspt330 = variable(u'Irrot. wind barbs', u'm/s', u'330 K')
 icwvt = variable(u'Integrated column water vapour transport', u'', u'')
+ffpv2 = variable(u'Wind speed', 'm/s', u'PV 2')
 jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
 
 o = overlay
 plotlist = [
-	plot(u'ptpv2_wind', ptpv2, [o('black', barbspv2, None), ],
-		name='PV2 Pot. temperature and winds'),
-	plot(u'ffpv2_wind', ffpv2, [o('black', barbspv2, None), o('white', jetaxespv2, None), ],
-		name='PV2 Wind speed, direction and jet axes'),
-	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), ],
+	plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
+		name='500 hPa Geopotential and SLP'), 
+	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
+		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
 		name='Total column water vapour, integrated fluxes and precipitation'),
+	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, None), o('white', jetaxespv2, None)],
+		name='PV2 Pot. temperature, jets and wind speed'),
+	plot(u'pvpt315_irot_wind', pvpt315, [o('black', irbarbspt315, None), ],
+		name='315 K Pot. Vorticity and irrot. winds'),
+	plot(u'pvpt330_irot_wind', pvpt330, [o('black', irbarbspt330, None), ],
+		name='330 K Pot. Vorticity and irrot. winds'),
 ]
 
 plotdomains = [
 	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
 	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
 	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
+	('ECMWF forecasts Scandinavia', 'vaerkart_scandies.html'),
 	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
 	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
@@ -119,8 +122,8 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 
 
 # Rendering
-t = loader.get_template(template_name='template.html')
-c = Context({
+t = env.get_template('template_jinja.html')
+c = {
 	'plot_domains': plotdomains,
 	'plot_domain': plotdomains[2][0],
 	'plot_prefix': 'ec_for_spolar',
@@ -134,10 +137,10 @@ c = Context({
 	'date_init': date_fc,
 	'plotdir': 'plots',
 	'display_details': False,
-})
+}
 
 f = codecs.open(filepath, 'w', encoding='utf-8')
-f.write(t.render(c))
+f.write(t.render(**c))
 f.close()
 
 # the end

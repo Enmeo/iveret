@@ -23,7 +23,7 @@
 	units['{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}
 	{% if archive %}var archive_available = true;
 	var archive_start = moment.utc("{{ archive.start.strftime("%Y-%m-%d %H") }}");
-	var archive_vars = [{% for plot in archive.plots %}"{{ plot }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+	var archive_vars = [{% for plot in archive.plots %}"{{ plot }}"{% if not loop.last %}, {% endif %}{% endfor %}];
 	var archive_step = {{ archive.step }};
 	{% else %}var archive_available = false;{% endif %}
 
@@ -47,7 +47,7 @@
     </select>
     <p>From:&nbsp;&nbsp;&nbsp;&nbsp;</p>
     <select id="fcselect" name="fcselect">{% for fc in fclist %}
-      <option value="{{ loop.index0 }}"{% if loop.first %} selected="selected"{% endif %}>{{ fc.strftime("%a, %d %b %Y, %H") }}Z</option>{% endfor %}
+      <option value="{{ loop.index0 }}"{% if loop.first %} selected="selected"{% endif %}>{{ fc.strftime("%a, %d %b %Y, %H") }}Z{% if loop.first and archive %} or archive{% endif %}</option>{% endfor %}
     </select>
     <p>Panels:&nbsp;&nbsp;&nbsp;&nbsp;</p>
     <select id="panelselect">

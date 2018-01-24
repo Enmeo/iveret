@@ -144,7 +144,7 @@ div.plot {
 
 div.map {
 	position: relative;
-	width: 90%;
+	width: 88%;
 	height: 100%;
 	float: left;
 }
@@ -156,7 +156,7 @@ div.map img {
 }
 
 div.cbar_container {
-	width: 10%;
+	width: 12%;
 	height: 100%;
 	float: left;
 	position: relative;
