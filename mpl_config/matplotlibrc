@@ -1,2 +1,3 @@
 svg.fonttype : none
+font.size = 8
 #backend : Agg

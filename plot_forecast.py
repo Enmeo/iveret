@@ -1073,11 +1073,11 @@ class ptpv2_wind_spolar(pt_wind,spolar):
 
 # Most recent available data
 now = dt.now()
-if now.hour in range(11,23):
+if now.hour in range(10,22):
 	forecast = dt(now.year,now.month,now.day,0)
 else:
 	forecast = dt(now.year,now.month,now.day,12)
-	if now.hour < 11:
+	if now.hour < 10:
 		forecast -= td(1,0)
 
 # Override
