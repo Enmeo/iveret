@@ -165,7 +165,9 @@ class shf_winds(tshf, ff10):
 		shft = [-10000,]+shf+[10000,]
 
 		overlays = [
-			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
+			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', 
+				linewidths=0.5,
+				**self.std_plotconf) ),
 			fig.map_overlay_contour(data['ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
 				colors='gold',
 				linewidths=[1],

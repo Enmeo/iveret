@@ -259,8 +259,8 @@ class irot_wind(plotter):
 
 			# Mask areas with ff_irot < 2.0 m/s
 			ff_irot = np.sqrt(data['u_irot',plev]**2.0 + data['v_irot',plev]**2.0)
-			data['u_irot',plev][ff_irot < 2.0] = np.nan
-			data['v_irot',plev][ff_irot < 2.0] = np.nan
+			data['u_irot',plev][ff_irot < 3.0] = np.nan
+			data['v_irot',plev][ff_irot < 3.0] = np.nan
 
 # Jets / Jet axes
 class jets(ff):
@@ -291,7 +291,7 @@ class jets(ff):
 
 # Temperature@850hPa shading and MSLP contours
 class t850_msl(t_msl):
-	requires = [('t', '850'), ('msl', 'sfc')]
+	requires = [('t', '850'), ('u', '850'), ('v', '850'), ('msl', 'sfc'), ]
 	plotname = 't850_msl'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -301,15 +301,18 @@ class t850_msl(t_msl):
 
 		overlays = [
 			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
-				contour_labels=True, 
-				contour_labels_format='%1.0f',
-				contour_labels_scale=range(940,1060,15), 
-				linewidths=[1], 
-				scale=range(900,1070,5) ) ), 
+				linewidths=[0.5], 
+				scale=range(900,1070,5),
+				alpha=0.8,) ), 
 			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
 				linewidths=[1], 
 				linestyles='dashed',
 				scale=range(0,2,2) ) ),
+			fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **conf.plot.merge('sfc', 'ff10', 
+				alpha=0.5,
+				linewidths=0.5,
+				length=5,
+				**self.std_plotconf) ),
 		]
 		plotconf = conf.plotf.merge('850', 't',
 				overlays=overlays,
@@ -389,7 +392,8 @@ class pvpt315_wind(irot_wind):
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
-				quiver_length=200) ),
+				quiver_length=200,
+				vector_space_numbers_xy=(45,30), ) ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -421,7 +425,8 @@ class pvpt330_wind(irot_wind):
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **conf.plot.merge('pt330', 'u',
-				quiver_length=200) ),
+				quiver_length=200,
+				vector_space_numbers_xy=(45,30), ) ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -443,6 +448,31 @@ class pvpt315_wind_npolar(pvpt315_wind,npolar):
 	requires_diagnostic = [(irot_wind.cal_irot_wind, 'pt315'), ]
 	plotname = 'pvpt315_irot_wind'
 
+	def plot(self, data, static, dateinit, datevalid):
+		done = irot_wind.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
+				contour_labels=True, 
+				linewidths=[1.5],
+				scale=range(2,3,1) ) ), 
+			fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
+				quiver_length=200,
+				vector_space_numbers_xy=(45,45), ) ),
+		]
+		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		plotconf = conf.plotf.merge('pt315', 'pv',
+				overlays=overlays,
+				norm=mpl.colors.BoundaryNorm(s, 256),
+				scale=s,
+				ticks=st,
+				**self.std_plotconf
+		)
+		fig.map(data['pv','pt315'], static, **plotconf) 
+
+		return True
 
 # Potential vorticity@330K shading and wind barbs
 class pvpt330_wind_npolar(pvpt330_wind,npolar):
@@ -450,6 +480,31 @@ class pvpt330_wind_npolar(pvpt330_wind,npolar):
 	requires_diagnostic = [(irot_wind.cal_irot_wind, 'pt330'), ]
 	plotname = 'pvpt330_irot_wind'
 
+	def plot(self, data, static, dateinit, datevalid):
+		done = irot_wind.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
+				contour_labels=False, 
+				linewidths=[1.5],
+				scale=range(2,3,1) ) ), 
+			fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **conf.plot.merge('pt330', 'u',
+				quiver_length=200,
+				vector_space_numbers_xy=(45,45), ) ),
+		]
+		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		plotconf = conf.plotf.merge('pt330', 'pv',
+				overlays=overlays,
+				norm=mpl.colors.BoundaryNorm(s, 256),
+				scale=s,
+				ticks=st,
+				**self.std_plotconf
+		)
+		fig.map(data['pv','pt330'], static, **plotconf) 
+
+		return True
 
 # Potential vorticity@315K shading and wind barbs
 class pvpt315_wind_spolar(pvpt315_wind,spolar):
@@ -468,7 +523,8 @@ class pvpt315_wind_spolar(pvpt315_wind,spolar):
 				hook=lambda pv: -1.0e6*pv,
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
-				quiver_length=200) ),
+				quiver_length=200,
+				vector_space_numbers_xy=(45,45), ) ),
 		]
 		s=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0]
@@ -502,7 +558,8 @@ class pvpt330_wind_spolar(pvpt330_wind,spolar):
 				hook=lambda pv: -1.0e6*pv,
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **conf.plot.merge('pt330', 'u',
-				quiver_length=200) ),
+				quiver_length=200,
+				vector_space_numbers_xy=(45,45), ) ),
 		]
 		s=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		st=[0, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0]
@@ -563,54 +620,11 @@ class ptpv2_jets_spolar(ptpv2_jets,spolar):
 	plotname = 'ptpv2_jets' 
 
 
-
-# Total precipitation
-class tp_msl(precip):
-	requires = [('cp', 'sfc'), ('lsp', 'sfc'), ('msl', 'sfc'), ('t', '850'), ]
-	requires_diagnostic = [ (precip.cal_crainrate, 'sfc'), 
-				(precip.cal_lsrainrate, 'sfc'), 
-				(precip.cal_trainrate, 'sfc') ]
-	plotname = 'tp'
-
-	def plot(self, data, static, dateinit, datevalid):
-		done = precip.plot(self, data, static, dateinit, datevalid)
-		if done:
-			return True
-
-		overlays = [
-			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
-				contour_labels=True, 
-				contour_labels_format='%1.0f',
-				contour_labels_scale=range(940,1060,15), 
-				linewidths=[1], 
-				scale=range(900,1070,5) ) ), 
-			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
-				linewidths=[1], 
-				linestyles='solid',
-				colors='r',
-				scale=range(-5,-3,2) ) ),
-		]
-		s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
-		st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
-		plotconf = conf.plotf.merge('sfc', 'trr',
-				overlays=overlays,
-				norm=mpl.colors.BoundaryNorm(st, 256),
-				cb_tickspacing='uniform',
-				extend='max',
-				scale=s,
-				ticks=s,
-				**self.std_plotconf
-		)
-		fig.map(data['trr','sfc'], static, **plotconf)
-
-		return True
-
-
 # Total column water vapour
 class tcwv(precip,iwvtrans):
 	requires = [('tcwv', 'sfc'), ('cp', 'sfc'), ('lsp', 'sfc'), 
 			('u', '925'), ('v', '925'), ('q', '925'),
-			('u', '850'), ('v', '850'), ('q', '850'),
+			('u', '850'), ('v', '850'), ('q', '850'), ('t', '850'),
 			('u', '700'), ('v', '700'), ('q', '700'),
 			('u', '500'), ('v', '500'), ('q', '500'),
 			('u', '300'), ('v', '300'), ('q', '300'),
@@ -632,6 +646,11 @@ class tcwv(precip,iwvtrans):
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
 			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
+			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+				linewidths=[1], 
+				linestyles='solid',
+				colors='firebrick',
+				scale=range(-5,-3,2) ) ),
 		]
 
 		plotconf = conf.plotf.merge('sfc', 'tcwv',
@@ -673,6 +692,11 @@ class tcwv_npolar(tcwv,npolar):
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
 			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
+			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+				linewidths=[1], 
+				linestyles='solid',
+				colors='firebrick',
+				scale=range(-5,-3,2) ) ),
 		]
 
 		plotconf = conf.plotf.merge('sfc', 'tcwv',
@@ -714,6 +738,11 @@ class tcwv_spolar(tcwv,spolar):
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
 			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
+			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+				linewidths=[1], 
+				linestyles='solid',
+				colors='firebrick',
+				scale=range(-5,-3,2) ) ),
 		]
 
 		plotconf = conf.plotf.merge('sfc', 'tcwv',
@@ -784,7 +813,9 @@ class shf_winds(ff10,flux):
 		shft = [-10000,]+shf+[10000,]
 
 		overlays = [
-			fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
+			fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+				linewidths=0.5,
+				**self.std_plotconf) ),
 			fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
 				colors='gold',
 				linewidths=[1],
@@ -855,7 +886,7 @@ class deform850_fronts(deform,fronts,precip):
 
 		overlays = [
 			fig.map_overlay_shading(data['frovo','850'], static, **conf.plot.merge('850', 'z', 
-				colors=['steelblue', ],
+				colors=['seagreen', ],
 				alpha=0.3,
 				scale=[0.001, 2.0],
 				extend='neither',
@@ -911,30 +942,55 @@ plot_only_init = False
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 # Everything
-plots = [
-	#z500_msl(), 
-	#t850_msl(), 
-	deform850_fronts(), 
-	#pvpt315_wind(), 
-	#pvpt330_wind(), 
-	#ptpv2_jets(), 
-	#tcwv(), 
-	#cc(), 
-	#tp_msl(), 
-	#shf_winds(), 
+PLOTS = {
+	'plev': [
+		z500_msl(), 
+		z500_msl_npolar(),
+		z500_msl_spolar(),
+		t850_msl(), 
+		deform850_fronts(),
+		tcwv(),
+		tcwv_npolar(),
+		tcwv_spolar(),
+	], 
+	'isentropic': [
+		pvpt315_wind(),
+		pvpt330_wind(),
+		pvpt315_wind_npolar(),
+		pvpt330_wind_npolar(),
+		pvpt315_wind_spolar(),
+		pvpt330_wind_spolar(),
+	],
+	'pv2': [
+		ptpv2_jets(),
+		ptpv2_jets_npolar(),
+		ptpv2_jets_spolar(),
+	],
+	'sfc': [
+		cc(),
+		shf_winds(),
+	],
+}
 
-	#z500_msl_npolar(), 
-	#pvpt315_wind_npolar(), 
-	#pvpt330_wind_npolar(), 
-	#tcwv_npolar(), 
-	#ptpv2_jets_npolar(), 
+import sys
 
-	#z500_msl_spolar(), 
-	#pvpt315_wind_spolar(), 
-	#pvpt330_wind_spolar(), 
-	#tcwv_spolar(), 
-	#ptpv2_jets_spolar(), 
-]
+# Suggested separation into parallel plot jobs
+# plev: 7 plots, front volume + front line diagnostics
+# isentropic: 6 plots, irrot wind diagniostic
+# pv2 + sfc: 5 plots, jet axis diagnostic
+
+plots = []
+if len(sys.argv) > 1:
+	for arg in sys.argv[1:]:
+		if arg in PLOTS:
+			plots.extend(PLOTS[arg])
+			print('Plotting plot set "%s".' % arg)
+		else:
+			print('Unknown plot set "%s".' % arg)
+if len(plots) == 0:
+	print('No (known) plot set specified, plotting all plot sets.')
+	for plotset in PLOTS.values():
+		plots.extend(plotset)
 
 if plot_only_init:
 	datemask = np.zeros((125,), dtype='bool')
@@ -964,7 +1020,8 @@ for plot in plots:
 			data[q,plev] = dat_[datemask,::].squeeze()
 			f.close()
 	
-	static.t_parsed = static.t_parsed[datemask]
+	if len(static.t_parsed) > datemask.sum():
+		static.t_parsed = static.t_parsed[datemask]
 
 	if not plot.error:
 		for fun, plev in plot.requires_diagnostic:
@@ -974,8 +1031,6 @@ for plot in plots:
 import time
 
 for tidx, date in zip(range(len(static.t)), static.t_parsed):
-
-
 	data_inst = {}
 	for q, plev in data:
 		data_inst[q,plev] = data[q,plev][tidx]

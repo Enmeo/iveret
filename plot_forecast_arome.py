@@ -164,7 +164,9 @@ class ff10_wind(ff10):
 			return True
 
 		overlays = [
-			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
+			fig.map_overlay_barbs(data['x_wind_10m'], data['y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', 
+				linewidths=0.5,
+				**self.std_plotconf) ),
 		]
 		
 		s = np.arange(5.0,32.6,2.5)

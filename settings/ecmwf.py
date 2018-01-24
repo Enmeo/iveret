@@ -36,6 +36,7 @@ proj.NAfcmap = map_tmp
 
 
 landmask = np.load(conf.plotpath+'/../../settings/ecmwf_fc_sea_mask.npy')
+landmask_hr = np.load(conf.plotpath+'/../../settings/ecmwf_hrfc_sea_mask.npy')
 
 def mask_land(data):
 	data[landmask] = np.nan
@@ -44,6 +45,15 @@ def mask_land(data):
 def sst_mask_offset(sst):
 	sst -= 273.15
 	sst = mask_land(sst)
+	return sst
+
+def mask_land_hr(data):
+	data[landmask_hr] = np.nan
+	return data
+
+def sst_mask_offset_hr(sst):
+	sst -= 273.15
+	sst = mask_land_hr(sst)
 	return sst
 
 ##

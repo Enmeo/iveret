@@ -18,8 +18,8 @@ from settings.ecmwf import *
 
 
 conf.file_std = '%(time)d/ec.for-hr.%(time)d.%(plev)s.%(q)s'
-conf.plotf[None,'sst','hook'] = lambda t: t - 273.16
-conf.plot[None,'sst','hook'] = lambda t: t - 273.16
+conf.plotf[None,'sst','hook'] = sst_mask_offset_hr
+conf.plot[None,'sst','hook'] = sst_mask_offset_hr
 
 ######################################################
 # The base of _everything_
@@ -195,7 +195,9 @@ class shf_winds(ff10,flux):
 		shft = [-10000,]+shf+[10000,]
 
 		overlays = [
-			fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10', **self.std_plotconf) ),
+			fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+				linewidths=0.5,
+				**self.std_plotconf) ),
 			fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
 				colors='gold',
 				linewidths=[1],
@@ -350,8 +352,6 @@ for plot in plots:
 import time
 
 for tidx, date in zip(range(len(static.t)), static.t_parsed):
-
-
 	data_inst = {}
 	for q, plev in data:
 		data_inst[q,plev] = data[q,plev][tidx]
