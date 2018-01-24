@@ -7,10 +7,7 @@ from .common import conf, proj, cm
 # General settings
 # ================
 
-#conf.datapath.insert(1, '/Data/gfi/metno/thredds/arome25')
-#conf.datapath.insert(1, '/home/dfelt/metno/thredds/arome25')
 conf.datapath.insert(1, '/home/dfelt/metno/thredds')
-conf.datapath.insert(1, '/Volumes/Data/sci/devel/prj/iveret/testdata')
 
 
 # Variable definitions

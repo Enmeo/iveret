@@ -11,7 +11,7 @@ import dynlib.context.plot
 from . import cb
 
 # Set the default output location (e.g. for plots)
-conf.plotpath = '/data/sci/devel/prj/iveret/web/plots'
+conf.plotpath = '/home/dfelt/metno/visualisation/web/plots'
 
 cm.z = cb.KPiRdYl1
 cm.q = cb.WYlBuKPi

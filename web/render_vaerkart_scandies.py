@@ -73,10 +73,8 @@ t2 = variable(u'2m Temperature', u'°C', u'')
 ff10 = variable(u'10 m wind speed', 'm/s', u'')
 tp = variable(u'Precipitiation', 'mm/h', u'')
 rh2 = variable(u'2m Relative humidity', '%', u'')
-sic = variable(u'Sea ice concentration', '', u'')
 sst = variable(u'Sea surface temperature', '°C', u'')
-tshff = variable(u'Total Surface heat flux', u'W/m²', u'')
-#slhff = variable(u'Surface latent heat flux', u'W/m²', u'')
+tshff = variable(u'Total surface heat flux', u'W/m²', u'')
 
 msl = variable(u'Sea level pressure', 'hPa', u'')
 barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
@@ -85,10 +83,10 @@ o = overlay
 plotlist = [
 	plot(u't2m_msl', t2, [o('black dashes', t2, [0,]), o('black', msl, 2)],
 		name='2m Temperature and SLP'),
-	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), o('pale red', sic, [0.2, 0.8] )], 
-		name='2m Relative humidity, precipitation and MIZ'),
-	plot(u'shf_winds', tshff, [o('grey', sst, 1), o('light blue', sic, [0.2, 0.8] ), o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
-		name='Surface fluxes, 10m winds, SSTs, and MIZ'),
+	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), ], 
+		name='2m Relative humidity and precipitation'),
+	plot(u'shf_winds', tshff, [o('grey', sst, 1), o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
+		name='Surface fluxes, 10m winds and SSTs'),
 ]
 
 plotdomains = [
@@ -115,10 +113,9 @@ plotdomains = [
 fclist = [date_base - td(0.5)*i for i in range(11)]
 date_fc = fclist[0]
 
-leadlist = list(range(0,72,3))
-leadlist.extend(range(72,241,6))
+leadlist = list(range(0,73,3))
 
-leadlist_link = range(0,241,12)
+leadlist_link = range(0,73,6)
 
 timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 
@@ -128,7 +125,7 @@ t = env.get_template('template_jinja.html')
 c = {
 	'plot_domains': plotdomains,
 	'plot_domain': plotdomains[3][0],
-	'plot_prefix': 'ec_for_spolar',
+	'plot_prefix': 'ec_for_scandies',
 	'plotlist': plotlist, 
 	'timlist': timlist,
 	'leadlist': leadlist,

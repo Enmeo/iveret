@@ -284,7 +284,6 @@ class rh2m_tp(precip,rh2m):
 				scale=s,
 				ticks=st,
 				overlays=overlays,
-				cb_disable=True,
 				**self.std_plotconf
 		)
 		plotconf['cb_disable'] = True
@@ -318,7 +317,7 @@ plots = [
 ]
 
 if plot_only_init:
-	datemask = np.zeros((23,), dtype='bool')
+	datemask = np.zeros((25,), dtype='bool')
 	datemask[0:2] = True
 else:
 	datemask = None
@@ -336,7 +335,7 @@ for plot in plots:
 				continue
 			
 			if type(datemask) == type(None):
-				datemask = np.ones((23,), dtype='bool')
+				datemask = np.ones((25,), dtype='bool')
 				for tidx, date in zip(range(len(static.t)), static.t_parsed):
 					#Plot only 3-hourly data to speed up diagnostic calculations and plotting
 					if not date.hour % 3 == 0: #  or date.day > 18

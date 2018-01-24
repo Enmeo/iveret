@@ -27,7 +27,7 @@ conf.register_variable([tp, crr, lsrr, trr, ff10, rh2m, sshff, slhff], conf.sfcl
 conf.register_variable([d.eqpt, d.defabs, ], ['850',])
 conf.register_variable([d.ff, ], ['pv2000', '700', 'pt300', 'pt315', 'pt330', 'pt350'])
 
-conf.datapath.insert(1, '/data/sci/devel/prj/iveret/testdata')
+conf.datapath.insert(1, '/home/dfelt/metno/ecmwf')
 
 def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=58, lat_ts=58, lon_0=-30, resolution='l', 

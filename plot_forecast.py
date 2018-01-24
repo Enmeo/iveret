@@ -991,7 +991,7 @@ if len(plots) == 0:
 		plots.extend(plotset)
 
 if plot_only_init:
-	datemask = np.zeros((125,), dtype='bool')
+	datemask = np.zeros((53,), dtype='bool')
 	datemask[0:2] = True
 else:
 	datemask = None
@@ -1009,7 +1009,7 @@ for plot in plots:
 				continue
 			
 			if type(datemask) == type(None):
-				datemask = np.ones((125,), dtype='bool')
+				datemask = np.ones((53,), dtype='bool')
 				for tidx, date in zip(range(len(static.t)), static.t_parsed):
 					#Plot only 3-hourly data to speed up diagnostic calculations and plotting
 					if not date.hour % 3 == 0: #  or date.day > 18
