@@ -5,7 +5,7 @@ basepath='/Data/gfi/metno/visualisation'
 logpath='/Data/gfi/metno/log'
 
 # Make the scripts find dynlib and django and the matplotlib config
-source /Data/gfi/users/local/share/virtualenv/dynpie2/bin/activate
+source /Data/gfi/users/local/share/virtualenv/dynpie3/bin/activate
 export MPLCONFIGDIR="$basepath/mpl_config"
 
 # Do the plotting first
