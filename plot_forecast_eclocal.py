@@ -48,8 +48,8 @@ class plotter(object):
 		'title': None,
 	}
 
-	figsize = (7.2,4.8)
-	figsize_deco = (8,4.8)
+	figsize = (5.0,6.375)
+	figsize_deco = (5.5556,6.375)
 	
 	# Do the art; to be overriden in derived classes
 	def plot(self, data, static, dateinit, datevalid):
@@ -300,15 +300,15 @@ else:
 		forecast -= td(1,0)
 
 # Override
-forecast = dt(2018,1,22,0)
+forecast = dt(2018,1,23,0)
 plot_only_init = False
 
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 # Everything
 plots = [
-	#t2m_msl(),
-	#shf_winds(), 
+	t2m_msl(),
+	shf_winds(), 
 	rh2m_tp(),
 ]
 
