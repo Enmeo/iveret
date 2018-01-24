@@ -1,16 +1,19 @@
 #!/bin/bash
 
-ipath="/Data/gfi/metno/visualisation/web/plots"
-opath="/Data/gfi/metno/visualisation/web/static/deco"
+ipath="./web/plots"
+opath="./web/static/deco"
 
-plotdomain="ec_for_spolar"
+plotdomain="no_for_arctic"
 
 # Aspect 3:2; for ec_for
-#geometry="120x720+1080+0"
+#geometry="147x720+1080+0"
+
 # Aspect 1:1; for ec_for_npolar, ec_for_spolar and no_for
-geometry="106x960+960+0"
-# Aspect about 4:5; for no_for_full
-#geometry="89x1019+800+0"
+#geometry="130x960+960+0"
+
+# Aspect about 5:4; for ec_for_scandies, no_for_full, no_for_arctic
+geometry="102x956+750+0"
+
 
 # Extract the init date from the last changed file 
 last_img=`ls -tr $ipath/${plotdomain}* | tail -n 1`

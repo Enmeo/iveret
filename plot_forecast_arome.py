@@ -38,7 +38,7 @@ class plotter(object):
 	}
 	
 	figsize = (6.4,6.4)
-	figsize_deco = (7.1111,6.4)
+	figsize_deco = (7.27273,6.4)
 	
 	# Do the art; to be overriden in derived classes
 	def plot(self, data, static, dateinit, datevalid):
@@ -51,6 +51,9 @@ class plotter(object):
 		if self.decorations:
 			fi = plt.figure(figsize=self.figsize_deco, dpi=96)
 			self.std_plotconf['show_legend'] = True
+			self.std_plotconf['cb_orientation'] = 'vertical'
+			self.std_plotconf['cb_expand_fig_fraction'] = 0.12
+			self.std_plotconf['cb_shrink'] = 0.65
 			
 		else:
 			fi = plt.figure(figsize=self.figsize, dpi=96)
@@ -78,7 +81,7 @@ class scandies(plotter):
 	std_plotconf['m'] = proj.Scandimap
 
 	figsize = (5.0,6.375)
-	figsize_deco = (5.5556,6.375)
+	figsize_deco = (5.68182,6.375)
 
 
 ######################################################
@@ -214,8 +217,8 @@ class rh2m_tp(precip):
 				extend='max',
 				alpha=0.5,
 				scale=s,
-				ticks=s,
-				cb_disable=self.std_plotconf['cb_disable'] ) ), 
+				ticks=st,
+				**self.std_plotconf ) ), 
 		]
 
 		s=[0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99] 
@@ -226,7 +229,7 @@ class rh2m_tp(precip):
 				#cb_tickspacing='uniform',
 				extend='both',
 				scale=s,
-				ticks=s,
+				ticks=st,
 				overlays=overlays,
 				**self.std_plotconf
 		)
@@ -258,7 +261,7 @@ else:
 		forecast -= td(1,0)
 
 # Override 
-#forecast = dt(2015,7,15,6)
+#forecast = dt(2018,1,18,6)
 plot_only_init = False
 
 print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))

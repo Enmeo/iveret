@@ -45,7 +45,7 @@ class plotter(object):
 	}
 
 	figsize = (7.2,4.8)
-	figsize_deco = (8,4.8)
+	figsize_deco = (8.18182,4.8)
 	
 	# Do the art; to be overriden in derived classes
 	def plot(self, data, static, dateinit, datevalid):
@@ -59,6 +59,8 @@ class plotter(object):
 			fi = plt.figure(figsize=self.figsize_deco, dpi=96)
 			self.std_plotconf['show_legend'] = True
 			self.std_plotconf['cb_orientation'] = 'vertical'
+			self.std_plotconf['cb_expand_fig_fraction'] = 0.12
+			self.std_plotconf['cb_shrink'] = 0.65
 			
 		else:
 			fi = plt.figure(figsize=self.figsize, dpi=96)
@@ -87,7 +89,7 @@ class npolar(plotter):
 	std_plotconf['m'] = proj.n_hemisphere
 
 	figsize = (6.4,6.4)
-	figsize_deco = (7.1111,6.4)
+	figsize_deco = (7.27273,6.4)
 
 
 # Base for all southern stereographic maps
@@ -98,7 +100,7 @@ class spolar(plotter):
 	std_plotconf['m'] = proj.s_hemisphere
 
 	figsize = (6.4,6.4)
-	figsize_deco = (7.1111,6.4)
+	figsize_deco = (7.27273,6.4)
 
 
 
@@ -396,12 +398,10 @@ class pvpt315_wind(irot_wind):
 				vector_space_numbers_xy=(45,30), ) ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt315', 'pv',
 				overlays=overlays,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
-				ticks=st,
 				**self.std_plotconf
 		)
 		fig.map(data['pv','pt315'], static, **plotconf) 
@@ -429,12 +429,10 @@ class pvpt330_wind(irot_wind):
 				vector_space_numbers_xy=(45,30), ) ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt330', 'pv',
 				overlays=overlays,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
-				ticks=st,
 				**self.std_plotconf
 		)
 		fig.map(data['pv','pt330'], static, **plotconf) 
@@ -462,12 +460,10 @@ class pvpt315_wind_npolar(pvpt315_wind,npolar):
 				vector_space_numbers_xy=(45,45), ) ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt315', 'pv',
 				overlays=overlays,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
-				ticks=st,
 				**self.std_plotconf
 		)
 		fig.map(data['pv','pt315'], static, **plotconf) 
@@ -494,12 +490,10 @@ class pvpt330_wind_npolar(pvpt330_wind,npolar):
 				vector_space_numbers_xy=(45,45), ) ),
 		]
 		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-		st=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt330', 'pv',
 				overlays=overlays,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
-				ticks=st,
 				**self.std_plotconf
 		)
 		fig.map(data['pv','pt330'], static, **plotconf) 
@@ -532,7 +526,8 @@ class pvpt315_wind_spolar(pvpt315_wind,spolar):
 				overlays=overlays,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
-				ticks=st,
+				ticks=s,
+				ticklabels=st,
 				hook=lambda pv: -1.0e6*pv,
 				**self.std_plotconf
 		)
@@ -567,7 +562,8 @@ class pvpt330_wind_spolar(pvpt330_wind,spolar):
 				overlays=overlays,
 				norm=mpl.colors.BoundaryNorm(s, 256),
 				scale=s,
-				ticks=st,
+				ticks=s,
+				ticklabels=st,
 				hook=lambda pv: -1.0e6*pv,
 				**self.std_plotconf
 		)
@@ -777,12 +773,14 @@ class cc(plotter):
 				scale=s,
 				extend='neither',
 				antialiased=True,
+				cb_disable=True
 			) ), 
 			 fig.map_overlay_shading(data['hcc','sfc'], static, **conf.plotf.merge('sfc', 'hcc',
 				alpha=0.4, 
 				scale=s,
 				extend='neither',
 				antialiased=True,
+				cb_disable=True
 			) ), 
 		]
 		plotconf = conf.plotf.merge('sfc', 'lcc',
@@ -936,7 +934,7 @@ else:
 		forecast -= td(1,0)
 
 # Override
-forecast = dt(2017,12,18,0)
+#forecast = dt(2017,12,18,0)
 plot_only_init = False
 
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
@@ -958,8 +956,8 @@ PLOTS = {
 		pvpt330_wind(),
 		pvpt315_wind_npolar(),
 		pvpt330_wind_npolar(),
-		pvpt315_wind_spolar(),
-		pvpt330_wind_spolar(),
+       	pvpt315_wind_spolar(),
+       	pvpt330_wind_spolar(),
 	],
 	'pv2': [
 		ptpv2_jets(),
@@ -994,7 +992,7 @@ if len(plots) == 0:
 
 if plot_only_init:
 	datemask = np.zeros((125,), dtype='bool')
-	datemask[0] = True
+	datemask[0:2] = True
 else:
 	datemask = None
 

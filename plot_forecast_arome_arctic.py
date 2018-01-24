@@ -36,11 +36,10 @@ class plotter(object):
 		'grid_latmax': 90,
 		'show': False,
 		'title': None,
-		'cb_orientation': 'vertical',
 	}
 	
 	figsize = (5.0,6.375)
-	figsize_deco = (5.5556,6.375)
+	figsize_deco = (5.68182,6.375)
 
 	
 	# Do the art; to be overriden in derived classes
@@ -54,6 +53,9 @@ class plotter(object):
 		if self.decorations:
 			fi = plt.figure(figsize=self.figsize_deco, dpi=96)
 			self.std_plotconf['show_legend'] = True
+			self.std_plotconf['cb_orientation'] = 'vertical'
+			self.std_plotconf['cb_expand_fig_fraction'] = 0.12
+			self.std_plotconf['cb_shrink'] = 0.65
 			
 		else:
 			fi = plt.figure(figsize=self.figsize, dpi=96)
@@ -231,8 +233,8 @@ class rh2m_tp(precip):
 				extend='max',
 				alpha=0.5,
 				scale=s,
-				ticks=s,
-				cb_disable=self.std_plotconf['cb_disable'] ) ), 
+				ticks=st,
+				**self.std_plotconf ) ), 
 			fig.map_overlay_contour(data['SIC'], static, **conf.plot.merge('sfc', 'sic',
 				colors='salmon',
 				linewidths=[1],
@@ -247,7 +249,7 @@ class rh2m_tp(precip):
 				#cb_tickspacing='uniform',
 				extend='both',
 				scale=s,
-				ticks=s,
+				ticks=st,
 				overlays=overlays,
 				**self.std_plotconf
 		)
@@ -273,7 +275,7 @@ else:
 		forecast -= td(1,0)
 
 # Override 
-#forecast = dt(2015,7,15,6)
+#forecast = dt(2018,1,24,12)
 plot_only_init = False
 
 print('Plotting the AROME Arctic %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
