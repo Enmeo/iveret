@@ -3,16 +3,16 @@
 ipath="./web/plots"
 opath="./web/static/deco"
 
-plotdomain="no_for_arctic"
+plotdomain="ec_for_spolar"
 
 # Aspect 3:2; for ec_for
 #geometry="147x720+1080+0"
 
 # Aspect 1:1; for ec_for_npolar, ec_for_spolar and no_for
-#geometry="130x960+960+0"
+geometry="130x960+960+0"
 
 # Aspect about 5:4; for ec_for_scandies, no_for_full, no_for_arctic
-geometry="102x956+750+0"
+#geometry="102x956+750+0"
 
 
 # Extract the init date from the last changed file 
