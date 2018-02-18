@@ -5,6 +5,7 @@ import copy
 
 import matplotlib as mpl
 mpl.use('Agg')
+from mpl_toolkits.basemap import Basemap
 
 import dynlib
 import dynlib.detect
@@ -86,7 +87,7 @@ class npolar(plotter):
 	fcname = plotter.fcname + '_npolar'
 
 	std_plotconf = copy.copy(plotter.std_plotconf)
-	std_plotconf['m'] = proj.n_hemisphere
+	std_plotconf['m'] = lambda: Basemap(projection='npstere',boundinglat=10,lon_0=-50,resolution='c', area_thresh=10000)
 
 	figsize = (6.4,6.4)
 	figsize_deco = (7.27273,6.4)
@@ -934,7 +935,7 @@ else:
 		forecast -= td(1,0)
 
 # Override
-#forecast = dt(2017,12,18,0)
+#forecast = dt(2018,1,29,12)
 plot_only_init = False
 
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
@@ -956,8 +957,8 @@ PLOTS = {
 		pvpt330_wind(),
 		pvpt315_wind_npolar(),
 		pvpt330_wind_npolar(),
-       	pvpt315_wind_spolar(),
-       	pvpt330_wind_spolar(),
+		pvpt315_wind_spolar(),
+		pvpt330_wind_spolar(),
 	],
 	'pv2': [
 		ptpv2_jets(),
