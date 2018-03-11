@@ -22,6 +22,15 @@ def get_current_fc_gfs():
 	return forecast
 
 
+def get_avail_leads():
+	''' Return the available lead times '''
+
+	leads = list(range(0,72,3))
+	leads += list(range(72,241,6))
+
+	return leads
+
+
 if __name__ == '__main__':
 	print(get_current_fc_gfs().strftime('%Y%m%d%H'))
 
