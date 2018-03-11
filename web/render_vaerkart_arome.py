@@ -4,33 +4,22 @@
 from __future__ import print_function, absolute_import, division, unicode_literals
 
 import codecs
-
+from jinja2 import FileSystemLoader, Environment
 from datetime import datetime as dt, timedelta as td
 
-from settings.common import conf
-
-from jinja2 import FileSystemLoader, Environment
+from settings.common import conf, basepath
+from current_fc_arome import get_current_fc_arome
+from plotdomains import plotdomains
 
 
 # Where to save the weather map; 
 filepath = conf.plotpath+'/../vaerkart_arome.html'
 
-env = Environment(loader=FileSystemLoader(searchpath=conf.plotpath+'/..'))
+env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 
 
 # The only free parameter for the entire script
-now = dt.now()
-if now.hour in range(4,10):
-	date_base = dt(now.year,now.month,now.day,0)
-elif now.hour in range(10,16):
-	date_base = dt(now.year,now.month,now.day,6)
-elif now.hour in range(16,22):
-	date_base = dt(now.year,now.month,now.day,12)
-else:
-	date_base = dt(now.year,now.month,now.day,18)
-	if now.hour < 4:
-		date_base -= td(1,0)
-
+date_base = get_current_fc_arome()
 # Override 
 #date_base = dt(2015,2,3,0)
 
@@ -87,16 +76,6 @@ plotlist = [
 		name='10 m Wind speed and direction'),
 	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), ], 
 		name='2m Relative humidity and precipitation'),
-]
-
-plotdomains = [
-	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
-	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
-	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
-	('ECMWF forecasts Scandinavia', 'vaerkart_scandies.html'),
-	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
-	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
-	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
 ]
 
 fclist = [date_base - td(0.25)*i for i in range(11)]

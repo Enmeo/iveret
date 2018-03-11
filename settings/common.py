@@ -12,6 +12,7 @@ from . import cb
 
 # Set the default output location (e.g. for plots)
 conf.plotpath = '/share/web/plots'
+basepath = '/home/ubuntu/sw/vaerkart'
 
 cm.z = cb.KPiRdYl1
 cm.q = cb.WYlBuKPi
