@@ -7,7 +7,7 @@ from .common import conf, proj, cm
 # General settings
 # ================
 
-conf.datapath.insert(1, '/home/dfelt/metno/thredds')
+conf.datapath.insert(1, '/share/base/metno')
 
 
 # Variable definitions

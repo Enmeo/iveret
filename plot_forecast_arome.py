@@ -9,6 +9,8 @@ mpl.use('Agg')
 from dynlib.shorthands import *
 from settings.metno import *
 
+from current_fc_arome import get_current_fc_arome
+
 
 ######################################################
 # The base of _everything_
@@ -248,17 +250,7 @@ class rh2m_tp_scandies(rh2m_tp,scandies):
 # -----------------------------------------------------------------------------
 
 # Most recent available data
-now = dt.now()
-if now.hour in range(4,10):
-	forecast = dt(now.year,now.month,now.day,0)
-elif now.hour in range(10,16):
-	forecast = dt(now.year,now.month,now.day,6)
-elif now.hour in range(16,22):
-	forecast = dt(now.year,now.month,now.day,12)
-else:
-	forecast = dt(now.year,now.month,now.day,18)
-	if now.hour < 4:
-		forecast -= td(1,0)
+forecast = get_current_fc_arome()
 
 # Override 
 #forecast = dt(2018,1,18,6)
@@ -271,7 +263,7 @@ plots = [
 	ff10_wind_scandies(), t2m_msl_scandies(), rh2m_tp_scandies(), 
 ]
 
-fname = 'meps25/meps_det_pp_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')
+fname = 'meps_det_pp_2_5km_%s' % forecast.strftime('%Y%m%dT%HZ')
 try:	
 	#print('Looking for %s' % fname)
 	f, static = metopen(fname)

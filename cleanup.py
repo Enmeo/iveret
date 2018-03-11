@@ -9,7 +9,7 @@ retain_plots = [
 	'ec_for_npolar_ptpv2_wind', 'ec_for_npolar_tcwv',
 ]
 
-plotdir = '/Data/gfi/metno/visualisation/web/plots'
+plotdir = '/share/web/plots'
 
 
 
