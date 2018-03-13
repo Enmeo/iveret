@@ -932,7 +932,7 @@ class deform850_fronts(deform,fronts,precip):
 # Most recent available data
 forecast = get_current_fc_gfs()
 # Override
-#forecast = dt(2018,1,29,12)
+#forecast = dt(2018,3,12,6)
 plot_only_init = False
 
 print('Plotting the GFS %s forecasts' % forecast.strftime('%Y-%m-%d %H'))

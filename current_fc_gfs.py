@@ -8,15 +8,15 @@ def get_current_fc_gfs():
 	''' Return the most recent available forecast init time '''
 
 	now = dt.now()
-	if now.hour in range(5,11):
+	if now.hour in range(4,10):
 		forecast = dt(now.year,now.month,now.day,0)
-	elif now.hour in range(11,17):
+	elif now.hour in range(10,16):
 		forecast = dt(now.year,now.month,now.day,6)
-	elif now.hour in range(17,23):
+	elif now.hour in range(16,22):
 		forecast = dt(now.year,now.month,now.day,12)
 	else:
 		forecast = dt(now.year,now.month,now.day,18)
-		if now.hour < 5:
+		if now.hour < 4:
 			forecast -= td(1,0)
 
 	return forecast
