@@ -142,37 +142,32 @@ class flux(plotter):
 			data['slhff',plev] = dynlib.utils.smooth_xy(
 					self.__normalise(data['slhf',plev], static), 3)
 
-# Precipitation
-class precip(plotter):
-	# From cumulative precipitation to precip per hour
-	def __normalise(self, cum_precip, static):
-		dates = static.t_parsed
-		intlens = np.array([(dates[i+1]-dates[i]).total_seconds() for i in range(len(dates)-1)])
-		precip = np.zeros(cum_precip.shape)
-		precip[1:] = cum_precip[1:]-cum_precip[:-1]
-		precip[1:] *= 3600.0 / intlens[:,np.newaxis,np.newaxis]
+# Anything requiring specific humidity
+class spec_hum(plotter):
+	# From relative to specific humidity
+	def cal_spec_hum(self, data, plev, static):
+		if not ('q', plev) in data:
+			e = dynlib.thermodyn.e_from_rh(data['rh',plev], data['t',plev])
+			p = np.ones(e.shape) * 100 * int(plev)
+			data['q',plev] = dynlib.thermodyn.q_from_e(e, p)
 
-		return precip
-
-	def cal_crainrate(self, data, plev, static):
-		if not ('crr', plev) in data:
-			data['crr',plev] = self.__normalise(data['cp',plev], static)
-
-	def cal_lsrainrate(self, data, plev, static):
-		if not ('lsrr', plev) in data:
-			data['lsrr',plev] = self.__normalise(data['lsp',plev], static)
-	
-	def cal_trainrate(self, data, plev, static):
-		if not ('trr', plev) in data:
-			data['trr',plev] = data['crr',plev] + data['lsrr',plev]
+# Anything requiring potential temperature
+class theta(plotter):
+	# From relative to specific humidity
+	def cal_theta(self, data, plev, static):
+		if not ('pt', plev) in data:
+			data['pt',plev] = dynlib.thermodyn.theta_from_temp(data['t',plev], data['p',plev])
 
 # Integrated water vapour constant, based on a given set of pressure levels
-class iwvtrans(plotter):
+class iwvtrans(spec_hum):
 	pbot = 1000
 	ptop = 200
 	
 	# plevs must be in decending order
 	def cal_iwvtransport(self, data, plevs, static):
+		for plev in plevs:
+			self.cal_spec_hum(data, plev, static)
+
 		if not ('iwvtransx', 'sfc') in data:
 			data['iwvtransx','sfc'] = np.zeros(data['q',plevs[0]].shape)
 			data['iwvtransy','sfc'] = np.zeros(data['q',plevs[0]].shape)
@@ -278,8 +273,12 @@ class jets(ff):
 		dynfor.config.searchrad = 1.5
 
 		if not ('u_smooth',plev) in data:
-			# Interpolation to T63 resolution
-			br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(data['u',plev], data['v',plev])
+			# Interpolation to T84 resolution
+			umask = np.isnan(data['u',plev])
+			vmask = np.isnan(data['v',plev])
+			u, conv = dynlib.utils.fill_nan(data['u',plev])
+			v, conv = dynlib.utils.fill_nan(data['v',plev])
+			br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
 			dynlib.sphere.trunc_triangular(br, bi, 84)
 			dynlib.sphere.trunc_triangular(cr, ci, 84)
 			data['u_smooth',plev], data['v_smooth',plev] = dynlib.sphere.sh_synthesis_vector(data['u',plev].shape[2], br,bi,cr,ci)
@@ -578,9 +577,9 @@ class pvpt330_wind_spolar(pvpt330_wind,spolar):
 
 
 # Potential temperature@PV2 shading and wind barbs
-class ptpv2_jets(jets):
-	requires = [('pt', 'pv2000'), ('u', 'pv2000'), ('v', 'pv2000')]
-	requires_diagnostic = [(jets.cal_jetaxis, 'pv2000'), ]
+class ptpv2_jets(theta,jets):
+	requires = [('t', 'pv2000'), ('p', 'pv2000'), ('u', 'pv2000'), ('v', 'pv2000')]
+	requires_diagnostic = [(theta.cal_theta, 'pv2000'), (jets.cal_jetaxis, 'pv2000'), ]
 	plotname = 'ptpv2_jets'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -609,30 +608,28 @@ class ptpv2_jets(jets):
 
 # Potential temperature@PV2 shading and wind barbs
 class ptpv2_jets_npolar(ptpv2_jets,npolar):
-	requires = [('pt', 'pv2000'), ('u', 'pv2000'), ('v', 'pv2000')]
-	requires_diagnostic = [(jets.cal_ff, 'pv2000'), (jets.cal_jetaxis, 'pv2000'), ]
-	plotname = 'ptpv2_jets' 
+	requires = [('t', 'pv2000'), ('p', 'pv2000'), ('u', 'pv2000'), ('v', 'pv2000')]
+	requires_diagnostic = [(theta.cal_theta, 'pv2000'), (jets.cal_jetaxis, 'pv2000'), ]
+	plotname = 'ptpv2_jets'
 
 
 # Potential temperature@PV2 shading and wind barbs
 class ptpv2_jets_spolar(ptpv2_jets,spolar):
-	requires = [('pt', 'pv2000'), ('u', 'pv2000'), ('v', 'pv2000')]
-	requires_diagnostic = [(jets.cal_ff, 'pv2000'), (jets.cal_jetaxis, 'pv2000'), ]
-	plotname = 'ptpv2_jets' 
+	requires = [('t', 'pv2000'), ('p', 'pv2000'), ('u', 'pv2000'), ('v', 'pv2000')]
+	requires_diagnostic = [(theta.cal_theta, 'pv2000'), (jets.cal_jetaxis, 'pv2000'), ]
+	plotname = 'ptpv2_jets'
 
 
 # Total column water vapour
-class tcwv(precip,iwvtrans):
-	requires = [('tcwv', 'sfc'), ('cp', 'sfc'), ('lsp', 'sfc'), 
-			('u', '925'), ('v', '925'), ('q', '925'),
-			('u', '850'), ('v', '850'), ('q', '850'), ('t', '850'),
-			('u', '700'), ('v', '700'), ('q', '700'),
-			('u', '500'), ('v', '500'), ('q', '500'),
-			('u', '300'), ('v', '300'), ('q', '300'),
+class tcwv(iwvtrans):
+	requires = [('tcwv', 'sfc'), ('crr', 'sfc'), ('lsrr', 'sfc'), 
+			('u', '925'), ('v', '925'), ('rh', '925'), ('t', '925'),
+			('u', '850'), ('v', '850'), ('rh', '850'), ('t', '850'),
+			('u', '700'), ('v', '700'), ('rh', '700'), ('t', '700'),
+			('u', '500'), ('v', '500'), ('rh', '500'), ('t', '500'),
+			('u', '300'), ('v', '300'), ('rh', '300'), ('t', '300'),
 	]
-	requires_diagnostic = [(iwvtrans.cal_iwvtransport, ['925', '850', '700', '500', '300']),
-				(precip.cal_crainrate, 'sfc'), 
-				(precip.cal_lsrainrate, 'sfc') ]
+	requires_diagnostic = [(iwvtrans.cal_iwvtransport, ['925', '850', '700', '500', '300']), ]
 	plotname = 'tcwv'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -669,16 +666,14 @@ class tcwv(precip,iwvtrans):
 
 # Total column water vapour
 class tcwv_npolar(tcwv,npolar):
-	requires = [('tcwv', 'sfc'), ('cp', 'sfc'), ('lsp', 'sfc'), 
-			('u', '925'), ('v', '925'), ('q', '925'),
-			('u', '850'), ('v', '850'), ('q', '850'),
-			('u', '700'), ('v', '700'), ('q', '700'),
-			('u', '500'), ('v', '500'), ('q', '500'),
-			('u', '300'), ('v', '300'), ('q', '300'),
+	requires = [('tcwv', 'sfc'), ('crr', 'sfc'), ('lsrr', 'sfc'), 
+			('u', '925'), ('v', '925'), ('rh', '925'), ('t', '925'),
+			('u', '850'), ('v', '850'), ('rh', '850'), ('t', '850'),
+			('u', '700'), ('v', '700'), ('rh', '700'), ('t', '700'),
+			('u', '500'), ('v', '500'), ('rh', '500'), ('t', '500'),
+			('u', '300'), ('v', '300'), ('rh', '300'), ('t', '300'),
 	]
-	requires_diagnostic = [(iwvtrans.cal_iwvtransport, ['925', '850', '700', '500', '300']),
-				(precip.cal_crainrate, 'sfc'), 
-				(precip.cal_lsrainrate, 'sfc') ]
+	requires_diagnostic = [(iwvtrans.cal_iwvtransport, ['925', '850', '700', '500', '300']), ]
 	plotname = 'tcwv'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -715,16 +710,14 @@ class tcwv_npolar(tcwv,npolar):
 
 # Total column water vapour
 class tcwv_spolar(tcwv,spolar):
-	requires = [('tcwv', 'sfc'), ('cp', 'sfc'), ('lsp', 'sfc'), 
-			('u', '925'), ('v', '925'), ('q', '925'),
-			('u', '850'), ('v', '850'), ('q', '850'),
-			('u', '700'), ('v', '700'), ('q', '700'),
-			('u', '500'), ('v', '500'), ('q', '500'),
-			('u', '300'), ('v', '300'), ('q', '300'),
+	requires = [('tcwv', 'sfc'), ('crr', 'sfc'), ('lsrr', 'sfc'), 
+			('u', '925'), ('v', '925'), ('rh', '925'), ('t', '925'),
+			('u', '850'), ('v', '850'), ('rh', '850'), ('t', '850'),
+			('u', '700'), ('v', '700'), ('rh', '700'), ('t', '700'),
+			('u', '500'), ('v', '500'), ('rh', '500'), ('t', '500'),
+			('u', '300'), ('v', '300'), ('rh', '300'), ('t', '300'),
 	]
-	requires_diagnostic = [(iwvtrans.cal_iwvtransport, ['925', '850', '700', '500', '300']),
-				(precip.cal_crainrate, 'sfc'), 
-				(precip.cal_lsrainrate, 'sfc') ]
+	requires_diagnostic = [(iwvtrans.cal_iwvtransport, ['925', '850', '700', '500', '300']), ]
 	plotname = 'tcwv'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -862,15 +855,14 @@ class shf_winds(ff10,flux):
 
 
 # Near surface winds.
-class deform850_fronts(deform,fronts,precip):
+class deform850_fronts(deform,fronts):
 	requires = [('u', '850'), ('v', '850'), 
 		('t', '925'), ('t', '850'), ('t', '700'), 
 		('q', '925'), ('q', '850'), ('q', '700'), 
-		('lsp', 'sfc'), ('cp', 'sfc'), ('msl', 'sfc'),
+		('lsrr', 'sfc'), ('crr', 'sfc'), ('msl', 'sfc'),
 	]
 	requires_diagnostic = [(deform.cal_deform, '850'), (fronts.detect_frontalvolumes, '850'), 
-			(fronts.detect_frontlines, '850'), (precip.cal_crainrate, 'sfc'),
-			(precip.cal_lsrainrate, 'sfc'), (precip.cal_trainrate, 'sfc'), ]
+			(fronts.detect_frontlines, '850'), ]
 	plotname = 'deform850_fronts'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -943,11 +935,11 @@ PLOTS = {
 		z500_msl(), 
 		z500_msl_npolar(),
 		z500_msl_spolar(),
-#		t850_msl(), 
+		t850_msl(), 
 #		deform850_fronts(),
-#		tcwv(),
-#		tcwv_npolar(),
-#		tcwv_spolar(),
+		tcwv(),
+		tcwv_npolar(),
+		tcwv_spolar(),
 	], 
 	'isentropic': [
 #		pvpt315_wind(),
@@ -958,12 +950,12 @@ PLOTS = {
 #		pvpt330_wind_spolar(),
 	],
 	'pv2': [
-#		ptpv2_jets(),
-#		ptpv2_jets_npolar(),
-#		ptpv2_jets_spolar(),
+		ptpv2_jets(),
+		ptpv2_jets_npolar(),
+		ptpv2_jets_spolar(),
 	],
 	'sfc': [
-#		cc(),
+		cc(),
 #		shf_winds(),
 	],
 }
@@ -1023,16 +1015,42 @@ if len(plots) == 0:
 
 def get_data_grib(f, plev, q):
 	varnames_by_q = {
+		'u': 'U component of wind',
+		'v': 'V component of wind',
+		't': 'Temperature',
+		'rh': 'Relative humidity',
 		'z': 'Geopotential Height',
+		'p': 'Pressure',
+		'crr': 'Convective precipitation rate',
+		'lsrr': 'Precipitation rate',
 	}
 
-	# Special plevs
+	# Special plevs, eg. PV2
 	if plev == 'pv2000':
-		raise NotImplementedError
+		msgs = f.select(name=varnames_by_q[q], typeOfLevel='potentialVorticity', level=2)
+	# Sea level pressure has its own vertical level type in grib
 	elif plev == 'sfc' and q == 'msl':
 		msgs = f.select(name='MSLP (Eta model reduction)')
+	# Precipitiable water has no vertical level type in grib
+	elif plev == 'sfc' and q == 'tcwv':
+		msgs = f.select(name='Precipitable water')
+	elif plev == 'sfc' and q == 'lcc':
+		if f[1].forecastTime == 0:
+			return np.zeros(f[1].values.shape)
+		msgs = f.select(typeOfFirstFixedSurface='214')
+	elif plev == 'sfc' and q == 'mcc':
+		if f[1].forecastTime == 0:
+			return np.zeros(f[1].values.shape)
+		msgs = f.select(typeOfFirstFixedSurface='224')
+	elif plev == 'sfc' and q == 'hcc':
+		if f[1].forecastTime == 0:
+			return np.zeros(f[1].values.shape)
+		msgs = f.select(typeOfFirstFixedSurface='234')
+	# Surface variables
 	elif plev == 'sfc':
-		raise NotImplementedError
+		if q in ['crr', 'lsrr'] and f[1].forecastTime == 0:
+			return np.zeros(f[1].values.shape)
+		msgs = f.select(name=varnames_by_q[q], typeOfLevel='surface')
 	# Standard pressure levels
 	else:
 		plev = int(plev)
@@ -1059,11 +1077,17 @@ for lead in get_avail_leads():
 	for plot in plots:
 		plot.error = False
 		for q, plev in plot.requires:
-			data_inst[q,plev] = get_data_grib(f, plev, q)
+			data_inst[q,plev] = get_data_grib(f, plev, q)[np.newaxis,:,:]
+			if type(data_inst[q,plev]) == np.ma.MaskedArray:
+				dat_ = data_inst[q,plev].data
+				dat_[dat_ >= 9.99e+20] = np.nan
 
 		if not plot.error:
 			for fun, plev in plot.requires_diagnostic:
 				fun(plot, data_inst, plev, static)
+
+		for q,plev in data_inst:
+			data_inst[q,plev] = data_inst[q,plev].squeeze()
 
 		plot.plot(data_inst, static, forecast, date)
 		plt.close()
