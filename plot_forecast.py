@@ -36,8 +36,8 @@ class plotter(object):
 
 	std_plotconf = {
 		'm': proj.NAfcmap,
-		'coastcolor': 'gray',
-		'coast_alpha': 0.5,
+		'coastcolor': 'k',
+		'coastwidth': 0.5,
 		'grid_alpha': 0.25,
 		'grid_linestyle': '-',
 		'grid_latmax': 90,
@@ -792,6 +792,7 @@ class cc(plotter):
 				extend='neither',
 				**self.std_plotconf
 		)
+		plotconf['coastcolor'] = '0.7'
 		fig.map(data['lcc','sfc'], static, **plotconf)
 
 		return True

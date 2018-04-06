@@ -95,6 +95,11 @@ o = overlay
 plotlist = [
 	plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
 		name='500 hPa Geopotential and SLP'), 
+	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
+		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
+		name='Total column water vapour, integrated fluxes and precipitation'),
+	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, None), o('white', jetaxespv2, None)],
+		name='PV2 Pot. temperature, jets and wind speed'),
 ]
 
 fclist = [date_base - td(0.25)*i for i in range(11)]

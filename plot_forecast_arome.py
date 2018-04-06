@@ -30,8 +30,8 @@ class plotter(object):
 
 	std_plotconf = {
 		'm': proj.SNorwaymap,
-		'coastcolor': 'gray',
-		'coast_alpha': 0.5,
+		'coastcolor': 'k',
+		'coastwidth': 0.5,
 		'grid_alpha': 0.25,
 		'grid_linestyle': '-',
 		'grid_latmax': 90,

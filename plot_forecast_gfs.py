@@ -40,8 +40,8 @@ class plotter(object):
 
 	std_plotconf = {
 		'm': proj.NAfcmap,
-		'coastcolor': 'gray',
-		'coast_alpha': 0.5,
+		'coastcolor': 'k',
+		'coastwidth': 0.5,
 		'grid_alpha': 0.25,
 		'grid_linestyle': '-',
 		'grid_latmax': 90,
@@ -120,27 +120,12 @@ class t_msl(plotter):
 class z_msl(plotter):
 	pass
 
-# (Integrated) Fluxes
-class flux(plotter):
-	# From integrated flux to flux (in W/m²)
-	def __normalise(self, cum_flux, static):
-		dates = static.t_parsed
-		intlens = np.array([(dates[i+1]-dates[i]).total_seconds() for i in range(len(dates)-1)])
-		flux = np.zeros(cum_flux.shape)
-		flux[1:] = cum_flux[1:]-cum_flux[:-1]
-		flux[1:] /= intlens[:,np.newaxis,np.newaxis]
-
-		return -1*flux
-
-	def cal_sensible(self, data, plev, static):
-		if not ('sshff', plev) in data:
-			data['sshff',plev] = dynlib.utils.smooth_xy(
-					self.__normalise(data['sshf',plev], static), 3)
-
-	def cal_latent(self, data, plev, static):
-		if not ('slhff', plev) in data:
-			data['slhff',plev] = dynlib.utils.smooth_xy(
-					self.__normalise(data['slhf',plev], static), 3)
+# Anything requiring specific humidity
+class precip(plotter):
+	# From relative to specific humidity
+	def cal_trr(self, data, plev, static):
+		if not ('trr', plev) in data:
+			data['trr',plev] = data['lsrr',plev] + data['crr',plev]
 
 # Anything requiring specific humidity
 class spec_hum(plotter):
@@ -211,7 +196,7 @@ class fronts(plotter):
 			s = data['t',plev].shape
 			s = s[:1] + (len(PLEVS), ) + s[1:]
 			eqpt = np.empty(s)
-
+			
 			p = np.empty(data['t',plev].shape)
 			for pidx,plev_ in zip(range(len(PLEVS)), PLEVS):
 				if not ('eqpt', plev_) in data:
@@ -401,7 +386,7 @@ class pvpt315_wind(irot_wind):
 				quiver_length=200,
 				vector_space_numbers_xy=(45,30), ) ),
 		]
-		s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+		s=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
 		plotconf = conf.plotf.merge('pt315', 'pv',
 				overlays=overlays,
 				norm=mpl.colors.BoundaryNorm(s, 256),
@@ -643,7 +628,8 @@ class tcwv(iwvtrans):
 			fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
-			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
+			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
+				**conf.plot.merge('sfc', 'tcwv', linewidths=0.2) ),
 			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
 				linewidths=[1], 
 				linestyles='solid',
@@ -687,7 +673,8 @@ class tcwv_npolar(tcwv,npolar):
 			 fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
-			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
+			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
+				**conf.plot.merge('sfc', 'tcwv', linewidths=0.2) ),
 			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
 				linewidths=[1], 
 				linestyles='solid',
@@ -731,7 +718,8 @@ class tcwv_spolar(tcwv,spolar):
 			 fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
-			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
+			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
+				**conf.plot.merge('sfc', 'tcwv', linewidths=0.2) ),
 			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
 				linewidths=[1], 
 				linestyles='solid',
@@ -763,7 +751,7 @@ class cc(plotter):
 		if done:
 			return True
 
-		s = np.array([0,] + list(np.arange(0.0625,0.95,0.125)) + [1,])
+		s = np.array([0,] + list(np.arange(6.25,95,12.5)) + [100,])
 		t = (s[1:]+s[:-1])/2.0
 
 		overlays=[fig.map_overlay_shading(data['mcc','sfc'], static, **conf.plotf.merge('sfc', 'mcc',
@@ -789,15 +777,16 @@ class cc(plotter):
 				extend='neither',
 				**self.std_plotconf
 		)
+		plotconf['coastcolor'] = '0.7'
 		fig.map(data['lcc','sfc'], static, **plotconf)
 
 		return True
 
 
 # Surface fluxes, wind barbs, sea ice 
-class shf_winds(ff10,flux):
-	requires = [('u10', 'sfc'), ('v10', 'sfc'), ('sshf', 'sfc'), ('slhf', 'sfc'), ('sst', 'sfc'), ('ci', 'sfc'), ]
-	requires_diagnostic = [(ff10.cal_ff10, 'sfc'), (flux.cal_sensible, 'sfc'), (flux.cal_latent, 'sfc'), ]
+class shf_winds(ff10):
+	requires = [('u10', 'sfc'), ('v10', 'sfc'), ('sshff', 'sfc'), ('slhff', 'sfc'), ('sst', 'sfc'), ('ci', 'sfc'), ]
+	requires_diagnostic = [(ff10.cal_ff10, 'sfc'), ]
 	plotname = 'shf_winds'
 
 	def plot(self, data, static, dateinit, datevalid):
@@ -825,7 +814,7 @@ class shf_winds(ff10,flux):
 				linewidths=[2],
 				scale=[32.7, ] ) ),
 			fig.map_overlay_contour(data['ci','sfc'], static, **conf.plot.merge('sfc', 'ci',
-				colors='royalblue',
+				colors='blueviolet',
 				linewidths=[1],
 				scale=[0.2, 0.8] ) ),
 			fig.map_overlay_contour(data['sst','sfc'], static, **conf.plot.merge('sfc', 'sst',
@@ -855,13 +844,15 @@ class shf_winds(ff10,flux):
 
 
 # Near surface winds.
-class deform850_fronts(deform,fronts):
+class deform850_fronts(deform,fronts,spec_hum,precip):
 	requires = [('u', '850'), ('v', '850'), 
 		('t', '925'), ('t', '850'), ('t', '700'), 
-		('q', '925'), ('q', '850'), ('q', '700'), 
+		('rh', '925'), ('rh', '850'), ('rh', '700'), 
 		('lsrr', 'sfc'), ('crr', 'sfc'), ('msl', 'sfc'),
 	]
-	requires_diagnostic = [(deform.cal_deform, '850'), (fronts.detect_frontalvolumes, '850'), 
+	requires_diagnostic = [(spec_hum.cal_spec_hum, '925'), (spec_hum.cal_spec_hum, '850'),
+			(spec_hum.cal_spec_hum, '700'), (precip.cal_trr, 'sfc'),
+			(deform.cal_deform, '850'), (fronts.detect_frontalvolumes, '850'), 
 			(fronts.detect_frontlines, '850'), ]
 	plotname = 'deform850_fronts'
 
@@ -924,7 +915,7 @@ class deform850_fronts(deform,fronts):
 # Most recent available data
 forecast = get_current_fc_gfs()
 # Override
-#forecast = dt(2018,3,12,6)
+#forecast = dt(2018,4,6,0)
 plot_only_init = False
 
 print('Plotting the GFS %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
@@ -936,19 +927,11 @@ PLOTS = {
 		z500_msl_npolar(),
 		z500_msl_spolar(),
 		t850_msl(), 
-#		deform850_fronts(),
+		deform850_fronts(),
 		tcwv(),
 		tcwv_npolar(),
 		tcwv_spolar(),
 	], 
-	'isentropic': [
-#		pvpt315_wind(),
-#		pvpt330_wind(),
-#		pvpt315_wind_npolar(),
-#		pvpt330_wind_npolar(),
-#		pvpt315_wind_spolar(),
-#		pvpt330_wind_spolar(),
-	],
 	'pv2': [
 		ptpv2_jets(),
 		ptpv2_jets_npolar(),
@@ -956,7 +939,7 @@ PLOTS = {
 	],
 	'sfc': [
 		cc(),
-#		shf_winds(),
+		shf_winds(),
 	],
 }
 
@@ -978,41 +961,6 @@ if len(plots) == 0:
 	for plotset in PLOTS.values():
 		plots.extend(plotset)
 
-#if plot_only_init:
-#	datemask = np.zeros((53,), dtype='bool')
-#	datemask[0:2] = True
-#else:
-#	datemask = None
-#
-#data = {}
-#for plot in plots:
-#	plot.error = False
-#	for q, plev in plot.requires:
-#		if (q,plev) not in data:
-#			try:
-#				f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
-#			except:
-#				print('Error loading data: ', (q, plev))
-#				plot.error = True
-#				continue
-#			
-#			if type(datemask) == type(None):
-#				datemask = np.ones((53,), dtype='bool')
-#				for tidx, date in zip(range(len(static.t)), static.t_parsed):
-#					#Plot only 3-hourly data to speed up diagnostic calculations and plotting
-#					if not date.hour % 3 == 0: #  or date.day > 18
-#						datemask[tidx] = False
-#
-#			data[q,plev] = dat_[datemask,::].squeeze()
-#			f.close()
-#	
-#	if len(static.t_parsed) > datemask.sum():
-#		static.t_parsed = static.t_parsed[datemask]
-#
-#	if not plot.error:
-#		for fun, plev in plot.requires_diagnostic:
-#			fun(plot, data, plev, static)
-
 def get_data_grib(f, plev, q):
 	varnames_by_q = {
 		'u': 'U component of wind',
@@ -1023,11 +971,25 @@ def get_data_grib(f, plev, q):
 		'p': 'Pressure',
 		'crr': 'Convective precipitation rate',
 		'lsrr': 'Precipitation rate',
+		'sshff': 'Sensible heat net flux',
+		'slhff': 'Latent heat net flux',
 	}
 
-	# Special plevs, eg. PV2
+	vals = None
+
+	# Special plevs, eg. PV2, merging PV=2 and PV=-2
 	if plev == 'pv2000':
+		# Southern hemisphere, PV=-2
+		msgs = f.select(name=varnames_by_q[q], typeOfLevel='potentialVorticity', level=2147486)
+		vals = msgs[0].values.data
+		vals[msgs[0].values.mask] = np.nan
+	
+		# Northern hemisphere, PV=2, overwrite values whereever not NaN
 		msgs = f.select(name=varnames_by_q[q], typeOfLevel='potentialVorticity', level=2)
+		vals_ = msgs[0].values.data
+		vals_[msgs[0].values.mask] = np.nan
+		vals[~np.isnan(vals_)] = vals_[~np.isnan(vals_)]
+	
 	# Sea level pressure has its own vertical level type in grib
 	elif plev == 'sfc' and q == 'msl':
 		msgs = f.select(name='MSLP (Eta model reduction)')
@@ -1046,9 +1008,25 @@ def get_data_grib(f, plev, q):
 		if f[1].forecastTime == 0:
 			return np.zeros(f[1].values.shape)
 		msgs = f.select(typeOfFirstFixedSurface='234')
+	elif plev == 'sfc' and  q == 'u10':
+		msgs = f.select(name='10 metre U wind component')
+	elif plev == 'sfc' and  q == 'v10':
+		msgs = f.select(name='10 metre V wind component')
+	elif plev == 'sfc' and q == 'sst':
+		msgs = f.select(name='Temperature', typeOfLevel='surface')
+		vals = msgs[0].values
+		msgs = f.select(name='Land-sea mask')
+		landmask = msgs[0].values
+		vals[landmask == 1] = np.nan
+	elif plev == 'sfc' and q == 'ci':
+		msgs = f.select(name='Sea-ice cover', typeOfLevel='surface')
+		vals = msgs[0].values
+		msgs = f.select(name='Land-sea mask')
+		landmask = msgs[0].values
+		vals[landmask == 1] = np.nan
 	# Surface variables
 	elif plev == 'sfc':
-		if q in ['crr', 'lsrr'] and f[1].forecastTime == 0:
+		if q in ['crr', 'lsrr', 'sshff', 'slhff'] and f[1].forecastTime == 0:
 			return np.zeros(f[1].values.shape)
 		msgs = f.select(name=varnames_by_q[q], typeOfLevel='surface')
 	# Standard pressure levels
@@ -1061,7 +1039,11 @@ def get_data_grib(f, plev, q):
 	elif len(msgs) < 1:
 		raise ValueError('Found no grib messages fitting (%s, %s)' % (q, plev))
 	
-	return msgs[0].values
+	# Make possible to set values manually, e.g. for merging PV=2 and PV=-2 levels and constructing SSTs
+	if type(vals) == type(None):
+		vals = msgs[0].values
+
+	return vals
 
 for lead in get_avail_leads():
 	date = forecast + lead * td(0,3600)
@@ -1086,9 +1068,10 @@ for lead in get_avail_leads():
 			for fun, plev in plot.requires_diagnostic:
 				fun(plot, data_inst, plev, static)
 
-		for q,plev in data_inst:
-			data_inst[q,plev] = data_inst[q,plev].squeeze()
-
+	for q,plev in data_inst:
+		data_inst[q,plev] = data_inst[q,plev].squeeze()
+	
+	for plot in plots:
 		plot.plot(data_inst, static, forecast, date)
 		plt.close()
 		

@@ -7,8 +7,7 @@ logpath='/home/ubuntu/log'
 $basepath/download_cleanup_gfs.sh > $logpath/web_download_gfs_out.log 2> $logpath/web_download_gfs_err.log 
 
 # Do the plotting first
-#python3 $basepath/plot_forecast_gfs.py isentropic > $logpath/web_plot_gfs_isentropic_out.log 2> $logpath/web_plot_gfs_isentropic_err.log &
-#python3 $basepath/plot_forecast_gfs.py pv2 sfc > $logpath/web_plot_gfs_pv2sfc_out.log 2> $logpath/web_plot_gfs_pv2sfc_err.log &
+python3 $basepath/plot_forecast_gfs.py pv2 sfc > $logpath/web_plot_gfs_pv2sfc_out.log 2> $logpath/web_plot_gfs_pv2sfc_err.log &
 python3 $basepath/plot_forecast_gfs.py plev > $logpath/web_plot_gfs_plev_out.log 2> $logpath/web_plot_gfs_plev_err.log
 
 # Then render the fitting website

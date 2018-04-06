@@ -77,9 +77,9 @@ o = overlay
 plotlist = [
 	plot(u't2m_msl', t2, [o('black dashes', t2, [0,]), o('black', msl, 2)],
 		name='2m Temperature and SLP'),
-	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), o('pale red', sic, [0.2, 0.8] )], 
+	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), o('violet', sic, [0.2, 0.8] )], 
 		name='2m Relative humidity, precipitation and MIZ'),
-	plot(u'shf_winds', tshff, [o('grey', sst, 1), o('light blue', sic, [0.2, 0.8] ), o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
+	plot(u'shf_winds', tshff, [o('grey', sst, 1), o('violet', sic, [0.2, 0.8] ), o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
 		name='Surface fluxes, 10m winds, SSTs, and MIZ'),
 ]
 

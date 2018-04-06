@@ -31,8 +31,8 @@ class plotter(object):
 
 	std_plotconf = {
 		'm': proj.AromeArcticMap,
-		'coastcolor': 'gray',
-		'coast_alpha': 0.5,
+		'coastcolor': 'k',
+		'coastwidth': 0.5,
 		'grid_alpha': 0.25,
 		'grid_linestyle': '-',
 		'grid_latmax': 90,
@@ -185,7 +185,7 @@ class shf_winds(tshf, ff10):
 				linewidths=[2],
 				scale=[32.7, ] ) ),
 			fig.map_overlay_contour(data['SIC'], static, **conf.plot.merge('sfc', 'sic',
-				colors='royalblue',
+				colors='blueviolet',
 				linewidths=[1],
 				scale=[0.2, 0.8] ) ),
 			fig.map_overlay_contour(data['SST'], static, **conf.plot.merge('sfc', 'sst',
@@ -238,7 +238,7 @@ class rh2m_tp(precip):
 				ticks=st,
 				**self.std_plotconf ) ), 
 			fig.map_overlay_contour(data['SIC'], static, **conf.plot.merge('sfc', 'sic',
-				colors='salmon',
+				colors='blueviolet',
 				linewidths=[1],
 				scale=[0.2, 0.8] ) ),
 		]
