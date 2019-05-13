@@ -19,7 +19,7 @@ env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 
 
 # The only free parameter for the entire script
-date_base = get_current_fc_gfs()
+date_base = get_current_plotted_fc_gfs()
 # Override
 #date_base = dt(2016,10,5,12)
 
@@ -98,7 +98,7 @@ plotlist = [
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
 		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
 		name='Total column water vapour, integrated fluxes and precipitation'),
-	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, None), o('white', jetaxespv2, None)],
+	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
 		name='PV2 Pot. temperature, jets and wind speed'),
 ]
 

@@ -34,6 +34,18 @@ div.header p.right {
 	padding: 0;
 	margin: 8px 0 0 0;
 }
+div.header h1 {
+	font-size: 1.5em;
+	font-weight: normal;
+	padding: 7px 0 3px 0;
+  margin: 0;
+}
+div.header h2 {
+	font-size: 1.1em;
+	font-weight: normal;
+	padding: 2px 0 5px 0;
+  margin: 0;
+}
 
 div.content {
 	margin: 0;
@@ -249,10 +261,42 @@ div.ui-dialog {
 div.ui-dialog-titlebar {
 	background-color: #dddddd;
 	color: #221111;
-	border: 1px solid #211111;
+	border: 1px solid #221111;
 	border-radius: 3px;
 }
 button.ui-dialog-titlebar-close {
 	display: none;
+}
+
+.publoop_chapters {
+  width: 94%;
+  height: 1.2em;
+  margin: 0;
+  padding: 0 3% 0 3%;
+  background-color: #ccaaaa;
+}
+.publoop_chapters div {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  text-align: center;
+}
+.publoop_chapters div.active {
+  background-color: #221111;
+  color: #ffffff;
+}
+
+.progress_bar {
+  height: 5px;
+  background-color: #ccaaaa;
+  width: 94%;
+  margin: 0;
+  padding: 0 3% 0 3%;
+}
+.progress_bar_indicator {
+  background-color: #221111;
+  height: 100%;
 }
 

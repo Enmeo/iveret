@@ -4,29 +4,21 @@
 from __future__ import print_function, absolute_import, division, unicode_literals
 
 import codecs
-
+from jinja2 import FileSystemLoader, Environment
 from datetime import datetime as dt, timedelta as td
 
-from settings.common import conf
+from settings.common import conf, basepath
+from current_fc import *
+from plotdomains import plotdomains
 
-from jinja2 import FileSystemLoader, Environment
 
 
 # Where to save the weather map; 
-filepath = conf.plotpath+'/../vaerkart.html'
+filepath = conf.plotpath+'/../closed/vaerkart_ec.html'
 
-env = Environment(loader=FileSystemLoader(searchpath=conf.plotpath+'/..'))
+env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 
-
-# The only free parameter for the entire script
-now = dt.now()
-if now.hour in range(10,23):
-	date_base = dt(now.year,now.month,now.day,0)
-else:
-	date_base = dt(now.year,now.month,now.day,12)
-	if now.hour < 10:
-		date_base -= td(1,0)
-
+date_base = get_current_plotted_fc()
 # Override
 #date_base = dt(2016,10,5,12)
 
@@ -36,10 +28,11 @@ print('Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H 
 
 # Defining stuff
 class variable(object):
-	def __init__(self, name, units, level):
+	def __init__(self, name, units, level, addinfo=u''):
 		self.name = name
 		self.units = units
 		self.level = level
+		self.addinfo = addinfo
 
 		#self.overlays = overlays
 
@@ -81,6 +74,10 @@ pvpt330 = variable(u'Potential vorticity', 'PVU', u'330 K')
 ptpv2 = variable(u'Potential temperature', 'K', u'PV 2')
 sthff = variable(u'Surface total heat flux', u'W/m²', u'')
 
+tcwvp = variable(u'Total column water vapour percentiles', u'', u'', u'based on ERA-Interim 1979-2017')
+t850p = variable(u'Temperature percentiles', u'', u'850 hPa', u'based on ERA-Interim 1979-2017')
+t850a = variable(u'Temperature anomaly', u'K', u'850 hPa', u'based on ERA-Interim 1979-2017')
+
 msl = variable(u'Sea level pressure', 'hPa', u'')
 cp = variable(u'Convective precipitation', 'mm/h', u'')
 lp = variable(u'Large-scale precipitation', 'mm/h', u'')
@@ -97,6 +94,8 @@ ffpv2 = variable(u'Wind speed', u'm/s', u'PV 2')
 defang850 = variable(u'Axes of dilatation', u'', u'850 hPa')
 icwvt = variable(u'Integrated column water vapour transport', u'', u'')
 jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
+uslope = variable(u'Average isentropic slope', u'm/km', '200-600 hPa')
+lslope = variable(u'Average isentropic slope', u'm/km', '600-900 hPa')
 
 o = overlay
 plotlist = [
@@ -119,18 +118,19 @@ plotlist = [
 		name='315 K Pot. Vorticity and irrot. winds'),
 	plot(u'pvpt330_irot_wind', pvpt330, [o('black', irbarbspt330, None), ],
 		name='330 K Pot. Vorticity and irrot. winds'),
-	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, None), o('white', jetaxespv2, None)],
+	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
 		name='PV2 Pot. temperature, jets and wind speed'),
-]
-
-plotdomains = [
-	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
-	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
-	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
-	('ECMWF forecasts Scandinavia', 'vaerkart_scandies.html'),
-	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
-	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
-	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
+	plot(u't850_perc', t850a, [
+			o('black', t850p, ['monthly recurrence']), 
+			o('grey', t850p, ['yearly recurrence']), 
+			o('white', t850p, ['new record']), ], 
+		name='850 hPa Temperature amomalies'),
+	plot(u'tcwv_perc', tcwvp, [],
+		name='Total column water vapour percentiles'),
+	plot(u'slope_upper', uslope, [o('black', ffpv2, [30, 45, 60, 75, 90]), ],
+		name='Upper-level slopes and tropopause winds'),
+	plot(u'slope_lower', lslope, [o('black', ffpv2, [30, 45, 60, 75, 90]), ],
+		name='Lower-level slopes and tropopause winds'),
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(11)]
@@ -148,7 +148,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = env.get_template('template_jinja.html')
 c = {
 	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[0][0],
+	'plot_domain': plotdomains[3][0],
 	'plot_prefix': 'ec_for',
 	'plotlist': plotlist, 
 	'timlist': timlist,
@@ -158,7 +158,7 @@ c = {
 	'initplot': plotlist[0],
 	'date_begin': date_fc,
 	'date_init': date_fc,
-	'plotdir': 'plots',
+	'plotdir': '/plots',
 	'display_details': False,
 	'archive': {
 		'start': dt(2017,9,22),

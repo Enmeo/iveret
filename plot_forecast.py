@@ -17,6 +17,7 @@ import dynlib.utils
 from dynlib.shorthands import *
 from settings.ecmwf import *
 
+from current_fc import *
 
 ######################################################
 # The base of _everything_
@@ -237,7 +238,7 @@ class fronts(plotter):
 				p = np.ones(data['t',plev].shape) * 100.0 * int(plev)
 				data['eqpt',plev] = dynlib.thermodyn.thetae_from_q(data['q',plev], data['t',plev], p)
 
-			data['fronts',plev], data['froff',plev] = dynlib.detect.frontline(10000,1000, 
+			data['fronts',plev], data['froff',plev] = dynlib.detect.frontline_at_maxgrad(10000,1000, 
 					data['eqpt',plev], data['u',plev], data['v',plev], static.dx, static.dy)
 			data['froff',plev] = data['froff',plev].astype('i4')
 
@@ -288,6 +289,42 @@ class jets(ff):
 			data['jaoff',plev] = data['jaoff',plev].astype('i4')
 
 
+# Percentile plots
+class percentiles(plotter):
+	BASE_PATH = '/home/ubuntu/data'
+
+	def cal_percentiles(self, data, info, static):
+		q, plev, base_period = info
+		qp = '%s_percs' % q
+		qa = '%s_ano' % q
+		if not (qp, plev) in data or not (qa,plev) in data:
+			filename = self.BASE_PATH + '/ei.ans.%s.%s.%s.npz' % (base_period, plev, qp)
+			print('Using base data from %s' % filename)
+			f = np.load(filename)
+			base_data = f['dat']
+			percs = f['percs']
+			f.close()
+			
+			# Current month (index, starting with January as 0)
+			mon = static.t_parsed[0].month - 1
+			
+			# Calculate anomalies compared to median
+			idx = np.argwhere(percs == 0.5)[0,0] 
+			data[qa,plev] = data[q,plev] - base_data[mon,idx]
+
+			# Find percentiles
+			data[qp,plev] = np.empty(data[q,plev].shape, dtype='i1') * np.nan
+			mask = data[q,plev] < base_data[mon,0][np.newaxis,:,:]
+			data[qp,plev][mask] = 0
+			for i in range(1, base_data.shape[1]):
+				dmin = base_data[mon,i-1][np.newaxis,:,:]
+				dmax = base_data[mon,i][np.newaxis,:,:]
+				mask = (data[q,plev] >= dmin) & (data[q,plev] < dmax)
+				data[qp,plev][mask] = i
+			i += 1
+			mask = data[q,plev] >= base_data[mon,-1][np.newaxis,:,:]
+			data[qp,plev][mask] = i
+
 
 ######################################################
 # Specific plots
@@ -328,6 +365,39 @@ class t850_msl(t_msl):
 		return True
 
 
+# Temperature@850hPa shading and MSLP contours
+class t850_perc(t_msl, percentiles):
+	requires = [('t', '850'), ]
+	requires_diagnostic = [(percentiles.cal_percentiles, ['t', '850', '1979-2017', ]), ]
+	plotname = 't850_perc'
+
+	def plot(self, data, static, dateinit, datevalid):
+		done = t_msl.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		s = [-30,-25,-21,-18,-15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,18,21,25,30]
+
+		overlays = [
+			fig.map_overlay_contour(data['t_percs', '850'], static, plev=None, q='perc', 
+				colors='w', scale=[0.5, 18.5]),
+			fig.map_overlay_contour(data['t_percs', '850'], static, plev=None, q='perc', 
+				colors='0.3', scale=[1.5, 17.5]),
+			fig.map_overlay_contour(data['t_percs', '850'], static, plev=None, q='perc', 
+				scale=[3.5, 15.5]),
+		]
+		plotconf = conf.plotf.merge('850', 't_ano',
+				scale=s,
+				norm=mpl.colors.BoundaryNorm([-np.inf,]+s+[np.inf,], 256),
+				cb_tickspacing='uniform',
+				overlays=overlays,
+				**self.std_plotconf
+		)
+		fig.map(data['t_ano', '850'], static, **plotconf)
+
+		return True
+
+
 # Geopotential@5000hPa shading and MSLP contours
 class z500_msl(z_msl):
 	requires = [('z', '500'), ('msl', 'sfc')]
@@ -342,6 +412,7 @@ class z500_msl(z_msl):
 			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc','msl',  
 				alpha=0.8,
 				contour_labels=True, 
+				contour_labels_format='%g',
 				linewidths=[1], 
 				scale=range(900,1070,5) ) ),
 			#fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
@@ -391,7 +462,7 @@ class pvpt315_wind(irot_wind):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
@@ -453,7 +524,7 @@ class pvpt315_wind_npolar(pvpt315_wind,npolar):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
@@ -513,7 +584,7 @@ class pvpt315_wind_spolar(pvpt315_wind,spolar):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				hook=lambda pv: -1.0e6*pv,
 				scale=range(2,3,1) ) ), 
@@ -549,7 +620,7 @@ class pvpt330_wind_spolar(pvpt330_wind,spolar):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				hook=lambda pv: -1.0e6*pv,
 				scale=range(2,3,1) ) ), 
@@ -642,7 +713,8 @@ class tcwv(precip,iwvtrans):
 			fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
 				scale=[1.0, 3.0, 10.0],
 				colors='m', ) ), 
-			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, **conf.plot.merge('sfc', 'tcwv') ),
+			fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
+				**conf.plot.merge('sfc', 'tcwv', linewidths=0.2) ),
 			fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
 				linewidths=[1], 
 				linestyles='solid',
@@ -659,6 +731,28 @@ class tcwv(precip,iwvtrans):
 				**self.std_plotconf
 		)
 		fig.map(data['tcwv','sfc'], static, **plotconf)
+
+		return True
+
+
+# Total column water vapour
+class tcwv_perc(percentiles):
+	requires = [('tcwv', 'sfc'), ]
+	requires_diagnostic = [(percentiles.cal_percentiles, ['tcwv', 'sfc', '1979-2017', ]), ]
+	plotname = 'tcwv_perc'
+
+	def plot(self, data, static, dateinit, datevalid):
+		done = plotter.plot(self, data, static, dateinit, datevalid)
+		if done:
+			return True
+
+		overlays=[]
+
+		plotconf = conf.plotf.merge(None, 'perc',
+				overlays=overlays,
+				**self.std_plotconf
+		)
+		fig.map(data['tcwv_percs','sfc'], static, **plotconf)
 
 		return True
 
@@ -800,7 +894,7 @@ class cc(plotter):
 
 # Surface fluxes, wind barbs, sea ice 
 class shf_winds(ff10,flux):
-	requires = [('u10', 'sfc'), ('v10', 'sfc'), ('sshf', 'sfc'), ('slhf', 'sfc'), ('sst', 'sfc'), ('ci', 'sfc'), ]
+	requires = [('u10', 'sfc'), ('v10', 'sfc'), ('sshf', 'sfc'), ('slhf', 'sfc'), ('sst', 'sfc'), ('siconc', 'sfc'), ]
 	requires_diagnostic = [(ff10.cal_ff10, 'sfc'), (flux.cal_sensible, 'sfc'), (flux.cal_latent, 'sfc'), ]
 	plotname = 'shf_winds'
 
@@ -828,7 +922,7 @@ class shf_winds(ff10,flux):
 				colors='crimson',
 				linewidths=[2],
 				scale=[32.7, ] ) ),
-			fig.map_overlay_contour(data['ci','sfc'], static, **conf.plot.merge('sfc', 'ci',
+			fig.map_overlay_contour(data['siconc','sfc'], static, **conf.plot.merge('sfc', 'siconc',
 				colors='royalblue',
 				linewidths=[1],
 				scale=[0.2, 0.8] ) ),
@@ -926,17 +1020,9 @@ class deform850_fronts(deform,fronts,precip):
 
 # -----------------------------------------------------------------------------
 
-# Most recent available data
-now = dt.now()
-if now.hour in range(10,22):
-	forecast = dt(now.year,now.month,now.day,0)
-else:
-	forecast = dt(now.year,now.month,now.day,12)
-	if now.hour < 10:
-		forecast -= td(1,0)
-
+forecast = get_current_fc()
 # Override
-#forecast = dt(2018,1,29,12)
+#forecast = dt(2019,3,16,12)
 plot_only_init = False
 
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
@@ -952,6 +1038,8 @@ PLOTS = {
 		tcwv(),
 		tcwv_npolar(),
 		tcwv_spolar(),
+		t850_perc(),
+		tcwv_perc(),
 	], 
 	'isentropic': [
 		pvpt315_wind(),
@@ -1003,12 +1091,12 @@ for plot in plots:
 	plot.error = False
 	for q, plev in plot.requires:
 		if (q,plev) not in data:
-			try:
-				f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
-			except:
-				print('Error loading data: ', (q, plev))
-				plot.error = True
-				continue
+			#try:
+			f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
+			#except:
+			#	print('Error loading data: ', (q, plev))
+			#	plot.error = True
+			#	continue
 			
 			if type(datemask) == type(None):
 				datemask = np.ones((53,), dtype='bool')

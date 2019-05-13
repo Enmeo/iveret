@@ -10,6 +10,7 @@ from .common import conf, cm, proj
 
 
 # Non-dynlib derived variables
+ci = ('ci', 'ci', 'Sea-ice cover', '(0 - 1)')
 tp = ('tp', 'tprec', 'Total precipitation', 'm')
 crr = ('crr', 'crr', 'Convective rain rate', 'm h**-1')
 lsrr = ('lsrr', 'lsrr', 'Large-scale rain rate', 'm h**-1')
@@ -21,7 +22,7 @@ slhff = ('slhff', 'slhff', 'Surface latent heat flux', 'W m**2')
 
 # Surface variables
 conf.sfclevs = ['sfc', ]
-conf.register_variable([tp, crr, lsrr, trr, ff10, rh2m, sshff, slhff], conf.sfclevs)
+conf.register_variable([ci, tp, crr, lsrr, trr, ff10, rh2m, sshff, slhff], conf.sfclevs)
 
 # Derived variables on specific surfaces
 conf.register_variable([d.eqpt, d.defabs, ], ['850',])

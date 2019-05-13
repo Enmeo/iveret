@@ -19,7 +19,7 @@ env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 
 
 # The only free parameter for the entire script
-date_base = get_current_fc_gfs()
+date_base = get_current_plotted_fc_gfs()
 # Override
 #date_base = dt(2016,10,5,12)
 
@@ -108,7 +108,7 @@ plotlist = [
 		name='Total column water vapour, fluxes and precip.'),
 	plot(u'tcc', lcc, [o('orange shading', mcc, None), o('white shading', hcc, None)],
 		name='Cloud cover'),
-	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, None), o('white', jetaxespv2, None)],
+	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
 		name='PV2 Pot. temperature, jets and wind speed'),
 ]
 

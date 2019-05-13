@@ -4,6 +4,9 @@
 from datetime import datetime as dt
 
 
+DATEFMT = '%Y%m%d%H'
+STATFILE = '/home/ubuntu/log/status/gfs'
+
 def get_current_fc_gfs():
 	''' Return the most recent available forecast init time '''
 
@@ -21,6 +24,12 @@ def get_current_fc_gfs():
 
 	return forecast
 
+def get_current_plotted_fc_gfs():
+	f = open(STATFILE, 'r')
+	datestr = f.read()
+	f.close()
+	
+	return dt.strptime(datestr[:-1], DATEFMT)
 
 def get_avail_leads():
 	''' Return the available lead times '''
@@ -32,6 +41,6 @@ def get_avail_leads():
 
 
 if __name__ == '__main__':
-	print(get_current_fc_gfs().strftime('%Y%m%d%H'))
+	print(get_current_fc_gfs().strftime(DATEFMT))
 
 # C'est le fin

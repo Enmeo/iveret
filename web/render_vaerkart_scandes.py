@@ -4,29 +4,22 @@
 from __future__ import print_function, absolute_import, division, unicode_literals
 
 import codecs
-
+from jinja2 import FileSystemLoader, Environment
 from datetime import datetime as dt, timedelta as td
 
-from settings.common import conf
+from settings.common import conf, basepath
+from current_fc import *
+from plotdomains import plotdomains
 
-from jinja2 import FileSystemLoader, Environment
 
 
 # Where to save the weather map; 
-filepath = conf.plotpath+'/../vaerkart_scandies.html'
+filepath = conf.plotpath+'/../closed/vaerkart_ec_scandes.html'
 
-env = Environment(loader=FileSystemLoader(searchpath=conf.plotpath+'/..'))
+env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 
 
-# The only free parameter for the entire script
-now = dt.now()
-if now.hour in range(10,22):
-	date_base = dt(now.year,now.month,now.day,0)
-else:
-	date_base = dt(now.year,now.month,now.day,12)
-	if now.hour < 10:
-		date_base -= td(1,0)
-
+date_base = get_current_plotted_fc()
 # Override
 #date_base = dt(2015,6,9,12)
 
@@ -89,27 +82,6 @@ plotlist = [
 		name='Surface fluxes, 10m winds and SSTs'),
 ]
 
-plotdomains = [
-	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
-	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
-	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
-	('ECMWF forecasts Scandinavia', 'vaerkart_scandies.html'),
-	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
-	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
-	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
-]
-
-
-plotdomains = [
-	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
-	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
-	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
-	('ECMWF forecasts Scandinavia', 'vaerkart_scandies.html'),
-	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
-	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
-	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
-]
-
 fclist = [date_base - td(0.5)*i for i in range(11)]
 date_fc = fclist[0]
 
@@ -124,8 +96,8 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = env.get_template('template_jinja.html')
 c = {
 	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[3][0],
-	'plot_prefix': 'ec_for_scandies',
+	'plot_domain': plotdomains[6][0],
+	'plot_prefix': 'ec_for_scandes',
 	'plotlist': plotlist, 
 	'timlist': timlist,
 	'leadlist': leadlist,
@@ -134,7 +106,7 @@ c = {
 	'initplot': plotlist[0],
 	'date_begin': date_fc,
 	'date_init': date_fc,
-	'plotdir': 'plots',
+	'plotdir': '/plots',
 	'display_details': False,
 }
 

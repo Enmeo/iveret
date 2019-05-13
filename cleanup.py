@@ -30,7 +30,7 @@ if __name__ == '__main__':
 		fromdate = dt.strptime(fromstr, '%Y%m%d%H')
 
 		# Keep current forecasts
-		if dt.now() - fromdate < td(10.0):
+		if dt.now() - fromdate < td(7.0):
 			continue
 
 		# Keep files in archive

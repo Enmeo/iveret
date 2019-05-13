@@ -31,6 +31,25 @@ def map_tmp():
 			llcrnrlon=0.5, llcrnrlat=56.5, urcrnrlon=11, urcrnrlat=63.5)
 proj.SNorwaymap = map_tmp
 
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
+			llcrnrlon=4, llcrnrlat=59.5, urcrnrlon=7, urcrnrlat=61.45)
+proj.Hordamap = map_tmp
+
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
+			llcrnrlon=4.75, llcrnrlat=60.1, urcrnrlon=5.8, urcrnrlat=60.8)
+proj.Bergenmap = map_tmp
+
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
+			llcrnrlon=11.5, llcrnrlat=67.08, urcrnrlon=18.0, urcrnrlat=69.5)
+proj.Lofotenmap = map_tmp
+
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
+			llcrnrlon=1.7, llcrnrlat=66.5, urcrnrlon=20, urcrnrlat=71.5)
+proj.LofotenBasinmap = map_tmp
 
 def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=63, lat_ts=63, lon_0=15, resolution='i', 

@@ -8,7 +8,7 @@ from jinja2 import FileSystemLoader, Environment
 from datetime import datetime as dt, timedelta as td
 
 from settings.common import conf, basepath
-from current_fc_arome import get_current_fc_arome
+from current_fc_arome import *
 from plotdomains import plotdomains
 
 
@@ -19,7 +19,7 @@ env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 
 
 # The only free parameter for the entire script
-date_base = get_current_fc_arome()
+date_base = get_current_plotted_fc_arome()
 # Override 
 #date_base = dt(2015,2,3,0)
 
@@ -91,7 +91,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = env.get_template('template_jinja.html')
 c = { 
 	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[4][0],
+	'plot_domain': plotdomains[7][0],
 	'plot_prefix': 'no_for',
 	'plotlist': plotlist, 
 	'timlist': timlist,

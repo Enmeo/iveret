@@ -15,6 +15,7 @@ import dynlib.utils
 
 from dynlib.shorthands import *
 from settings.ecmwf import *
+from current_fc import get_current_fc
 
 
 conf.file_std = '%(time)d/ec.for-hr.%(time)d.%(plev)s.%(q)s'
@@ -27,7 +28,7 @@ conf.plot[None,'sst','hook'] = sst_mask_offset_hr
 # Genering plot
 class plotter(object):
 	filetype = 'png'
-	fcname = 'ec_for_scandies'
+	fcname = 'ec_for_scandes'
 	
 	# Add colorbar and legend
 	decorations = False
@@ -295,16 +296,9 @@ class rh2m_tp(precip,rh2m):
 # -----------------------------------------------------------------------------
 
 # Most recent available data
-now = dt.now()
-if now.hour in range(11,23):
-	forecast = dt(now.year,now.month,now.day,0)
-else:
-	forecast = dt(now.year,now.month,now.day,12)
-	if now.hour < 11:
-		forecast -= td(1,0)
-
+forecast = get_current_fc()
 # Override
-#forecast = dt(2018,1,23,0)
+#forecast = dt(2019,3,12,12)
 plot_only_init = False
 
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))

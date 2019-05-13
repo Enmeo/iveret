@@ -4,29 +4,21 @@
 from __future__ import print_function, absolute_import, division, unicode_literals
 
 import codecs
-
+from jinja2 import FileSystemLoader, Environment
 from datetime import datetime as dt, timedelta as td
 
-from settings.common import conf
-
-from jinja2 import FileSystemLoader, Environment
+from settings.common import conf, basepath
+from current_fc import *
+from plotdomains import plotdomains
 
 
 # Where to save the weather map; 
-filepath = conf.plotpath+'/../vaerkart_spolar.html'
+filepath = conf.plotpath+'/../closed/vaerkart_ec_spolar.html'
 
-env = Environment(loader=FileSystemLoader(searchpath=conf.plotpath+'/..'))
+env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 
 
-# The only free parameter for the entire script
-now = dt.now()
-if now.hour in range(10,22):
-	date_base = dt(now.year,now.month,now.day,0)
-else:
-	date_base = dt(now.year,now.month,now.day,12)
-	if now.hour < 10:
-		date_base -= td(1,0)
-
+date_base = get_current_plotted_fc()
 # Override
 #date_base = dt(2015,6,9,12)
 
@@ -92,22 +84,12 @@ plotlist = [
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
 		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
 		name='Total column water vapour, integrated fluxes and precipitation'),
-	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, None), o('white', jetaxespv2, None)],
+	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
 		name='PV2 Pot. temperature, jets and wind speed'),
 	plot(u'pvpt315_irot_wind', pvpt315, [o('black', irbarbspt315, None), ],
 		name='315 K Pot. Vorticity and irrot. winds'),
 	plot(u'pvpt330_irot_wind', pvpt330, [o('black', irbarbspt330, None), ],
 		name='330 K Pot. Vorticity and irrot. winds'),
-]
-
-plotdomains = [
-	('ECMWF forecasts North Atlantic', 'vaerkart.html'), 
-	('ECMWF forecasts Northern Hemisphere', 'vaerkart_npolar.html'),
-	('ECMWF forecasts Southern Hemisphere', 'vaerkart_spolar.html'),
-	('ECMWF forecasts Scandinavia', 'vaerkart_scandies.html'),
-	('AROME forecasts Southern Norway', 'vaerkart_arome.html'),
-	('AROME forecasts Scandinavia', 'vaerkart_arome_scandies.html'),
-	('AROME Arctic forecasts', 'vaerkart_arome_arctic.html'),
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(11)]
@@ -125,7 +107,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = env.get_template('template_jinja.html')
 c = {
 	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[2][0],
+	'plot_domain': plotdomains[5][0],
 	'plot_prefix': 'ec_for_spolar',
 	'plotlist': plotlist, 
 	'timlist': timlist,
@@ -135,7 +117,7 @@ c = {
 	'initplot': plotlist[0],
 	'date_begin': date_fc,
 	'date_init': date_fc,
-	'plotdir': 'plots',
+	'plotdir': '/plots',
 	'display_details': False,
 }
 

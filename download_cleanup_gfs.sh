@@ -3,7 +3,8 @@
 dest='/share/base/noaa'
 time=`python3 /home/ubuntu/sw/vaerkart/current_fc_gfs.py`
 
-baseurl='http://www.ftp.ncep.noaa.gov/data/nccf/com/gfs/prod'
+#baseurl='https://ftp.ncep.noaa.gov/data/nccf/com/gfs/prod'
+baseurl='https://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod'
 hour=${time:8}
 
 mkdir -p $dest/$time

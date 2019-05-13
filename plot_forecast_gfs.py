@@ -221,7 +221,7 @@ class fronts(plotter):
 				p = np.ones(data['t',plev].shape) * 100.0 * int(plev)
 				data['eqpt',plev] = dynlib.thermodyn.thetae_from_q(data['q',plev], data['t',plev], p)
 
-			data['fronts',plev], data['froff',plev] = dynlib.detect.frontline(10000,1000, 
+			data['fronts',plev], data['froff',plev] = dynlib.detect.frontline_at_maxgrad(10000,1000, 
 					data['eqpt',plev], data['u',plev], data['v',plev], static.dx, static.dy)
 			data['froff',plev] = data['froff',plev].astype('i4')
 
@@ -330,6 +330,7 @@ class z500_msl(z_msl):
 			fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc','msl',  
 				alpha=0.8,
 				contour_labels=True, 
+				contour_labels_format='%g',
 				linewidths=[1], 
 				scale=range(900,1070,5) ) ),
 			#fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
@@ -379,7 +380,7 @@ class pvpt315_wind(irot_wind):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
@@ -441,7 +442,7 @@ class pvpt315_wind_npolar(pvpt315_wind,npolar):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				scale=range(2,3,1) ) ), 
 			fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
@@ -501,7 +502,7 @@ class pvpt315_wind_spolar(pvpt315_wind,spolar):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				hook=lambda pv: -1.0e6*pv,
 				scale=range(2,3,1) ) ), 
@@ -537,7 +538,7 @@ class pvpt330_wind_spolar(pvpt330_wind,spolar):
 			return True
 
 		overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
-				contour_labels=True, 
+				contour_labels=False, 
 				linewidths=[1.5],
 				hook=lambda pv: -1.0e6*pv,
 				scale=range(2,3,1) ) ), 
@@ -912,14 +913,6 @@ class deform850_fronts(deform,fronts,spec_hum,precip):
 
 # -----------------------------------------------------------------------------
 
-# Most recent available data
-forecast = get_current_fc_gfs()
-# Override
-#forecast = dt(2018,4,6,0)
-plot_only_init = False
-
-print('Plotting the GFS %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
-
 # Everything
 PLOTS = {
 	'plev': [
@@ -950,12 +943,28 @@ PLOTS = {
 
 plots = []
 if len(sys.argv) > 1:
-	for arg in sys.argv[1:]:
+	first = 2
+	# See if a forecast has been specifid, if not use the most recent that should be there.
+	try: 
+		forecast = dt.strptime(sys.argv[1], DATEFMT)
+	except ValueError:
+		forecast = get_current_fc_gfs()
+		first = 1
+	
+	for arg in sys.argv[first:]:
 		if arg in PLOTS:
 			plots.extend(PLOTS[arg])
 			print('Plotting plot set "%s".' % arg)
 		else:
 			print('Unknown plot set "%s".' % arg)
+
+# Override
+#forecast = dt(2018,4,6,0)
+plot_only_init = False
+
+print('Plotting the GFS %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
+
+
 if len(plots) == 0:
 	print('No (known) plot set specified, plotting all plot sets.')
 	for plotset in PLOTS.values():
