@@ -40,20 +40,20 @@ publoop = OrderedDict([
 	('ECMWF forecast 1/3: 500 hPa Geopotential and SLP', ('EC z500', 'ec_for_z500_msl', ec_initdate, ec_fcdates)),
 	('ECMWF forecast 2/3: Total column water vapour, fluxes and precip.', ('EC tcwv', 'ec_for_tcwv', ec_initdate, ec_fcdates)),
 	('ECMWF forecast 3/3: 850 hPa Temperature, SLP and wind barbs', ('EC t850', 'ec_for_t850_msl', ec_initdate, ec_fcdates)),
-	('AROME forecast 1/2', ('AROME t2m', {
+	('AROME forecast 1/2', ('AROME T2m', {
 		'2m Temperature and SLP': 'no_for_full_t2m_msl',
 		'2m Relative humidity and precipitation': 'no_for_full_rh2m_tp'},
 			no_initdate, no_fcdates)),
-	('AROME forecast 2/2', ('AROME ff10', {
-		'10 m Wind speed and direction': 'no_for_full_ff10_wind',
-		'2m Relative humidity and precipitation': 'no_for_full_rh2m_tp'}, 
+	('AROME forecast 2/2', ('AROME q925', {
+        '925 hPa Specific Humidity, Winds and SLP': 'no_for_full_q925_msl',
+		'2m Relative Humidity and Precipitation': 'no_for_full_rh2m_tp'}, 
 			no_initdate, no_fcdates)),
-	('AROME Arctic forecast 1/2', ('Arctic ff10', {
+	('AROME Arctic forecast 1/2', ('Arctic T2m', {
 		'10 m Wind speed and direction': 'no_for_arctic_t2m_msl', 
 		'2m Relative humidity and precipitation': 'no_for_arctic_rh2m_tp'}, 
 			no_arctic_initdate, no_arctic_fcdates)),
 	('AROME Arctic forecast 2/2', ('Arctic sfx', {
-		'Surface fluxes, 10m winds, SSTs, and MIZ': 'no_for_arctic_shf_winds', 
+		'Surface fluxes, 10m winds, SSTs, and MIZ': 'no_for_arctic_shf_wind', 
 		'2m Relative humidity and precipitation': 'no_for_arctic_rh2m_tp'}, 
 			no_arctic_initdate, no_arctic_fcdates)),
 ])
@@ -63,10 +63,10 @@ units = {
 		'ec_for_t850_msl': '°C',
 		'no_for_full_t2m_msl': '°C',
 		'no_for_full_rh2m_tp': 'mm/h',
-		'no_for_full_ff10_wind': 'm/s',
+		'no_for_full_q925_msl': 'g/kg',
 		'no_for_arctic_t2m_msl': '°C',
 		'no_for_arctic_rh2m_tp': 'mm/h',
-		'no_for_arctic_shf_winds': 'W/m²',
+		'no_for_arctic_shf_wind': 'W/m²',
 }	
 
 def mk_slide_panel(paneltitle, fileseg, init, valid):
