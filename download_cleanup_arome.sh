@@ -2,20 +2,15 @@
 
 dest='/share/base/metno'
 time=`python3 /home/ubuntu/sw/vaerkart/current_fc_arome.py`
-cd $dest
+
+mkdir -p $dest/$time
+cd $dest/$time
 
 # Arome forecasts
-baseurl='http://thredds.met.no/thredds/fileServer/meps25files'
-for file in meps_det_pp_2_5km meps_det_vc_2_5km; do
-	wget $baseurl/${file}_$time.nc
-done
+python3 /home/ubuntu/sw/vaerkart/download_arome.py
+python3 /home/ubuntu/sw/vaerkart/download_arome_arctic_add.py
 
-# Arome Arctic forecasts
-baseurl='http://thredds.met.no/thredds/fileServer/aromearcticlatest'
-for file in arome_arctic_sfx_2_5km arome_arctic_pp_2_5km; do
-	wget $baseurl/${file}_$time.nc
-done
-
+cd $dest
 
 # Clean-up old forecasts: Older than 22 hours = 1320 minutes
 if [[ `pwd` = *"share"* ]]; then 

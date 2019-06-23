@@ -1037,7 +1037,7 @@ def get_data_grib(f, plev, q):
 	elif plev == 'sfc':
 		if q in ['crr', 'lsrr', 'sshff', 'slhff'] and f[1].forecastTime == 0:
 			return np.zeros(f[1].values.shape)
-		msgs = f.select(name=varnames_by_q[q], typeOfLevel='surface')
+		msgs = f.select(name=varnames_by_q[q], typeOfLevel='surface', stepType='avg')
 	# Standard pressure levels
 	else:
 		plev = int(plev)

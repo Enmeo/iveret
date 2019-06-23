@@ -10,11 +10,13 @@ hour=${time:8}
 mkdir -p $dest/$time
 cd $dest/$time
 
+timeurl=${time::8}
+
 for lead in `seq -f '%03g' 0 3 72`; do
-	wget $baseurl/gfs.$time/gfs.t${hour}z.pgrb2.0p50.f$lead
+	wget $baseurl/gfs.$timeurl/$hour/gfs.t${hour}z.pgrb2.0p50.f$lead
 done
 for lead in `seq -f '%03g' 78 6 240`; do
-	wget $baseurl/gfs.$time/gfs.t${hour}z.pgrb2.0p50.f$lead
+	wget $baseurl/gfs.$timeurl/$hour/gfs.t${hour}z.pgrb2.0p50.f$lead
 done
 
 cd $dest

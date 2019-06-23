@@ -66,16 +66,30 @@ t2 = variable(u'2m Temperature', u'°C', u'')
 ff10 = variable(u'10 m wind speed', 'm/s', u'')
 tp = variable(u'Precipitiation', 'mm/h', u'')
 rh2 = variable(u'2m Relative humidity', '%', u'')
-sst = variable(u'Sea surface temperature', '°C', u'')
+t850 = variable(u'Temperature', u'°C', u'850 hPa')
+t925 = variable(u'Temperature', u'°C', u'925 hPa')
+q850 = variable(u'Specific humidity', u'g/kg', u'850 hPa')
+q925 = variable(u'Specific humidity', u'g/kg', u'925 hPa')
 tshff = variable(u'Total surface heat flux', u'W/m²', u'')
 
 msl = variable(u'Sea level pressure', 'hPa', u'')
 barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
+barbs850 = variable(u'Wind barbs', u'm/s', u'850 hPa')
+barbs925 = variable(u'Wind barbs', u'm/s', u'925 hPa')
+sst = variable(u'Sea surface temperature', '°C', u'')
 
 o = overlay
 plotlist = [
 	plot(u't2m_msl', t2, [o('black dashes', t2, [0,]), o('black', msl, 2)],
 		name='2m Temperature and SLP'),
+    plot(u't925_msl', t925, [o('black dashes', t925, [0,]), o('black', msl, 5), o('black', barbs925, None)],
+        name='925 hPa Temperature, SLP and wind barbs'),
+    plot(u't850_msl', t850, [o('black dashes', t850, [0,]), o('black', msl, 5), o('black', barbs850, None)],
+        name='850 hPa Temperature, SLP and wind barbs'),
+    plot(u'q925_msl', q925, [o('dark red', t850, [-5,]), o('black', msl, 5), o('black', barbs925, None)],
+        name='925 hPa Specific humidity, SLP and wind barbs'),
+    plot(u'q850_msl', q850, [o('dark red', t850, [-5,]), o('black', msl, 5), o('black', barbs850, None)],
+        name='850 hPa Specific humidity, SLP and wind barbs'),
 	plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), ], 
 		name='2m Relative humidity and precipitation'),
 	plot(u'shf_winds', tshff, [o('grey', sst, 1), o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
