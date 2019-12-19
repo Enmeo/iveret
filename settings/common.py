@@ -5,7 +5,8 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 
 import matplotlib as mpl
 
-from dynlib.settings import conf, cm, proj
+from dynlib.settings import cm, proj
+from dynlib.settings_basic import conf
 import dynlib.context.plot
 
 from . import cb
