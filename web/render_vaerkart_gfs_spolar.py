@@ -102,7 +102,7 @@ plotlist = [
 		name='PV2 Pot. temperature, jets and wind speed'),
 ]
 
-fclist = [date_base - td(0.25)*i for i in range(11)]
+fclist = [date_base - td(0.25)*i for i in range(29)]
 date_fc = fclist[0]
 
 leadlist = get_avail_leads()

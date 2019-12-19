@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- encoding: utf-8
 
 plotdomains = [
 	('GFS forecasts North Atlantic', '/vaerkart.html'), 
@@ -10,6 +11,7 @@ plotdomains = [
 	('ECMWF forecasts Scandinavia (restricted)', '/closed/vaerkart_ec_scandes.html'),
 	('AROME forecasts Southern Norway', '/vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', '/vaerkart_arome_scandes.html'),
+	('AROME forecasts Cross section 60°N', '/vaerkart_arome_we60.html'),
 	('AROME Arctic forecasts', '/vaerkart_arome_arctic.html'),
 ]
 

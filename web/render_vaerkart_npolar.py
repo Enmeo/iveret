@@ -69,9 +69,12 @@ pvpt330 = variable(u'Potential vorticity', 'PVU', u'330 K')
 ptpv2 = variable(u'Potential temperature', 'K', u'PV 2')
 
 msl = variable(u'Sea level pressure', 'hPa', u'')
+mslc = variable(u'Ensemble ctrl sea level pressure', 'hPa', u'')
+mslm = variable(u'Ensemble mean sea level pressure', 'hPa', u'')
 t850 = variable(u'Temperature', u'°C', u'850 hPa')
 cp = variable(u'Convective precipitation', 'mm/h', u'')
 lp = variable(u'Large-scale precipitation', 'mm/h', u'')
+cycfreq = variable(u'Cyclone occurrence', '%', '')
 irbarbspt315 = variable(u'Irrot. wind barbs', u'm/s', u'315 K')
 irbarbspt330 = variable(u'Irrot. wind barbs', u'm/s', u'330 K')
 icwvt = variable(u'Integrated column water vapour transport', u'', u'')
@@ -85,6 +88,8 @@ plotlist = [
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
 		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
 		name='Total column water vapour, integrated fluxes and precipitation'),
+	plot(u'cycfreq_msl', cycfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
+		name='Ensemble cyclone detections'),
 	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
 		name='PV2 Pot. temperature, jets and wind speed'),
 	plot(u'pvpt315_irot_wind', pvpt315, [o('black', irbarbspt315, None), ],
@@ -93,7 +98,7 @@ plotlist = [
 		name='330 K Pot. Vorticity and irrot. winds'),
 ]
 
-fclist = [date_base - td(0.5)*i for i in range(11)]
+fclist = [date_base - td(0.5)*i for i in range(15)]
 date_fc = fclist[0]
 
 leadlist = list(range(0,72,3))

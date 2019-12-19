@@ -1,0 +1,103 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GFI forecast maps</title>
+  <link rel="stylesheet" href="/static/jqueryui.css" type="text/css" />
+  <link rel="stylesheet" href="/static/vaerkart_new.css" type="text/css" />
+  <script src="/static/jquery.js" type="text/javascript"></script>
+  <script src="/static/jqueryui.js" type="text/javascript"></script>
+  <script src="/static/moment.js" type="text/javascript"></script>
+  <script src="/static/vaerkart_new.js" type="text/javascript"></script>
+  <script type="text/javascript">
+  // Defining the data base of init and valid times
+  var avail_fcs = [{% for fc in fclist %}moment.utc("{{ fc.strftime("%Y-%m-%d %H") }}"){% if not loop.last %}, {% endif %}{% endfor %}];
+  var avail_leads = [{% for lead in leadlist %}{{ lead }}{% if not loop.last %}, {% endif %}{% endfor %}];
+
+  // Constants
+  var browse_tims = [{% for tim in timlist %}moment.utc("{{ tim.strftime("%Y-%m-%d %H") }}"){% if not loop.last %}, {% endif %}{% endfor %}];
+  var plotdir = '{{ plotdir }}';
+  var units = {}; {% for fcsrc, plots in plotlist.items() %}{% for plot in plots %}
+  units['{{ fcsrc.1 }}_for_{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}{% endfor %}
+  {% if archive %}var archive_available = true;
+  var archive_start = moment.utc("{{ archive.start.strftime("%Y-%m-%d %H") }}");
+  var archive_plots = [{% for plot in archive.plots %}"{{ plot }}"{% if not loop.last %}, {% endif %}{% endfor %}];
+  var archive_step = {{ archive.step }};
+  {% else %}var archive_available = false;{% endif %}
+
+  var fcsrcs = {};{% for fcsrc in plotlist.keys() %}
+  fcsrcs['{{ fcsrc.1 }}'] = '{{ fcsrc.0 }}';{% endfor %}
+  var plots = {};{% for fcsrc, plots in plotlist.items() %}
+  plots['{{ fcsrc.1 }}'] = {};{% for plot in plots %}
+  plots['{{ fcsrc.1 }}']['{{ plot.prefix }}'] = '{{ plot.name }}';{% endfor %}{% endfor %}
+
+  // Initial values
+  var cur_leads = avail_leads;
+  var fcsrc = {}; {% for i in "1234" %} 
+  fcsrc[{{ i }}] = '{{ initplot_fcsrc }}'; {% endfor %}
+  var plot = {}; {% for i in "1234" %} 
+  plot[{{ i }}] = '{{ initplot.prefix }}'; {% endfor %}
+  var date_fc = avail_fcs[0];
+  var date_vis = moment.utc("{{ date_init.strftime("%Y-%m-%d %H") }}");
+  var lead_vis = 0;
+  var display_details = {{ display_details|lower }};
+  var cur_panels = 11;
+  var _shifted = false;
+  var _archive = false;
+  var _activepanel = false;
+  </script>
+</head>
+<body>
+  <div class="header">
+    <select id="domainselect" name="domainselect">{% for name, link in plot_domains %}
+      <option value="{{ link }}"{% if name == plot_domain %} selected="selected"{% endif %}>{{ name }}</option>{% endfor %}
+    </select>
+    <select id="panelselect">
+      <option value="11" selected="selected">1x1 panels</option>
+      <option value="21">2x1 panels</option>
+      <option value="12">1x2 panels</option>
+      <option value="22">2x2 panels</option>
+    </select>
+    <p id="scopeid">For all panels</p>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;</p>
+    <select id="fcsrcselect">
+      <option value="__mixed__" disabled="disabled">Mixed sources</option>{% for fcsrc in plotlist.keys() %}
+      <option value="{{ fcsrc.1 }}">{{ fcsrc.0 }}</option>{% endfor %}
+    </select>
+    <p class="right"><span class="link" onclick="view_help()">Help</span></p>
+  </div>
+  <div class="content">
+    {% for i in range(1,5) %}
+    <div class="panel {{ panel_classes[i] }}" id="{{ panel_ids[i] }}" style="{{ panel_styles[i] }}">
+	    <h1 id="plottitle{{ i }}">
+		    <select id="plotselect{{ i }}" name="plotselect">
+        </select>
+      </h1> <sup class="details_toggle" id="details_toggle{{ i }}"><a href="javascript:toggle_details()">&#8505;</a></sup>
+      {% for fcsrc, plots in plotlist.items() %}{% for plot in plots %}<div id="{{ fcsrc.1 }}_{{ plot.prefix }}_details{{ i }}"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
+        <p class="shading"><span class="plotname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %}{% if plot.shading.addinfo %}, {{ plot.shading.addinfo }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
+        <ul class="overlay">{% for o in plot.overlays %}
+          <li><span class="plotname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+        </ul>{% endif %}
+      </div>{% endfor %}{% endfor %}
+      <h2 id="fcstatus{{ i }}">Forecast from {{ date_init.strftime("%a, %d %b %Y, %H") }}Z for {{ date_begin.strftime("%a, %d %b %Y, %H") }}Z [+0h]</h2>
+      <div id="plot{{ i }}" class="plot">
+        <div id="map_container{{ i }}" class="map">
+          <img id="map{{ i }}" src="/{{ plotdir }}/{{ initplot_fcsrc }}_{{ initplot.prefix }}_from_{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+        </div>
+        <div class="cbar_container">
+          <img class="cbar" id="cbar{{ i }}" src="/static/deco/cbar_{{ initplot_fcsrc }}_{{ initplot.prefix }}.png" />
+          <div class="cbar_units" id="cbar_units{{ i }}">[{{ initplot.shading.units }}]</div>
+        </div>
+      </div> <!-- plot -->
+    </div> <!-- panel -->
+    {% endfor %}
+  </div> <!-- content -->
+  <div id="help_modal" title="Help and key bindings">
+    <p><b>Left and right keys</b></p>
+    <p>Switch backward and forward through lead times. Forecasts for past times are by default unreachable. To be able to cross the boundary, press Shift-left arrow. Once browsing forecasts for the past Shift is no longer required to navigate.</p>
+    <p><b>Up and down keys</b></p>
+    <p>Switch forward and backward through different forecast initialisation times.</p>
+  </div>
+</body>
+</html>

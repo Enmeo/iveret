@@ -93,7 +93,7 @@ plotlist = [
         name='Surface fluxes, 10m winds.'),
 ]
 
-fclist = [date_base - td(0.25)*i for i in range(11)]
+fclist = [date_base - td(0.25)*i for i in range(29)]
 date_fc = fclist[0]
 
 leadlist = range(0,67,3)

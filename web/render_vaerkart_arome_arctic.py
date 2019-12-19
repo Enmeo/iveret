@@ -97,7 +97,7 @@ plotlist = [
         name='Surface fluxes, 10m winds, SSTs, and MIZ'),
 ]
 
-fclist = [date_base - td(0.25)*i for i in range(11)]
+fclist = [date_base - td(0.25)*i for i in range(29)]
 date_fc = fclist[0]
 
 leadlist = range(0,67,3)
@@ -110,7 +110,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = env.get_template('template_jinja.html')
 c = { 
     'plot_domains': plotdomains,
-    'plot_domain': plotdomains[9][0],
+    'plot_domain': plotdomains[10][0],
     'plot_prefix': 'no_for_arctic',
     'plotlist': plotlist, 
     'timlist': timlist,
