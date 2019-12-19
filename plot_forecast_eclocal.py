@@ -459,13 +459,13 @@ print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 # Everything
 plots = [
-#    t2m_msl(),
+    t2m_msl(),
     t850_msl(),
     t925_msl(),
     q850_msl(),
     q925_msl(),
-#    shf_winds(), 
-#    rh2m_tp(),
+    shf_winds(), 
+    rh2m_tp(),
 ]
 
 if plot_only_init:

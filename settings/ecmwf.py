@@ -20,16 +20,18 @@ sshff = ('sshff', 'sshff', 'Surface sensible heat flux', 'W m**2')
 slhff = ('slhff', 'slhff', 'Surface latent heat flux', 'W m**2')
 
 t_ano = ('t_ano', 't_ano', 'Temperature anomaly', 'K')
+tcwv_ano = ('tcwv_ano', 'tcwv_ano', 'Total column water vapour anomaly', 'kg m**-2')
 
 perc = ('perc', 'perc', 'Percentiles of given variable', '1')
 
 # Surface variables
 conf.sfclevs = ['sfc', ]
-conf.register_variable([tp, crr, lsrr, trr, ff10, rh2m, sshff, slhff, perc], conf.sfclevs)
+conf.register_variable([tp, crr, lsrr, trr, ff10, rh2m, sshff, slhff, perc, tcwv_ano, ], conf.sfclevs)
 
 # Derived variables on specific surfaces
 conf.register_variable([d.eqpt, d.defabs, t_ano, ], ['850',])
 conf.register_variable([d.ff, ], ['pv2000', '700', 'pt300', 'pt315', 'pt330', 'pt350'])
+conf.register_variable([d.rwb_a, d.rwb_c], ['pv2000', '500'])
 
 conf.datapath.insert(1, '/share/base/ecmwf')
 
@@ -102,6 +104,7 @@ conf.plotf[None, 'pt', 'cmap'] = cm.t
 conf.plotf[None, 'eqpt', 'cmap'] = cm.t
 conf.plotf[None, 'q', 'cmap'] = cm.q
 conf.plotf[None, 'tcwv', 'cmap'] = cm.q
+conf.plotf[None, 'tcwv_ano', 'cmap'] = cm.t
 conf.plotf[None, 'lcc', 'cmap'] = cm.lcc
 conf.plotf[None, 'mcc', 'cmap'] = cm.mcc
 conf.plotf[None, 'hcc', 'cmap'] = cm.hcc
