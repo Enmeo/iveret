@@ -8,6 +8,7 @@ cd $dest/$time
 
 # Arome forecasts
 python3 /home/ubuntu/sw/vaerkart/download_arome.py
+python3 /home/ubuntu/sw/vaerkart/download_arome_section.py
 python3 /home/ubuntu/sw/vaerkart/download_arome_arctic_add.py
 
 cd $dest

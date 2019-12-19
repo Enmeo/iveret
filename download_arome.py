@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import xarray as xr
+import time
 
 from current_fc_arome import get_current_fc_arome, DATEFMT
 
@@ -28,7 +29,7 @@ qs = {
 }
 
 source_urls = {
-    'arome': 'http://thredds.met.no/thredds/dodsC/meps25files/meps_det_extracted_2_5km_%s.nc',
+    'arome': 'https://thredds.met.no/thredds/dodsC/meps25files/meps_det_extracted_2_5km_%s.nc',
     'arome_arctic': 'https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_%s.nc',
 }
 
@@ -36,25 +37,27 @@ xdims = {'arome': 888, 'arome_arctic': 738}
 ydims = {'arome': 948, 'arome_arctic': 948}
 
 forecast = get_current_fc_arome()
-time = forecast.strftime(DATEFMT)
-print(f'Downloading the {time} forecasts.')
+date = forecast.strftime(DATEFMT)
+print(f'Downloading the {date} forecasts.')
 
 if __name__ == '__main__':
     tslc = '0:3:66'
-    for q, levs in qs.items():
-        for lev in levs:
-            if lev in plevs:
-                idx = plevs[lev]
-            else:
-                idx = sfclevs[lev]
-            pslc = f'{idx}:1:{idx}'
-            
-            for fcname, url in source_urls.items():
-                yslc = '0:1:%d' % ydims[fcname]
-                xslc = '0:1:%d' % xdims[fcname]
+    for fcname, url_base in source_urls.items():
+        yslc = '0:1:%d' % ydims[fcname]
+        xslc = '0:1:%d' % xdims[fcname]
 
+        for q, levs in qs.items():
+            for lev in levs:
+                time.sleep(1.5)
+
+                if lev in plevs:
+                    idx = plevs[lev]
+                else:
+                    idx = sfclevs[lev]
+                pslc = f'{idx}:1:{idx}'
+            
                 # Coordinates
-                url = url % time
+                url = url_base % date
                 url += f'?time[{tslc}]'
                 if lev in plevs:
                     url += f',pressure[{pslc}]'
@@ -70,7 +73,7 @@ if __name__ == '__main__':
                 url += f'[{yslc}][{xslc}]'
 
                 ds = xr.open_dataset(url, engine='netcdf4')
-                ds.to_netcdf(f'{fcname}.{time}.{lev}.{q}.nc')
+                ds.to_netcdf(f'{fcname}.{date}.{lev}.{q}.nc')
 
 
 # C'est le fin
