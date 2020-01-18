@@ -71,7 +71,7 @@ quiver = variable(u'Wind vectors', u'', u'')
 
 o = overlay
 plotlist = [
-    plot(u'ff_pt', v, [o('green', v, [30, ]), o('black', pt, 5), o('thick black', pt, [270, 300, 350, ]), o('vectors', quiver, None), ],
+    plot(u'ff_pt', v, [o('black', pt, 5), o('thick black', pt, [270, 300, 350, ]), o('vectors', quiver, None), ],
         name='Winds and pot. temperature'),
     plot(u'q_pt', q, [o('red', t, [0, ]), o('black', pt, 5), o('thick black', pt, [270, 300, 350, ])],
         name='Humidity and pot. temperature'),
