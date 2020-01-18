@@ -4,10 +4,10 @@ ipath="/share/web/plots"
 #opath="/share/web/static/deco"
 opath="."
 
-plotdomain="no_for_we60_ff"
+plotdomain="no_for_full_w850_ff"
 
 # Aspect 2:1; for cross sections
-geometry="103x460+921+0"
+#geometry="103x460+921+0"
 
 # Aspect 3:2; for ec_for, no_kyst_lofotenbasin
 #geometry="147x720+1080+0"
@@ -16,7 +16,7 @@ geometry="103x460+921+0"
 #geometry="130x960+960+0"
 
 # Aspect about 5:4; for ec_for_scandies, no_for_full, no_for_arctic, no_kyst_full
-#geometry="102x956+750+0"
+geometry="102x956+750+0"
 
 
 # Extract the init date from the last changed file 

@@ -13,6 +13,7 @@ sfclevs = {'sfc': 0}
 qs = {
     'x_wind_pl': plevs.keys(),
     'y_wind_pl': plevs.keys(),
+    'upward_air_velocity_pl': plevs.keys(),
     'air_temperature_pl': plevs.keys(),
     'specific_humidity_pl': plevs.keys(),
     'turbulent_kinetic_energy_pl': plevs.keys(),
@@ -22,6 +23,7 @@ qs = {
     'y_wind_10m': sfclevs.keys(),
     'air_temperature_2m': sfclevs.keys(),
     'air_pressure_at_sea_level': sfclevs.keys(),
+    'surface_air_pressure': sfclevs.keys(),
     'relative_humidity_2m': sfclevs.keys(),
     'integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time': sfclevs.keys(),
     'integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time': sfclevs.keys(),

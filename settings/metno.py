@@ -3,6 +3,8 @@
 
 from .common import conf, proj, cm, basepath
 
+import dynlib.context.derived as d
+
 
 # General settings
 # ================
@@ -25,6 +27,8 @@ tshff = ('tshff', 'tshff', 'Average total surface heat flux', 'W m**-2')
 sshff_frac = ('sshff_frac', 'sshff_frac', 'Fraction of sensible component in average total surface heat flux', 'W m**-2')
 slhff_frac = ('slhff_frac', 'slhff_frac', 'Fraction of latent component in average total surface heat flux', 'W m**-2')
 
+w = ('upward_air_velocity_pl', 'upward_air_velocity_pl', 'Vertical wind', 'm s**-1')
+
 # Non-dynlib derived variables
 ff10 = ('ff10', 'ff10', '10 metre wind speed', 'm s**-1')
 trr = ('trr', 'trr', 'Total rain rate', 'm h**-1')
@@ -32,6 +36,10 @@ trr = ('trr', 'trr', 'Total rain rate', 'm h**-1')
 # 1. Surface variables
 conf.sfclevs = ['sfc', ]
 conf.register_variable([msl, t2m, rh2m, sic, sst, sshff, slhff, tshff, sshff_frac, slhff_frac, ff10, trr], conf.sfclevs)
+
+# 2. Pressure levels
+conf.plevs = ['925', '850', '700']
+conf.register_variable([w, d.div, d.ff], conf.plevs)
 
 ##
 # Local settings.
