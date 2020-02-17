@@ -53,8 +53,8 @@ def map_tmp():
 proj.LofotenBasinmap = map_tmp
 
 def map_tmp():
-	return proj.Basemap(projection='lcc', lat_0=63, lat_ts=63, lon_0=15, resolution='i', 
-			llcrnrlon=2.0, llcrnrlat=52.5, urcrnrlon=41.5, urcrnrlat=72.0)
+	return proj.Basemap(projection='lcc', lat_0=63.3, lat_ts=63.3, lon_0=15, resolution='i', 
+			llcrnrlon=0.3, llcrnrlat=50.3, urcrnrlon=46.5, urcrnrlat=70.0)
 proj.Scandimap = map_tmp
 
 def map_tmp():

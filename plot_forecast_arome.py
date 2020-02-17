@@ -84,8 +84,8 @@ class Scandes(plotter):
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.Scandimap
 
-    figsize = (5.0,6.375)
-    figsize_deco = (5.68182,6.375)
+    figsize = (5.5,5.9)
+    figsize_deco = (6.25,5.9)
 
 
 ######################################################
@@ -580,15 +580,15 @@ plot_only_init = False
 print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 plots = [
-    t850_msl(), t850_msl_Scandes(),
-    t925_msl(), t925_msl_Scandes(),
-    q850_msl(), q850_msl_Scandes(),
-    q925_msl(), q925_msl_Scandes(),
-    t2m_msl(), t2m_msl_Scandes(), 
-    ff10_wind(), ff10_wind_Scandes(), 
-    shf_wind(), shf_wind_Scandes(),
-    rh2m_tp(), rh2m_tp_Scandes(), 
-    w850_ff(), w850_ff_Scandes(), 
+    t850_msl(),    t850_msl_Scandes(),
+    t925_msl(),    t925_msl_Scandes(),
+    q850_msl(),    q850_msl_Scandes(),
+    q925_msl(),    q925_msl_Scandes(),
+    t2m_msl(),     t2m_msl_Scandes(), 
+    ff10_wind(),   ff10_wind_Scandes(),
+    shf_wind(),    shf_wind_Scandes(),
+    rh2m_tp(),     rh2m_tp_Scandes(), 
+    w850_ff(),     w850_ff_Scandes(), 
 ]
 
 fc_str = forecast.strftime('%Y%m%dT%HZ')
