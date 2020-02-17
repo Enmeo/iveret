@@ -31,7 +31,7 @@ qs = {
 }
 
 source_urls = {
-#    'arome': 'https://thredds.met.no/thredds/dodsC/mepslatest/meps_det_2_5km_%s.ncml',
+    'arome': 'https://thredds.met.no/thredds/dodsC/mepslatest/meps_det_2_5km_%s.ncml',
     'arome_arctic': 'https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_%s.nc',
 }
 
