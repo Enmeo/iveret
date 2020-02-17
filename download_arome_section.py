@@ -17,7 +17,7 @@ sfclevs = {'sfc': 0}
 qs = ['x_wind_ml', 'y_wind_ml','upward_air_velocity_ml',  'air_temperature_ml', 'specific_humidity_ml', 'turbulent_kinetic_energy_ml', ]
 
 source_urls = {
-    'arome': 'https://thredds.met.no/thredds/dodsC/meps25files/meps_det_vc_2_5km_%s.nc',
+    'arome': 'https://thredds.met.no/thredds/dodsC/mepslatest/meps_det_vc_2_5km_%s.ncml',
 }
 
 forecast = get_current_fc_arome()
