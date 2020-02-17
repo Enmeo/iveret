@@ -11,15 +11,15 @@ def get_current_fc_arome():
     ''' Return the most recent available forecast init time '''
 
     now = dt.now()
-    if now.hour in range(3,9):
+    if now.hour in range(2,8):
         forecast = dt(now.year,now.month,now.day,0)
-    elif now.hour in range(9,15):
+    elif now.hour in range(8,14):
         forecast = dt(now.year,now.month,now.day,6)
-    elif now.hour in range(15,21):
+    elif now.hour in range(14,20):
         forecast = dt(now.year,now.month,now.day,12)
     else:
         forecast = dt(now.year,now.month,now.day,18)
-        if now.hour < 3:
+        if now.hour < 2:
             forecast -= td(1,0)
     
     # Optional: Override
