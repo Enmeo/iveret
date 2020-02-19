@@ -35,8 +35,8 @@ source_urls = {
     'arome_arctic': 'https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_%s.nc',
 }
 
-xdims = {'arome': 888, 'arome_arctic': 738}
-ydims = {'arome': 948, 'arome_arctic': 948}
+xdims = {'arome': 948, 'arome_arctic': 738}
+ydims = {'arome': 1068, 'arome_arctic': 948}
 
 forecast = get_current_fc_arome()
 date = forecast.strftime(DATEFMT)

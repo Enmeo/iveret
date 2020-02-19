@@ -49,8 +49,8 @@ class plotter(object):
         'title': None,
     }
 
-    figsize = (5.0,6.375)
-    figsize_deco = (5.68182,6.375)
+    figsize = (5.5,6.18)
+    figsize_deco = (6.25,6.18)
     
     # Do the art; to be overriden in derived classes
     def plot(self, data, static, dateinit, datevalid):

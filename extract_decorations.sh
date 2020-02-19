@@ -18,8 +18,8 @@ plotdomain="no_for_full"
 # Aspect about 5:4; for no_for_arctic
 #geometry="102x956+750+0"
 
-# Aspect about 16:15; for ec_for_scandies, no_for_full, no_kyst_full
-geometry="112x885+825+0"
+# Aspect about 9:8; for ec_for_scandies, no_for_full, no_kyst_full
+geometry="112x927+825+0"
 
 # Extract the init date from the last changed file 
 last_img=`ls -tr $ipath/${plotdomain}* | tail -n 1`

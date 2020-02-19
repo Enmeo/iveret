@@ -84,8 +84,8 @@ class Scandes(plotter):
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.Scandimap
 
-    figsize = (5.5,5.9)
-    figsize_deco = (6.25,5.9)
+    figsize = (5.5,6.18)
+    figsize_deco = (6.25,6.18)
 
 
 ######################################################
