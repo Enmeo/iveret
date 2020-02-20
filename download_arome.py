@@ -16,7 +16,7 @@ qs = {
     'upward_air_velocity_pl': plevs.keys(),
     'air_temperature_pl': plevs.keys(),
     'specific_humidity_pl': plevs.keys(),
-    'turbulent_kinetic_energy_pl': plevs.keys(),
+#    'turbulent_kinetic_energy_pl': plevs.keys(),
     'geopotential_pl': plevs.keys(),
     'precipitation_amount_acc': sfclevs.keys(),
     'x_wind_10m': sfclevs.keys(),
@@ -28,11 +28,17 @@ qs = {
     'integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time': sfclevs.keys(),
     'integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time': sfclevs.keys(),
     'integral_of_surface_downward_sensible_heat_flux_wrt_time': sfclevs.keys(),
+    'SFX_SST': sfclevs.keys(), 
 }
 
 source_urls = {
     'arome': 'https://thredds.met.no/thredds/dodsC/mepslatest/meps_det_2_5km_%s.ncml',
     'arome_arctic': 'https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_%s.nc',
+}
+
+exclude = {
+    'arome': [],
+    'arome_arctic': ['SFX_SST', ],
 }
 
 xdims = {'arome': 948, 'arome_arctic': 738}
@@ -49,6 +55,9 @@ if __name__ == '__main__':
         xslc = '0:1:%d' % xdims[fcname]
 
         for q, levs in qs.items():
+            if q in exclude[fcname]:
+                continue
+
             for lev in levs:
                 time.sleep(1.5)
 

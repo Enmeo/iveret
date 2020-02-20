@@ -357,7 +357,9 @@ class shf_wind(tshf, ff10):
     requires = [('sfc','integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time'), 
             ('sfc','integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time'),
             ('sfc','integral_of_surface_downward_sensible_heat_flux_wrt_time'),
-            ('sfc','x_wind_10m'), ('sfc','y_wind_10m'), ]
+            ('sfc','x_wind_10m'), ('sfc','y_wind_10m'),
+            ('sfc','SFX_SST'), ]
+
     requires_diagnostic = [('sfc', tshf.cal_tshf), ('sfc', ff10.cal_ff10), ]
     plotname = 'shf_wind'
     
@@ -389,6 +391,16 @@ class shf_wind(tshf, ff10):
                 colors='crimson',
                 linewidths=[2],
                 scale=[32.7, ] ) ),
+            fig.map_overlay_contour(data['sfc','SFX_SST'], static, **conf.plot.merge('sfc', 'sst',
+                colors='k',
+                alpha=0.5,
+                linewidths=[0.7],
+                scale=[-1,1,2,3,4,6,7,8,9,11,12,13,14,16,17,18,19] ) ),
+            fig.map_overlay_contour(data['sfc','SFX_SST'], static, **conf.plot.merge('sfc', 'sst',
+                colors='k',
+                alpha=0.6,
+                linewidths=[1],
+                scale=np.arange(0,21,5) ) ),
         ]
 
         plotconf = conf.plotf.merge('sfc', 'tshff',
