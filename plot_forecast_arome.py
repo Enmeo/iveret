@@ -10,6 +10,8 @@ from dynlib.shorthands import *
 from settings.metno import *
 
 import dynlib.diag
+import dynlib.detect
+import dynlib.thermodyn
 
 from current_fc_arome import get_current_fc_arome
 
@@ -96,12 +98,6 @@ class t_msl(plotter):
     pass
 
 # Wind speed
-class div(plotter):
-    def cal_div(self, data, plev, static):
-        if not (plev, 'div') in data:
-            data[plev,'div'] = dynlib.diag.div(data[plev,'x_wind_pl'], data[plev,'y_wind_pl'], static.dx, static.dy)
-
-# Wind speed
 class ff(plotter):
     def cal_ff(self, data, plev, static):
         if not (plev,'ff') in data:
@@ -134,6 +130,37 @@ class precip(plotter):
             data['sfc','precipitation_amount'][1:,::] = (data['sfc','precipitation_amount_acc'][1:,::] - 
                     data['sfc','precipitation_amount_acc'][0:-1,::])/3.0
 
+# Frontal diagnostics
+class fronts(plotter):
+    def detect_frontalvolumes(self, data, plev, static):
+        dynfor.config.nsmooth = 100
+        dynfor.config.tfp_mingrad_largescale = 5.0e-5
+        dynfor.config.tfp_mingrad_smallscale = 15.0e-5
+        dynfor.config.minsize = 3000.0e6
+
+        if not (plev,'frovo') in data:
+            PLEVS = ['700', '850', '925', ]
+            pidx = PLEVS.index(plev)
+
+            s = data[plev,'air_temperature_pl'].shape
+            s = s[:1] + (len(PLEVS), ) + s[1:]
+            eqpt = np.empty(s)
+
+            p = np.empty(data[plev,'air_temperature_pl'].shape)
+            for pidx,plev_ in zip(range(len(PLEVS)), PLEVS):
+                if not (plev_,'eqpt') in data:
+                    p[:,:,:] = 100.0 * int(plev_)
+                    data[plev_,'eqpt'] = dynlib.thermodyn.thetae_from_q(data[plev_,'specific_humidity_pl'], 
+                            data[plev_,'air_temperature_pl'], p)
+
+                eqpt[:,pidx,:,:] = data[plev_,'eqpt']
+
+            frovo = dynlib.detect.frontalvolume_smallscale(eqpt, static.dx, static.dy)
+            del eqpt
+            
+            data[plev,'frovo'] = frovo[:,pidx,:,:]
+            data[plev,'frovo'][data[plev,'frovo'] > 0.5] = 1
+            del frovo
 
 ######################################################
 # Specific plots
@@ -431,11 +458,14 @@ class shf_wind_Scandes(shf_wind,Scandes):
     std_plotconf['cb_shrink'] = 0.65
 
 
-# Near surface winds.
-class ff10_wind(ff10):
-    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m')]
-    requires_diagnostic = [('sfc', ff10.cal_ff10), ]
-    plotname = 'ff10_wind' 
+# Near surface winds and 850 hPa frontal volumes
+class ff10_fronts(ff10,fronts):
+    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
+			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
+			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
+			('700','specific_humidity_pl'), ('700','air_temperature_pl'), ]
+    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', fronts.detect_frontalvolumes), ]
+    plotname = 'ff10_fronts' 
     
     std_plotconf = ff10.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
@@ -447,6 +477,12 @@ class ff10_wind(ff10):
             return True
 
         overlays = [
+            fig.map_overlay_shading(data['850','frovo'], static, **conf.plot.merge(None, None,
+                colors=['navy', ],
+                alpha=0.6,
+                scale=[0.001, 2.0],
+                extend='neither',
+                cb_disable=True,) ),
             fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', 
                 linewidths=0.5,
                 **self.std_plotconf) ),
@@ -465,10 +501,10 @@ class ff10_wind(ff10):
         return True
 
 
-class ff10_wind_Scandes(ff10_wind,Scandes):
+class ff10_fronts_Scandes(ff10_fronts,Scandes):
     requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m')]
     requires_diagnostic = [('sfc', ff10.cal_ff10), ]
-    plotname = 'ff10_wind' 
+    plotname = 'ff10_fronts' 
 
     std_plotconf = Scandes.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
@@ -597,7 +633,7 @@ plots = [
     q850_msl(),    q850_msl_Scandes(),
     q925_msl(),    q925_msl_Scandes(),
     t2m_msl(),     t2m_msl_Scandes(), 
-    ff10_wind(),   ff10_wind_Scandes(),
+    ff10_fronts(), ff10_fronts_Scandes(),
     shf_wind(),    shf_wind_Scandes(),
     rh2m_tp(),     rh2m_tp_Scandes(), 
     w850_ff(),     w850_ff_Scandes(), 

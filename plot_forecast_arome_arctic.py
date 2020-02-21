@@ -10,6 +10,9 @@ from dynlib.shorthands import *
 from dynlib import utils
 from settings.metno import *
 
+import dynlib.detect
+import dynlib.thermodyn
+
 from current_fc_arome import get_current_fc_arome
 
 
@@ -87,19 +90,19 @@ class t_msl(plotter):
 
 # Wind speed
 class ff(plotter):
-    def cal_ff(self, data, static):
-        if not 'ff' in data:
-            data['ff'] = np.sqrt(data['u']**2.0 + data['v']**2.0)
+    def cal_ff(self, data, plev, static):
+        if not (plev,'ff') in data:
+            data[plev,'ff'] = np.sqrt(data[plev,'x_wind_pl']**2.0 + data[plev,'y_wind_pl']**2.0)
 
 # 10m wind speed
 class ff10(ff):
-    def cal_ff10(self, data, static):
+    def cal_ff10(self, data, plev, static):
         if not ('sfc','ff_10m') in data:
             data['sfc','ff_10m'] = np.sqrt(data['sfc','x_wind_10m']**2.0 + data['sfc','y_wind_10m']**2.0)
 
 # Total surface fluxes, and surface flux ratios: latent/total, sensible/total
 class tshf(plotter):
-    def cal_tshf(self, data, static):
+    def cal_tshf(self, data, plev, static):
         if not ('sfc','tshff') in data:
             total = (data['sfc','integral_of_surface_downward_sensible_heat_flux_wrt_time'] +
                     data['sfc','integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time'] + 
@@ -112,11 +115,44 @@ class tshf(plotter):
 # Precipitation
 class precip(plotter):
     # Initial precip seems to be a fortran fail value that translates to an all-pink initial plot
-    def cal_avg_precip(self, data, static):
+    def cal_avg_precip(self, data, plev, static):
         if not ('sfc','precipitation_amount') in data:
             data['sfc','precipitation_amount'] = np.zeros(data['sfc','precipitation_amount_acc'].shape)
             data['sfc','precipitation_amount'][1:,::] = (data['sfc','precipitation_amount_acc'][1:,::] - 
                     data['sfc','precipitation_amount_acc'][0:-1,::])/3.0
+
+# Frontal diagnostics
+class fronts(plotter):
+    def detect_frontalvolumes(self, data, plev, static):
+        dynfor.config.nsmooth = 100
+        dynfor.config.tfp_mingrad_largescale = 5.0e-5
+        dynfor.config.tfp_mingrad_smallscale = 15.0e-5
+        dynfor.config.minsize = 3000.0e6
+
+        if not (plev,'frovo') in data:
+            PLEVS = ['700', '850', '925', ]
+            pidx = PLEVS.index(plev)
+
+            s = data[plev,'air_temperature_pl'].shape
+            s = s[:1] + (len(PLEVS), ) + s[1:]
+            eqpt = np.empty(s)
+
+            p = np.empty(data[plev,'air_temperature_pl'].shape)
+            for pidx,plev_ in zip(range(len(PLEVS)), PLEVS):
+                if not (plev_,'eqpt') in data:
+                    p[:,:,:] = 100.0 * int(plev_)
+                    data[plev_,'eqpt'] = dynlib.thermodyn.thetae_from_q(data[plev_,'specific_humidity_pl'], 
+                            data[plev_,'air_temperature_pl'], p)
+
+                eqpt[:,pidx,:,:] = data[plev_,'eqpt']
+
+            frovo = dynlib.detect.frontalvolume_smallscale(eqpt, static.dx, static.dy)
+            del eqpt
+            
+            data[plev,'frovo'] = frovo[:,pidx,:,:]
+            data[plev,'frovo'][data[plev,'frovo'] > 0.5] = 1
+            del frovo
+
 
 
 # Temperature @ 850 hPa shading, wind barbs, and MSLP contours
@@ -316,7 +352,7 @@ class shf_wind(tshf, ff10):
             ('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
             ('sfc','SIC'), ('sfc','SST'),]
 
-    requires_diagnostic = [tshf.cal_tshf, ff10.cal_ff10, ]
+    requires_diagnostic = [('sfc', tshf.cal_tshf), ('sfc', ff10.cal_ff10), ]
     plotname = 'shf_wind'
     
     std_plotconf = ff10.std_plotconf
@@ -377,10 +413,54 @@ class shf_wind(tshf, ff10):
         return True
 
 
+# Near surface winds and 850 hPa frontal volumes
+class ff10_fronts(ff10,fronts):
+    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
+			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
+			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
+			('700','specific_humidity_pl'), ('700','air_temperature_pl'), ]
+    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', fronts.detect_frontalvolumes), ]
+    plotname = 'ff10_fronts' 
+    
+    std_plotconf = ff10.std_plotconf
+    std_plotconf['vector_disable_interpolation'] = True
+    std_plotconf['vector_space_interval'] = 30
+
+    def plot(self, data, static, dateinit, datevalid):
+        done = plotter.plot(self, data, static, dateinit, datevalid)
+        if done:
+            return True
+
+        overlays = [
+            fig.map_overlay_shading(data['850','frovo'], static, **conf.plot.merge(None, None,
+                colors=['navy', ],
+                alpha=0.6,
+                scale=[0.001, 2.0],
+                extend='neither',
+                cb_disable=True,) ),
+            fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', 
+                linewidths=0.5,
+                **self.std_plotconf) ),
+        ]
+        
+        s = np.arange(5.0,32.6,2.5)
+        plotconf = conf.plotf.merge('sfc', 'ff10',
+                cmap=cm.ff, 
+                scale=s,
+                extend='both',
+                overlays=overlays,
+                **self.std_plotconf
+        )
+        fig.map(data['sfc','ff_10m'], static, **plotconf)
+
+        return True
+
+
+
 # Near-surface relative humidity, total precipitation and MIZ
 class rh2m_tp(precip):
     requires = [('sfc', 'relative_humidity_2m'), ('sfc', 'precipitation_amount_acc'), ('sfc', 'SIC'), ]
-    requires_diagnostic = [precip.cal_avg_precip, ]
+    requires_diagnostic = [('sfc', precip.cal_avg_precip), ]
     plotname = 'rh2m_tp'
 
     def plot(self, data, static, dateinit, datevalid):
@@ -440,6 +520,7 @@ plots = [
     t925_msl(), 
     q850_msl(), 
     q925_msl(), 
+    ff10_fronts(),
     t2m_msl(), 
     shf_wind(), 
     rh2m_tp(), 
@@ -461,8 +542,8 @@ for plot in plots:
             plot.error = True
     
     if not plot.error:
-        for fun in plot.requires_diagnostic:
-            fun(plot, data, static)
+        for plev, fun in plot.requires_diagnostic:
+            fun(plot, data, plev, static)
 
 # We need to replace the auto-detected x dimension with the alternative lon dimension and tell dynlib it's a projected grid
 static.x = f.variables['longitude'][::]
