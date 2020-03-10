@@ -70,11 +70,13 @@ q850 = variable(u'Specific humidity', u'g/kg', u'850 hPa')
 q925 = variable(u'Specific humidity', u'g/kg', u'925 hPa')
 w850 = variable(u'Vertical wind', u'm/s', '850 hPa')
 w500 = variable(u'Vertical wind', u'm/s', '500 hPa')
+w700 = variable(u'Vertical wind', u'm/s', '700 hPa')
 tshff = variable(u'Total Surface heat flux', u'W/m²', u'')
 
 msl = variable(u'Sea level pressure', 'hPa', u'')
 barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
 barbs500 = variable(u'Wind barbs', u'm/s', u'500 hPa')
+barbs700 = variable(u'Wind barbs', u'm/s', u'700 hPa')
 barbs850 = variable(u'Wind barbs', u'm/s', u'850 hPa')
 barbs925 = variable(u'Wind barbs', u'm/s', u'925 hPa')
 ff925 = variable(u'Wind speed', u'm/s', u'925 hPa')
@@ -97,6 +99,8 @@ plotlist = [
         name='850 hPa Vertical wind and 925 hPa wind speed'),
     plot(u'w500_winds', w500, [o('black', barbs500, None), ], 
         name='500 hPa Vertical wind and wind barbs'),
+    plot(u'w700_winds', w700, [o('black', barbs700, None), ], 
+        name='700 hPa Vertical wind and wind barbs'),
     plot(u'ff10_fronts', ff10, [o('blue shading', frovo850, None), o('black', barbs10, None)],
         name='10m wind speed, barbs and frontal volumes at 850 hPa'),
     plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), ], 
