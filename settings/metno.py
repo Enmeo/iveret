@@ -38,7 +38,7 @@ conf.sfclevs = ['sfc', ]
 conf.register_variable([msl, t2m, rh2m, sic, sst, sshff, slhff, tshff, sshff_frac, slhff_frac, ff10, trr], conf.sfclevs)
 
 # 2. Pressure levels
-conf.plevs = ['925', '850', '700']
+conf.plevs = ['925', '850', '700', '500', ]
 conf.register_variable([w, d.div, d.ff], conf.plevs)
 
 ##

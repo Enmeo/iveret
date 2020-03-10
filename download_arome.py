@@ -6,7 +6,7 @@ import time
 from current_fc_arome import get_current_fc_arome, DATEFMT
 
 plevs = {
-    '700': 8, '850': 10, '925': 11,
+    '500': 7, '700': 8, '850': 10, '925': 11,
 }
 sfclevs = {'sfc': 0}
 

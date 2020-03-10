@@ -561,6 +561,51 @@ class rh2m_tp_Scandes(rh2m_tp,Scandes):
     plotname = 'rh2m_tp'
 
 
+# Vertical wind @ 500 hPa, 500 hPa wind barbs
+class w500_winds(plotter):
+    requires = [('500','upward_air_velocity_pl'), ('500','x_wind_pl'), ('500','y_wind_pl'), ]
+    plotname = 'w500_winds'
+
+    def plot(self, data, static, dateinit, datevalid):
+        done = t_msl.plot(self, data, static, dateinit, datevalid)
+        if done:
+            return True
+
+        overlays = [
+            fig.map_overlay_barbs(data['500','x_wind_pl'], data['500','y_wind_pl'], static, **conf.plot.merge('sfc', 'ff10', 
+                alpha=0.5,
+                linewidths=0.5,
+                length=5,
+                **self.std_plotconf) ),
+        ]
+        s=[-10,-5,-3,-2,-1,-0.5,-0.3,-0.2,-0.1,0.1,0.2,0.3,0.5,1,2,3,5,10] 
+        st=[-100]+s+[100,]
+        plotconf = conf.plotf.merge('500', 'upward_air_velocity_pl',
+                overlays=overlays,
+                cmap='RdGy_r', # Set a colormap
+                norm=mpl.colors.BoundaryNorm(st, 256),
+                cb_tickspacing='uniform',
+                extend='both',
+                scale=s,
+                ticks=st,
+                **self.std_plotconf
+        )
+        fig.map(data['500','upward_air_velocity_pl'], static, **plotconf)
+
+        return True
+
+
+class w500_winds_Scandes(w500_winds,Scandes):
+    requires = [('500', 'x_wind_pl'), ('500', 'y_wind_pl'), ('500', 'upward_air_velocity_pl'), ]
+    plotname = 'w500_winds'
+
+    std_plotconf = Scandes.std_plotconf
+    std_plotconf['vector_disable_interpolation'] = True
+    std_plotconf['vector_space_interval'] = 30
+    std_plotconf['cb_shrink'] = 0.65
+
+
+
 # Near-surface convergence and 850 hPa vertical wind
 class w850_ff(ff):
     requires = [('925', 'x_wind_pl'), ('925', 'y_wind_pl'), ('850', 'upward_air_velocity_pl'), ]
@@ -637,6 +682,7 @@ plots = [
     shf_wind(),    shf_wind_Scandes(),
     rh2m_tp(),     rh2m_tp_Scandes(), 
     w850_ff(),     w850_ff_Scandes(), 
+    w500_winds(),  w500_winds_Scandes()
 ]
 
 fc_str = forecast.strftime('%Y%m%dT%HZ')
