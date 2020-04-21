@@ -324,6 +324,28 @@ class jets(ff):
 
 
 # Cyclone masks from ensemble forecasts
+class jetdetect_ens(plotter):
+    def cal_jetaxis(self, data, info, static):
+        dynfor.config.nsmooth = 0
+        dynfor.config.minlen = 2.0e6 
+        dynfor.config.jetint_thres = 0.55e-8
+        dynfor.config.searchrad = 1.5
+
+        if not ('jetfreq', plev) in data:
+            staticl = data['static_lowres']
+            data['jetfreq',plev] = np.empty(data['u',plev,'ens'].shape[0:1]+data['u',plev,'ens'].shape[2:])
+            for tidx in range(data['u',plev,'ens'].shape[0]):
+                uin = np.concatenate((data['u',plev,'ens'][tidx,:,:,:], data['u',plev,'ensctrl'][tidx:tidx+1,:,:]), axis=0)
+                vin = np.concatenate((data['v',plev,'ens'][tidx,:,:,:], data['v',plev,'ensctrl'][tidx:tidx+1,:,:]), axis=0)
+
+                # Jet axis detections
+                ja, jaoff = dynlib.detect.jetaxis(10000, 10000, uin, vin, staticl.dx, staticl.dy)
+                jaoff = jaoff.astype('i4')
+
+                data['jetfreq',plev][tidx,:,:] = dynlib.utils.mask_lines(uin.shape[2], uin.shape[1], ja, jaoff).mean(axis=0)
+
+
+# Cyclone masks from ensemble forecasts
 class cycdetect_ens(plotter):
     def cal_cyclones(self, data, info, static):
         if not ('cycfreq','sfc') in data:
@@ -343,7 +365,8 @@ class cycdetect_ens(plotter):
                 cycmask, meta = dynlib.detect.cyclone_by_contour(indat, static)
                 cycmask[cycmask > 0.5] = 1
                 data['cycfreq','sfc'][tidx,:,:] = cycmask.mean(axis=0)
-
+    
+    def cal_ensmean_msl(self, data, info, static):
         if not ('msl','sfc','ensmean') in data:
             data['msl','sfc','ensmean'] = (data['msl','sfc','ens'].sum(axis=1) + data['msl','sfc','ensctrl'])/51.0
 
@@ -1192,7 +1215,7 @@ class deform850_fronts(deform,fronts,precip):
 class cycfreq_msl(cycdetect_ens):
     requires = []
     requires_ens = [('msl', 'sfc'), ]
-    requires_diagnostic = [(cycdetect_ens.cal_cyclones, 'sfc'), ]
+    requires_diagnostic = [(cycdetect_ens.cal_ensmean_msl, 'sfc'), (cycdetect_ens.cal_cyclones, 'sfc'), ]
     plotname = 'cycfreq_msl'
 
 
@@ -1223,6 +1246,44 @@ class cycfreq_msl(cycdetect_ens):
                 **self.std_plotconf
         )
         fig.map(data['cycfreq','sfc'], static, **plotconf)
+
+        return True
+
+
+class jetfreq_msl(jetdetect_ens, cycdetect_ens):
+    requires = []
+    requires_ens = [('u', 'pv2000'), ('v', 'pv2000'), ('msl', 'sfc'), ]
+    requires_diagnostic = [(cycdetect_ens.cal_ensmean_msl, 'sfc'), (jetdetect_ens.cal_jetaxis, 'pv2000'), ]
+    plotname = 'jetfreq_msl'
+
+
+    def plot(self, data, static, dateinit, datevalid):
+        done = plotter.plot(self, data, static, dateinit, datevalid)
+        if done:
+            return True
+        
+        overlays = [
+            fig.map_overlay_contour(data['msl','sfc','ensctrl'], static, **conf.plot.merge('sfc', 'msl', 
+                linewidths=[0.5], 
+                scale=range(900,1070,5),
+                alpha=0.4,) ), 
+            fig.map_overlay_contour(data['msl','sfc','ensmean'], static, **conf.plot.merge('sfc', 'msl', 
+                linewidths=[0.5,], 
+                colors='tab:orange',
+                scale=range(900,1070,5),
+                alpha=0.7,) ), 
+        ]
+
+        plotconf = conf.plotf.merge(None, None,
+                cmap='Blues',
+                overlays=overlays,
+                scale=np.arange(0,1.01,0.05),
+                ticks=np.arange(0,1.01,0.2),
+                ticklabels=range(0,101,20),
+                extend='neither',
+                **self.std_plotconf
+        )
+        fig.map(data['jetfreq','pv2000'], data['static_lowres'], **plotconf)
 
         return True
 
@@ -1284,8 +1345,7 @@ PLOTS = {
         cycfreq_msl_spolar(),
     ],
     'test': [
-        cycfreq_msl_npolar(),
-        cycfreq_msl_spolar(),
+        jetfreq_msl(),
     ],
     'sfc': [
         cc(),
@@ -1332,13 +1392,19 @@ for plot in plots:
 
     for q, plev in plot.requires_ens:
         if (q,plev,'ens') not in data:
-            f, dat_, static = metopen(conf.file_ens % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
+            f, dat_, static_ = metopen(conf.file_ens % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
             data[q,plev,'ens'] = dat_.squeeze()
 
-            f, dat_, static = metopen(conf.file_ensctrl % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
+            f, dat_, static_ = metopen(conf.file_ensctrl % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
             data[q,plev,'ensctrl'] = dat_.squeeze()
 
             f.close()
+        
+        # u/v on PV2 are downloaded at 1.5-deg grid prefiltered to T84 resolution
+        if static_.dx.shape[1] == 720:
+            static = static_
+        else:
+            data['static_lowres'] = static_
     
     if len(static.t_parsed) > datemask.sum():
         for key in data:
@@ -1355,7 +1421,10 @@ import time
 for tidx, date in zip(range(len(static.t)), static.t_parsed):
     data_inst = {}
     for key in data:
-        data_inst[key] = data[key][tidx]
+        if type(data[key]) == np.ndarray:
+            data_inst[key] = data[key][tidx]
+        else:
+            data_inst[key] = data[key]
     
     for plot in plots:
         plot.plot(data_inst, static, forecast, date)
