@@ -325,6 +325,11 @@ class jets(ff):
 
 # Cyclone masks from ensemble forecasts
 class jetdetect_ens(plotter):
+    def __init__(self, *args, **kwargs):
+        super(*args, **kwargs)
+
+        self.green = None
+
     def cal_jetaxis(self, data, info, static):
         dynfor.config.nsmooth = 0
         dynfor.config.minlen = 2.0e6 
@@ -333,16 +338,24 @@ class jetdetect_ens(plotter):
 
         if not ('jetfreq', plev) in data:
             staticl = data['static_lowres']
+
+            # Precalculate distances between points on a lat/lon grid
+            if type(self.green) == type(None):
+                self.green = dynlib.utils.dist_green_latlon(staticl.x[0,:], staticl.y[:,0])
+
             data['jetfreq',plev] = np.empty(data['u',plev,'ens'].shape[0:1]+data['u',plev,'ens'].shape[2:])
             for tidx in range(data['u',plev,'ens'].shape[0]):
                 uin = np.concatenate((data['u',plev,'ens'][tidx,:,:,:], data['u',plev,'ensctrl'][tidx:tidx+1,:,:]), axis=0)
                 vin = np.concatenate((data['v',plev,'ens'][tidx,:,:,:], data['v',plev,'ensctrl'][tidx:tidx+1,:,:]), axis=0)
 
                 # Jet axis detections
-                ja, jaoff = dynlib.detect.jetaxis(10000, 10000, uin, vin, staticl.dx, staticl.dy)
+                ja, jaoff = dynlib.detect.jetaxis(10000, 100, uin, vin, staticl.dx, staticl.dy)
                 jaoff = jaoff.astype('i4')
-
-                data['jetfreq',plev][tidx,:,:] = dynlib.utils.mask_lines(uin.shape[2], uin.shape[1], ja, jaoff).mean(axis=0)
+                jamask = dynlib.utils.mask_lines(uin.shape[2], uin.shape[1], ja, jaoff)
+                
+                # Find everything within 300 km of a jet axis and save 
+                mindists = dynlib.utils.dist_from_mask_latlon(jamask, self.green, 120)
+                data['jetfreq',plev][tidx,:,:] = (mindists < 300.0e3).mean(axis=0)
 
 
 # Cyclone masks from ensemble forecasts
@@ -1250,6 +1263,21 @@ class cycfreq_msl(cycdetect_ens):
         return True
 
 
+class cycfreq_msl_npolar(cycfreq_msl,npolar):
+    requires = []
+    requires_ens = [('msl', 'sfc'), ]
+    requires_diagnostic = [(cycdetect_ens.cal_cyclones, 'sfc'), ]
+    plotname = 'cycfreq_msl'
+
+
+class cycfreq_msl_spolar(cycfreq_msl,spolar):
+    requires = []
+    requires_ens = [('msl', 'sfc'), ]
+    requires_diagnostic = [(cycdetect_ens.cal_cyclones, 'sfc'), ]
+    plotname = 'cycfreq_msl'
+
+
+
 class jetfreq_msl(jetdetect_ens, cycdetect_ens):
     requires = []
     requires_ens = [('u', 'pv2000'), ('v', 'pv2000'), ('msl', 'sfc'), ]
@@ -1288,18 +1316,18 @@ class jetfreq_msl(jetdetect_ens, cycdetect_ens):
         return True
 
 
-class cycfreq_msl_npolar(cycfreq_msl,npolar):
+class jetfreq_msl_npolar(jetfreq_msl,npolar):
     requires = []
-    requires_ens = [('msl', 'sfc'), ]
-    requires_diagnostic = [(cycdetect_ens.cal_cyclones, 'sfc'), ]
-    plotname = 'cycfreq_msl'
+    requires_ens = [('u', 'pv2000'), ('v', 'pv2000'), ('msl', 'sfc'), ]
+    requires_diagnostic = [(cycdetect_ens.cal_ensmean_msl, 'sfc'), (jetdetect_ens.cal_jetaxis, 'pv2000'), ]
+    plotname = 'jetfreq_msl'
 
 
-class cycfreq_msl_spolar(cycfreq_msl,spolar):
+class jetfreq_msl_spolar(jetfreq_msl,spolar):
     requires = []
-    requires_ens = [('msl', 'sfc'), ]
-    requires_diagnostic = [(cycdetect_ens.cal_cyclones, 'sfc'), ]
-    plotname = 'cycfreq_msl'
+    requires_ens = [('u', 'pv2000'), ('v', 'pv2000'), ('msl', 'sfc'), ]
+    requires_diagnostic = [(cycdetect_ens.cal_ensmean_msl, 'sfc'), (jetdetect_ens.cal_jetaxis, 'pv2000'), ]
+    plotname = 'jetfreq_msl'
 
 
 # -----------------------------------------------------------------------------
@@ -1343,9 +1371,14 @@ PLOTS = {
         cycfreq_msl(),
         cycfreq_msl_npolar(),
         cycfreq_msl_spolar(),
+        jetfreq_msl(),
+        jetfreq_msl_npolar(),
+        jetfreq_msl_spolar(),
     ],
     'test': [
         jetfreq_msl(),
+        jetfreq_msl_npolar(),
+        jetfreq_msl_spolar(),
     ],
     'sfc': [
         cc(),
@@ -1408,7 +1441,8 @@ for plot in plots:
     
     if len(static.t_parsed) > datemask.sum():
         for key in data:
-            data[key] = data[key][datemask,...]
+            if type(data[key]) == np.ndarray:
+                data[key] = data[key][datemask,...]
         static.t_parsed = static.t_parsed[datemask]
 
     if not plot.error:

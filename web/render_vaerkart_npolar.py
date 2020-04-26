@@ -75,6 +75,7 @@ t850 = variable(u'Temperature', u'°C', u'850 hPa')
 cp = variable(u'Convective precipitation', 'mm/h', u'')
 lp = variable(u'Large-scale precipitation', 'mm/h', u'')
 cycfreq = variable(u'Cyclone occurrence', '%', '')
+jetfreq = variable(u'Jet occurrence within 300 km', '%', '')
 irbarbspt315 = variable(u'Irrot. wind barbs', u'm/s', u'315 K')
 irbarbspt330 = variable(u'Irrot. wind barbs', u'm/s', u'330 K')
 icwvt = variable(u'Integrated column water vapour transport', u'', u'')
@@ -90,6 +91,8 @@ plotlist = [
 		name='Total column water vapour, integrated fluxes and precipitation'),
 	plot(u'cycfreq_msl', cycfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
 		name='Ensemble cyclone detections'),
+	plot(u'jetfreq_msl', jetfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
+		name='Ensemble jet detections'),
 	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
 		name='PV2 Pot. temperature, jets and wind speed'),
 	plot(u'pvpt315_irot_wind', pvpt315, [o('black', irbarbspt315, None), ],

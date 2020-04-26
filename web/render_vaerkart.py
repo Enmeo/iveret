@@ -90,6 +90,7 @@ tp = variable(u'Total precipitation', 'mm/h', u'')
 sic = variable(u'Sea ice concentration', '', u'')
 sst = variable(u'Sea surface temperature', '°C', u'')
 cycfreq = variable(u'Cyclone occurrence', '%', '')
+jetfreq = variable(u'Jet occurrence within 300 km', '%', '')
 frovo850 = variable(u'Frontal volumes', '', '850 hPa')
 fronts850 = variable(u'Front lines', '', '850 hPa')
 barbs850 = variable(u'Wind barbs', u'm/s', u'850 hPa')
@@ -127,6 +128,8 @@ plotlist = [
 		name='Total column water vapour, fluxes and precip.'),
 	plot(u'cycfreq_msl', cycfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
 		name='Ensemble cyclone detections'),
+	plot(u'jetfreq_msl', jetfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
+		name='Ensemble jet detections'),
 	plot(u'tcc', lcc, [o('orange shading', mcc, None), o('white shading', hcc, None)],
 		name='Cloud cover'),
 	plot(u'pvpt315_irot_wind', pvpt315, [o('black', irbarbspt315, None), ],
