@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Setup some paths
 basepath='/home/ubuntu/sw/vaerkart'

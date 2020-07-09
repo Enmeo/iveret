@@ -218,6 +218,11 @@ class t850_msl_Scandes(t850_msl,Scandes):
     plotname = 't850_msl'
 
 
+class t850_msl_Vestland(t850_msl,Vestland):
+    requires = [('850','air_temperature_pl'), ('850','x_wind_pl'), ('850','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
+    plotname = 't850_msl'
+
+
 # Temperature @ 925 hPa shading, wind barbs, and MSLP contours
 class t925_msl(t_msl):
     requires = [('925','air_temperature_pl'), ('925','x_wind_pl'), ('925','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
@@ -257,6 +262,11 @@ class t925_msl(t_msl):
 
 
 class t925_msl_Scandes(t925_msl,Scandes):
+    requires = [('925','air_temperature_pl'), ('925','x_wind_pl'), ('925','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
+    plotname = 't925_msl'
+
+
+class t925_msl_Vestland(t925_msl,Vestland):
     requires = [('925','air_temperature_pl'), ('925','x_wind_pl'), ('925','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
     plotname = 't925_msl'
 
@@ -306,6 +316,12 @@ class q850_msl_Scandes(q850_msl,Scandes):
     plotname = 'q850_msl'
 
 
+
+class q850_msl_Vestland(q850_msl,Vestland):
+    requires = [('850','specific_humidity_pl'), ('850','air_temperature_pl'), ('850','x_wind_pl'), ('850','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
+    plotname = 'q850_msl'
+
+
 # Temperature @ 925 hPa shading, wind barbs, and MSLP contours
 class q925_msl(t_msl):
     requires = [('925','specific_humidity_pl'), ('850','air_temperature_pl'), ('925','x_wind_pl'), ('925','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
@@ -347,6 +363,11 @@ class q925_msl(t_msl):
 
 
 class q925_msl_Scandes(q925_msl,Scandes):
+    requires = [('925','specific_humidity_pl'), ('850','air_temperature_pl'), ('925','x_wind_pl'), ('925','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
+    plotname = 'q925_msl'
+
+
+class q925_msl_Vestland(q925_msl,Vestland):
     requires = [('925','specific_humidity_pl'), ('850','air_temperature_pl'), ('925','x_wind_pl'), ('925','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
     plotname = 'q925_msl'
 
@@ -463,13 +484,29 @@ class shf_wind_Scandes(shf_wind,Scandes):
     requires = [('sfc','integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time'), 
             ('sfc','integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time'),
             ('sfc','integral_of_surface_downward_sensible_heat_flux_wrt_time'),
-            ('sfc','x_wind_10m'), ('sfc','y_wind_10m'), ]
+            ('sfc','x_wind_10m'), ('sfc','y_wind_10m'),
+            ('sfc','SFX_SST'), ]
     requires_diagnostic = [('sfc', tshf.cal_tshf), ('sfc', ff10.cal_ff10), ]
     plotname = 'shf_wind' 
 
     std_plotconf = Scandes.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
     std_plotconf['vector_space_interval'] = 30
+    std_plotconf['cb_shrink'] = 0.65
+
+
+class shf_wind_Vestland(shf_wind,Vestland):
+    requires = [('sfc','integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time'), 
+            ('sfc','integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time'),
+            ('sfc','integral_of_surface_downward_sensible_heat_flux_wrt_time'),
+            ('sfc','x_wind_10m'), ('sfc','y_wind_10m'),
+            ('sfc','SFX_SST'), ]
+    requires_diagnostic = [('sfc', tshf.cal_tshf), ('sfc', ff10.cal_ff10), ]
+    plotname = 'shf_wind' 
+
+    std_plotconf = Vestland.std_plotconf
+    std_plotconf['vector_disable_interpolation'] = True
+    std_plotconf['vector_space_interval'] = 5
     std_plotconf['cb_shrink'] = 0.65
 
 
@@ -643,6 +680,16 @@ class w500_winds_Scandes(w500_winds,Scandes):
     std_plotconf['cb_shrink'] = 0.65
 
 
+class w500_winds_Vestland(w500_winds,Vestland):
+    requires = [('500', 'x_wind_pl'), ('500', 'y_wind_pl'), ('500', 'upward_air_velocity_pl'), ]
+    plotname = 'w500_winds'
+
+    std_plotconf = Vestland.std_plotconf
+    std_plotconf['vector_disable_interpolation'] = True
+    std_plotconf['vector_space_interval'] = 5
+    std_plotconf['cb_shrink'] = 0.65
+
+
 
 # Vertical wind @ 700 hPa, 700 hPa wind barbs
 class w700_winds(plotter):
@@ -685,6 +732,16 @@ class w700_winds_Scandes(w700_winds,Scandes):
     std_plotconf = Scandes.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
     std_plotconf['vector_space_interval'] = 30
+    std_plotconf['cb_shrink'] = 0.65
+
+
+class w700_winds_Vestland(w700_winds,Vestland):
+    requires = [('700', 'x_wind_pl'), ('700', 'y_wind_pl'), ('700', 'upward_air_velocity_pl'), ]
+    plotname = 'w700_winds'
+
+    std_plotconf = Vestland.std_plotconf
+    std_plotconf['vector_disable_interpolation'] = True
+    std_plotconf['vector_space_interval'] = 5
     std_plotconf['cb_shrink'] = 0.65
 
 
@@ -744,6 +801,12 @@ class w850_ff_Scandes(w850_ff,Scandes):
     plotname = 'w850_ff'
 
 
+class w850_ff_Vestland(w850_ff,Vestland):
+    requires = [('925', 'x_wind_pl'), ('925', 'y_wind_pl'), ('850', 'upward_air_velocity_pl'), ]
+    requires_diagnostic = [('925', ff.cal_ff), ]
+    plotname = 'w850_ff'
+
+
 # -----------------------------------------------------------------------------
 
 # Most recent available data
@@ -756,17 +819,17 @@ plot_only_init = False
 print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 plots = [
-    t850_msl(),    t850_msl_Scandes(),
-    t925_msl(),    t925_msl_Scandes(),
-    q850_msl(),    q850_msl_Scandes(),
-    q925_msl(),    q925_msl_Scandes(),
+    t850_msl(),    t850_msl_Scandes(),      t850_msl_Vestland(),
+    t925_msl(),    t925_msl_Scandes(),      t925_msl_Vestland(),
+    q850_msl(),    q850_msl_Scandes(),      q850_msl_Vestland(),
+    q925_msl(),    q925_msl_Scandes(),      q925_msl_Vestland(),
     t2m_msl(),     t2m_msl_Scandes(),       t2m_msl_Vestland(),
     ff10_fronts(), ff10_fronts_Scandes(),   ff10_fronts_Vestland(),
-    shf_wind(),    shf_wind_Scandes(),
+    shf_wind(),    shf_wind_Scandes(),      shf_wind_Vestland(),
     rh2m_tp(),     rh2m_tp_Scandes(),       rh2m_tp_Vestland(),
-    w850_ff(),     w850_ff_Scandes(), 
-    w500_winds(),  w500_winds_Scandes(),
-    w700_winds(),  w700_winds_Scandes(),
+    w850_ff(),     w850_ff_Scandes(),       w850_ff_Vestland(),   
+    w500_winds(),  w500_winds_Scandes(),    w500_winds_Vestland(),
+    w700_winds(),  w700_winds_Scandes(),    w700_winds_Vestland(),
 ]
 
 fc_str = forecast.strftime('%Y%m%dT%HZ')
