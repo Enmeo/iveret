@@ -28,35 +28,35 @@ print('Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H 
 
 
 class variable(object):
-	def __init__(self, name, units, level):
-		self.name = name
-		self.units = units
-		self.level = level
+    def __init__(self, name, units, level):
+        self.name = name
+        self.units = units
+        self.level = level
 
-		#self.overlays = overlays
+        #self.overlays = overlays
 
 class plot(object):
-	def __init__(self, prefix, shading, overlays=[], name=None):
-		self.prefix = prefix
-		self.shading = shading
-		self.overlays = overlays
-		
-		if name:
-			self.name = name
-		elif self.shading.level:
-			self.name = '%s on %s' % (self.shading.name, self.shading.level)
-		else:
-			self.name = self.shading.name
+    def __init__(self, prefix, shading, overlays=[], name=None):
+        self.prefix = prefix
+        self.shading = shading
+        self.overlays = overlays
+        
+        if name:
+            self.name = name
+        elif self.shading.level:
+            self.name = '%s on %s' % (self.shading.name, self.shading.level)
+        else:
+            self.name = self.shading.name
 
 class overlay(object):
-	def __init__(self, color, variable, contours):
-		self.color = color
-		self.var = variable
-		if type(contours) == list:
-			self.contours = ', '.join(map(str, contours))
-		else:
-			self.ci = contours
-		
+    def __init__(self, color, variable, contours):
+        self.color = color
+        self.var = variable
+        if type(contours) == list:
+            self.contours = ', '.join(map(str, contours))
+        else:
+            self.ci = contours
+        
 
 
 # Defining stuff
@@ -68,12 +68,12 @@ bathy = variable(u'Bathymetry', u'm', u'')
 
 o = overlay
 plotlist = [
-	plot(u'sst_sfccur', sst, [o('black', sfccur, None), o('light grey', bathy, [500, 1000, 1500]), ],
-		name='SST and surface currents'),
-	plot(u'sss_sfccur', sss, [o('black', sfccur, None), o('light grey', bathy, [500, 1000, 1500]), ],
-		name='SSS and surface currents'),
-	plot(u'ff_sfccur', ffsfc, [o('black', sfccur, None), o('light grey', bathy, [500, 1000, 1500]), ],
-		name='Surface current speed and direction'),
+    plot(u'sst_sfccur', sst, [o('black', sfccur, None), o('light grey', bathy, [500, 1000, 1500]), ],
+        name='SST and surface currents'),
+    plot(u'sss_sfccur', sss, [o('black', sfccur, None), o('light grey', bathy, [500, 1000, 1500]), ],
+        name='SSS and surface currents'),
+    plot(u'ff_sfccur', ffsfc, [o('black', sfccur, None), o('light grey', bathy, [500, 1000, 1500]), ],
+        name='Surface current speed and direction'),
 ]
 
 
@@ -89,19 +89,19 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 # Rendering
 t = env.get_template('template_jinja.html')
 c = { 
-	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[2][0],
-	'plot_prefix': 'no_kyst_bergen',
-	'plotlist': plotlist, 
-	'timlist': timlist,
-	'leadlist': leadlist,
-	'leadlist_link': leadlist_link,
-	'fclist': fclist, 
-	'initplot': plotlist[0],
-	'date_begin': date_fc,
-	'date_init': date_fc,
-	'plotdir': '/plots',
-	'display_details': False,
+    'plot_domains': plotdomains,
+    'plot_domain': plotdomains[0][0],
+    'plot_prefix': 'no_kyst_bergen',
+    'plotlist': plotlist, 
+    'timlist': timlist,
+    'leadlist': leadlist,
+    'leadlist_link': leadlist_link,
+    'fclist': fclist, 
+    'initplot': plotlist[0],
+    'date_begin': date_fc,
+    'date_init': date_fc,
+    'plotdir': '/plots',
+    'display_details': False,
 }
 
 f = codecs.open(filepath, mode='w', encoding='utf-8')

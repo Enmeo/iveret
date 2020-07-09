@@ -33,7 +33,7 @@ class plotter(object):
     fmt = '%Y%m%d%H'
 
     std_plotconf = {
-        'm': proj.AromeArcticMap,
+        'm': proj.BarentsSeamap,
         'coastcolor': 'k',
         'coastwidth': 0.5,
         'grid_alpha': 0.25,

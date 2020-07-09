@@ -90,6 +90,16 @@ class Scandes(plotter):
     figsize_deco = (6.25,6.18)
 
 
+class Vestland(plotter):
+    fcname = plotter.fcname + '_vestland'
+
+    std_plotconf = copy.copy(plotter.std_plotconf)
+    std_plotconf['m'] = proj.Vestlandmap
+
+    figsize = (6.4,6.4)
+    figsize_deco = (7.27273,6.4)
+
+
 ######################################################
 # Plot archetypes
 
@@ -379,6 +389,11 @@ class t2m_msl_Scandes(t2m_msl,Scandes):
     plotname = 't2m_msl'
 
 
+class t2m_msl_Vestland(t2m_msl,Vestland):
+    requires = [('sfc','air_temperature_2m'), ('sfc','air_pressure_at_sea_level')]
+    plotname = 't2m_msl'
+
+
 # Surface sensible and latent heat fluxes, near surface wind barbs, dangerous winds.
 class shf_wind(tshf, ff10):
     requires = [('sfc','integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time'), 
@@ -502,13 +517,30 @@ class ff10_fronts(ff10,fronts):
 
 
 class ff10_fronts_Scandes(ff10_fronts,Scandes):
-    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m')]
-    requires_diagnostic = [('sfc', ff10.cal_ff10), ]
+    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
+			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
+			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
+			('700','specific_humidity_pl'), ('700','air_temperature_pl'), ]
+    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', fronts.detect_frontalvolumes), ]
     plotname = 'ff10_fronts' 
 
     std_plotconf = Scandes.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
     std_plotconf['vector_space_interval'] = 30
+    std_plotconf['cb_shrink'] = 0.65
+
+
+class ff10_fronts_Vestland(ff10_fronts,Vestland):
+    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
+			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
+			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
+			('700','specific_humidity_pl'), ('700','air_temperature_pl'), ]
+    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', fronts.detect_frontalvolumes), ]
+    plotname = 'ff10_fronts' 
+
+    std_plotconf = Vestland.std_plotconf
+    std_plotconf['vector_disable_interpolation'] = True
+    std_plotconf['vector_space_interval'] = 5
     std_plotconf['cb_shrink'] = 0.65
 
 
@@ -556,6 +588,12 @@ class rh2m_tp(precip):
 
 
 class rh2m_tp_Scandes(rh2m_tp,Scandes):
+    requires = [('sfc', 'relative_humidity_2m'), ('sfc', 'precipitation_amount_acc')]
+    requires_diagnostic = [('sfc', precip.cal_avg_precip), ]
+    plotname = 'rh2m_tp'
+
+
+class rh2m_tp_Vestland(rh2m_tp,Vestland):
     requires = [('sfc', 'relative_humidity_2m'), ('sfc', 'precipitation_amount_acc')]
     requires_diagnostic = [('sfc', precip.cal_avg_precip), ]
     plotname = 'rh2m_tp'
@@ -722,10 +760,10 @@ plots = [
     t925_msl(),    t925_msl_Scandes(),
     q850_msl(),    q850_msl_Scandes(),
     q925_msl(),    q925_msl_Scandes(),
-    t2m_msl(),     t2m_msl_Scandes(), 
-    ff10_fronts(), ff10_fronts_Scandes(),
+    t2m_msl(),     t2m_msl_Scandes(),       t2m_msl_Vestland(),
+    ff10_fronts(), ff10_fronts_Scandes(),   ff10_fronts_Vestland(),
     shf_wind(),    shf_wind_Scandes(),
-    rh2m_tp(),     rh2m_tp_Scandes(), 
+    rh2m_tp(),     rh2m_tp_Scandes(),       rh2m_tp_Vestland(),
     w850_ff(),     w850_ff_Scandes(), 
     w500_winds(),  w500_winds_Scandes(),
     w700_winds(),  w700_winds_Scandes(),

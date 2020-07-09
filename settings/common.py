@@ -27,40 +27,46 @@ cm.trr = cb.WBuPi2
 
 
 
-def map_tmp():
-	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='i', 
-			llcrnrlon=0.5, llcrnrlat=56.5, urcrnrlon=11, urcrnrlat=63.5)
-proj.SNorwaymap = map_tmp
-
-def map_tmp():
-	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
-			llcrnrlon=4, llcrnrlat=59.5, urcrnrlon=7, urcrnrlat=61.45)
-proj.Hordamap = map_tmp
-
+# Bergen and immediate surroundings
 def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
 			llcrnrlon=4.75, llcrnrlat=60.1, urcrnrlon=5.8, urcrnrlat=60.8)
 proj.Bergenmap = map_tmp
 
+# Approximately Vestland fylke
 def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
-			llcrnrlon=11.5, llcrnrlat=67.08, urcrnrlon=18.0, urcrnrlat=69.5)
-proj.Lofotenmap = map_tmp
+			llcrnrlon=2.0, llcrnrlat=58.5, urcrnrlon=7.97, urcrnrlat=62.5)
+proj.Vestlandmap = map_tmp
 
+# Southern Norway 
 def map_tmp():
-	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
-			llcrnrlon=1.7, llcrnrlat=66.5, urcrnrlon=20, urcrnrlat=71.5)
-proj.LofotenBasinmap = map_tmp
+	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='i', 
+			llcrnrlon=-1.5, llcrnrlat=55.4, urcrnrlon=13, urcrnrlat=65.0)
+proj.SNorwaymap = map_tmp
 
+# Scandinavia, covering about the entire AROME MetCoop domain
 def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=63.3, lat_ts=63.3, lon_0=15, resolution='i', 
 			llcrnrlon=0.3, llcrnrlat=50.3, urcrnrlon=54.2, urcrnrlat=71.5)
 proj.Scandimap = map_tmp
 
+# Barents Sea, covering about the entire AROME Arctic domain
 def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=77.5, lat_ts=77.5, lon_0=-25, resolution='i', 
 			llcrnrlon=-16.0, llcrnrlat=69.5, urcrnrlon=67.5, urcrnrlat=71.5)
-proj.AromeArcticMap = map_tmp
+proj.BarentsSeamap = map_tmp
+
+# Lofoten & Lofoten basin discontinued, replaced by Barents Sea.
+#def map_tmp():
+#	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
+#			llcrnrlon=11.5, llcrnrlat=67.08, urcrnrlon=18.0, urcrnrlat=69.5)
+#proj.Lofotenmap = map_tmp
+#
+#def map_tmp():
+#	return proj.Basemap(projection='lcc', lat_0=60, lat_ts=60, lon_0=15, resolution='h', 
+#			llcrnrlon=1.7, llcrnrlat=66.5, urcrnrlon=20, urcrnrlat=71.5)
+#proj.LofotenBasinmap = map_tmp
 
 
 # the end

@@ -12,9 +12,8 @@ python3 $basepath/plot_forecast_kyst.py > $logpath/web_plot_kyst_out.log 2> $log
 # Then render the fitting websites
 python3 $basepath/web/render_vaerkart_kyst.py > $logpath/web_render_kyst_out.log 2> $logpath/web_render_kyst_err.log
 python3 $basepath/web/render_vaerkart_kyst_scandes.py > $logpath/web_render_kyst_out.log 2> $logpath/web_render_kyst_err.log
-python3 $basepath/web/render_vaerkart_kyst_lofoten.py > $logpath/web_render_kyst_out.log 2> $logpath/web_render_kyst_err.log
-python3 $basepath/web/render_vaerkart_kyst_lofotenbasin.py > $logpath/web_render_kyst_out.log 2> $logpath/web_render_kyst_err.log
-python3 $basepath/web/render_vaerkart_kyst_hordaland.py > $logpath/web_render_kyst_out.log 2> $logpath/web_render_kyst_err.log
+python3 $basepath/web/render_vaerkart_kyst_barents.py > $logpath/web_render_kyst_out.log 2> $logpath/web_render_kyst_err.log
+python3 $basepath/web/render_vaerkart_kyst_vestland.py > $logpath/web_render_kyst_out.log 2> $logpath/web_render_kyst_err.log
 python3 $basepath/web/render_vaerkart_kyst_bergen.py > $logpath/web_render_kyst_out.log 2> $logpath/web_render_kyst_err.log
 
 # Clean-up old plots
