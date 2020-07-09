@@ -785,7 +785,7 @@ class ptpv2_jets_spolar(ptpv2_jets,spolar):
 
 # Potential temperature@PV2 shading and wind barbs
 class ffpv2_rwb(wavebreaking, jets):
-    requires = [('u', 'pv2000'), ('v', 'pv2000'), ('z', '500'), ]
+    requires = [('u', 'pv2000'), ('v', 'pv2000'), ('pt', 'pv2000'), ('z', '500'), ]
     requires_diagnostic = [
         (wavebreaking.detect_wavebreaking, 'pv2000'), 
         (jets.cal_ff, 'pv2000'),
@@ -1376,9 +1376,7 @@ PLOTS = {
         jetfreq_msl_spolar(),
     ],
     'test': [
-        jetfreq_msl(),
-        jetfreq_msl_npolar(),
-        jetfreq_msl_spolar(),
+        ffpv2_rwb(),
     ],
     'sfc': [
         cc(),
