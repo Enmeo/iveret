@@ -35,12 +35,6 @@ conf.register_variable([d.rwb_a, d.rwb_c], ['pv2000', '500'])
 
 conf.datapath.insert(1, '/share/base/ecmwf')
 
-def map_tmp():
-	return proj.Basemap(projection='lcc', lat_0=58, lat_ts=58, lon_0=-30, resolution='l', 
-			width=10800000, height=7200000)
-proj.NAfcmap = map_tmp
-
-
 landmask = np.load(basepath+'/settings/ecmwf_fc_sea_mask.npy')
 landmask_hr = np.load(basepath+'//settings/ecmwf_hrfc_sea_mask.npy')
 

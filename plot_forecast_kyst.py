@@ -167,16 +167,6 @@ class plotter(object):
             return False
 
 
-class Scandes(plotter):
-    fcname = plotter.fcname + '_full'
-
-    std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.Scandimap
-
-    figsize = (5.0,6.375)
-    figsize_deco = (5.68182,6.375)
-
-
 class Vestland(plotter):
     fcname = plotter.fcname + '_vestland'
 
@@ -195,16 +185,6 @@ class Bergen(plotter):
 
     figsize = (6.4,6.4)
     figsize_deco = (7.27273,6.4)
-    
-
-class BarentsSea(plotter):
-    fcname = plotter.fcname + '_barents'
-
-    std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.BarentsSeamap
-
-    figsize = (5.0,6.375)
-    figsize_deco = (5.68182,6.375)
     
 
 ######################################################
@@ -250,13 +230,6 @@ class sst_sfccur(plotter):
         return True
 
 
-class sst_sfccur_Scandes(sst_sfccur,Scandes):
-    requires = ['temperature', 'u', 'v']
-    plotname = 'sst_sfccur'
-
-    overlay_conf = {'vector_space_interval': 30}
-
-
 class sst_sfccur_Vestland(sst_sfccur,Vestland):
     requires = ['temperature', 'u', 'v']
     plotname = 'sst_sfccur'
@@ -269,14 +242,6 @@ class sst_sfccur_Bergen(sst_sfccur,Bergen):
     plotname = 'sst_sfccur'
 
     overlay_conf = {'vector_space_interval': 1}
-
-
-class sst_sfccur_BarentsSea(sst_sfccur,BarentsSea):
-    requires = ['temperature', 'u', 'v']
-    plotname = 'sst_sfccur'
-
-    overlay_conf = {'vector_space_interval': 20}
-
 
 
 ######################################################
@@ -323,13 +288,6 @@ class ff_sfccur(plotter):
         return True
 
 
-class ff_sfccur_Scandes(ff_sfccur,Scandes):
-    requires = ['u', 'v']
-    plotname = 'ff_sfccur'
-
-    overlay_conf = {'vector_space_interval': 30}
-
-
 class ff_sfccur_Vestland(ff_sfccur,Vestland):
     requires = ['u', 'v']
     plotname = 'ff_sfccur'
@@ -342,14 +300,6 @@ class ff_sfccur_Bergen(ff_sfccur,Bergen):
     plotname = 'ff_sfccur'
 
     overlay_conf = {'vector_space_interval': 1}
-
-
-class ff_sfccur_BarentsSea(ff_sfccur,BarentsSea):
-    requires = ['u', 'v']
-    plotname = 'ff_sfccur'
-
-    overlay_conf = {'vector_space_interval': 20}
-
 
 
 ######################################################
@@ -400,13 +350,6 @@ class sss_sfccur(plotter):
         return True
 
 
-class sss_sfccur_Scandes(sss_sfccur,Scandes):
-    requires = ['u', 'v']
-    plotname = 'sss_sfccur'
-
-    overlay_conf = {'vector_space_interval': 30}
-
-
 class sss_sfccur_Vestland(sss_sfccur,Vestland):
     requires = ['u', 'v']
     plotname = 'sss_sfccur'
@@ -421,93 +364,86 @@ class sss_sfccur_Bergen(sss_sfccur,Bergen):
     overlay_conf = {'vector_space_interval': 1}
 
 
-class sss_sfccur_BarentsSea(sss_sfccur,BarentsSea):
-    requires = ['u', 'v']
-    plotname = 'sss_sfccur'
-
-    overlay_conf = {'vector_space_interval': 20}
-
-
 # -----------------------------------------------------------------------------
 
-# Most recent available data
-forecast = get_current_fc_kyst()
-plot_only_init = False
-
-print('Plotting the NorKyst %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
-
-plots = [
-    sst_sfccur(), sst_sfccur_Scandes(), sst_sfccur_Vestland(), sst_sfccur_Bergen(), sst_sfccur_BarentsSea(),
-    ff_sfccur(), ff_sfccur_Scandes(), ff_sfccur_Vestland(), ff_sfccur_Bergen(), ff_sfccur_BarentsSea(),
-    sss_sfccur(), sss_sfccur_Scandes(), sss_sfccur_Vestland(), sss_sfccur_Bergen(), sss_sfccur_BarentsSea(),
-]
-
-fname1 = 'norkyst_an_%s.sfc' % forecast.strftime('%Y%m%d%H')
-fname2 = 'norkyst_fc_%s.sfc' % forecast.strftime('%Y%m%d%H')
-try:
-    #print('Looking for %s' % fname)
-    f1, static = metopen(fname1)
-    f2, static_ = metopen(fname2)
-
-    # We need to replace the auto-detected x dimension with the alternative lon dimension
-    static.x = f1.variables['lon'][::]
-    static.y = f1.variables['lat'][::]
-    static.gridtype = 'latlon'
-    static.t_parsed = np.concatenate((static.t_parsed, static_.t_parsed), axis=0)
-    #static.rebuild_grid()
-except ValueError:
-    print('Warning: File %s or %s not readable.' % (fname1, fname2))
-    class Bunch(dict):
-        def __init__(self,**kw):
-            dict.__init__(self,kw)
-            self.__dict__ = self
-    f1 = Bunch(variables=[], close=lambda: None)
-    f2 = Bunch(variables=[], close=lambda: None)
+if __name__ == '__main__':
+    # Most recent available data
+    forecast = get_current_fc_kyst()
+    plot_only_init = False
     
-    t = range(0,67,3)
-    static = Bunch(t=t, t_parsed=[forecast + i*td(0,3600) for i in t])
-
-data = {}
-for plot in plots:
-    plot.error = False
-    for q in plot.requires:
-        if q not in f1.variables or q not in f2.variables:
-            print('%s not available!' % q)
-            plot.error = True
-        elif q not in data:
-            data[q] = np.concatenate((
-                utils.scale(f1.variables[q]).squeeze(),
-                utils.scale(f2.variables[q]).squeeze(),
-            ), axis=0)
+    print('Plotting the NorKyst %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
     
-    if not plot.error:
-        for fun in plot.requires_diagnostic:
-            fun(plot, data, static)
-
-f1.close()
-f2.close()
-
-conf.datapath.insert(0, basepath)
-f, bathy = metopen('settings/norkyst_bathymetry', 'h', no_static=True)
-static.bathymetry = bathy
-
-for tidx, date in zip(range(len(static.t_parsed)), static.t_parsed):
-    # Plot only 3-hourly data to speed up plotting
-    if not date.hour % 3 == 0:
-        continue
-
-    # Plot only initial time step
-    if plot_only_init and not date == forecast:
-        continue
+    plots = [
+        sst_sfccur(), sst_sfccur_Vestland(), sst_sfccur_Bergen(),
+        ff_sfccur(),  ff_sfccur_Vestland(),  ff_sfccur_Bergen(),
+        sss_sfccur(), sss_sfccur_Vestland(), sss_sfccur_Bergen(),
+    ]
     
-    print(tidx, date)
-    data_inst = {}
-    for q in data:
-        data_inst[q] = data[q][tidx]
+    fname1 = 'kyst/norkyst_an_%s.sfc' % forecast.strftime('%Y%m%d%H')
+    fname2 = 'kyst/norkyst_fc_%s.sfc' % forecast.strftime('%Y%m%d%H')
+    try:
+        #print('Looking for %s' % fname)
+        f1, static = metopen(fname1)
+        f2, static_ = metopen(fname2)
     
+        # We need to replace the auto-detected x dimension with the alternative lon dimension
+        static.x = f1.variables['lon'][::]
+        static.y = f1.variables['lat'][::]
+        static.gridtype = 'latlon'
+        static.t_parsed = np.concatenate((static.t_parsed, static_.t_parsed), axis=0)
+        #static.rebuild_grid()
+    except ValueError:
+        print('Warning: File %s or %s not readable.' % (fname1, fname2))
+        class Bunch(dict):
+            def __init__(self,**kw):
+                dict.__init__(self,kw)
+                self.__dict__ = self
+        f1 = Bunch(variables=[], close=lambda: None)
+        f2 = Bunch(variables=[], close=lambda: None)
+        
+        t = range(0,67,3)
+        static = Bunch(t=t, t_parsed=[forecast + i*td(0,3600) for i in t])
+    
+    data = {}
     for plot in plots:
-        plot.plot(data_inst, static, forecast, date)
-        plt.close()
+        plot.error = False
+        for q in plot.requires:
+            if q not in f1.variables or q not in f2.variables:
+                print('%s not available!' % q)
+                plot.error = True
+            elif q not in data:
+                data[q] = np.concatenate((
+                    utils.scale(f1.variables[q]).squeeze(),
+                    utils.scale(f2.variables[q]).squeeze(),
+                ), axis=0)
+        
+        if not plot.error:
+            for fun in plot.requires_diagnostic:
+                fun(plot, data, static)
+    
+    f1.close()
+    f2.close()
+    
+    f, bathy = metopen('settings/norkyst_bathymetry', 'h', no_static=True)
+    static.bathymetry = bathy
+    
+    for tidx, date in zip(range(len(static.t_parsed)), static.t_parsed):
+        # Plot only 3-hourly data to speed up plotting
+        if not date.hour % 3 == 0:
+            continue
+    
+        # Plot only initial time step
+        if plot_only_init and not date == forecast:
+            continue
+        
+        print(tidx, date)
+        data_inst = {}
+        for q in data:
+            data_inst[q] = data[q][tidx]
+        
+        for plot in plots:
+            plot.plot(data_inst, static, forecast, date)
+            plt.close()
 
 
 # the end

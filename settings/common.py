@@ -51,6 +51,12 @@ def map_tmp():
 			llcrnrlon=0.3, llcrnrlat=50.3, urcrnrlon=54.2, urcrnrlat=71.5)
 proj.Scandimap = map_tmp
 
+# North Atlantic
+def map_tmp():
+	return proj.Basemap(projection='lcc', lat_0=58, lat_ts=58, lon_0=-30, resolution='l', 
+			width=10800000, height=7200000)
+proj.NAfcmap = map_tmp
+
 # Barents Sea, covering about the entire AROME Arctic domain
 def map_tmp():
 	return proj.Basemap(projection='lcc', lat_0=77.5, lat_ts=77.5, lon_0=-25, resolution='i', 
