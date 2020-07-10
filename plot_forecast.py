@@ -461,6 +461,55 @@ class t850_msl(t_msl):
 
 
 # Temperature@850hPa shading and MSLP contours
+class t850_msl_npolar(t850_msl,npolar):
+    requires = [('t', '850'), ('u', '850'), ('v', '850'), ('msl', 'sfc'), ]
+    plotname = 't850_msl'
+
+    std_plotconf = npolar.std_plotconf
+    std_plotconf['vector_space_numbers_xy'] = (36, 36)
+
+
+# Temperature@500hPa shading and MSLP contours
+class t850_msl_spolar(t850_msl,spolar):
+    requires = [('t', '850'), ('u', '850'), ('v', '850'), ('msl', 'sfc'), ]
+    plotname = 't850_msl'
+
+    std_plotconf = spolar.std_plotconf
+    std_plotconf['vector_space_numbers_xy'] = (36, 36)
+
+    def plot(self, data, static, dateinit, datevalid):
+        done = t_msl.plot(self, data, static, dateinit, datevalid)
+        if done:
+            return True
+
+        overlays = [
+            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
+                linewidths=[0.5], 
+                scale=range(900,1070,5),
+                alpha=0.8,) ), 
+            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+                linewidths=[1], 
+                linestyles='dashed',
+                scale=range(0,2,2) ) ),
+            # I guess I am triggering a bug somehwere. Otherwise no idea why this would be necessary.
+            fig.map_overlay_barbs(-data['u','850'], -data['v','850'], static, **conf.plot.merge('sfc', 'ff10', 
+                alpha=0.5,
+                linewidths=0.5,
+                length=5,
+                **self.std_plotconf) ),
+        ]
+        plotconf = conf.plotf.merge('850', 't',
+                overlays=overlays,
+                scale=range(-34,36,2),
+                ticks=range(-30,31,10),
+                **self.std_plotconf
+        )
+        fig.map(data['t', '850'], static, **plotconf)
+
+        return True
+
+
+# Temperature@850hPa shading and MSLP contours
 class t850_perc(t_msl, percentiles):
     requires = [('t', '850'), ]
     requires_diagnostic = [(percentiles.cal_percentiles, ['t', '850', '1979-2017', ]), ]
@@ -928,7 +977,7 @@ class tcwv_npolar(tcwv,npolar):
                 scale=[1.0, 3.0, 10.0],
                 colors='m', ) ), 
             fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
-                **conf.plot.merge('sfc', 'tcwv') ),
+                vector_space_numbers_xy=(36, 36), **conf.plot.merge('sfc', 'tcwv') ),
             fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
                 linewidths=[1], 
                 linestyles='solid',
@@ -975,7 +1024,7 @@ class tcwv_spolar(tcwv,spolar):
                 scale=[1.0, 3.0, 10.0],
                 colors='m', ) ), 
             fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
-                **conf.plot.merge('sfc', 'tcwv') ),
+                vector_space_numbers_xy=(36, 36), **conf.plot.merge('sfc', 'tcwv') ),
             fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
                 linewidths=[1], 
                 linestyles='solid',
@@ -1346,6 +1395,8 @@ PLOTS = {
         z500_msl_npolar(),
         z500_msl_spolar(),
         t850_msl(), 
+        t850_msl_npolar(),
+        t850_msl_spolar(),
         deform850_fronts(),
         tcwv(),
         tcwv_npolar(),
@@ -1376,7 +1427,8 @@ PLOTS = {
         jetfreq_msl_spolar(),
     ],
     'test': [
-        ffpv2_rwb(),
+        #t850_msl_npolar(),
+        t850_msl_spolar(),
     ],
     'sfc': [
         cc(),

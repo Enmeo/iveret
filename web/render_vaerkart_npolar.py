@@ -72,6 +72,7 @@ msl = variable(u'Sea level pressure', 'hPa', u'')
 mslc = variable(u'Ensemble ctrl sea level pressure', 'hPa', u'')
 mslm = variable(u'Ensemble mean sea level pressure', 'hPa', u'')
 t850 = variable(u'Temperature', u'°C', u'850 hPa')
+barbs850 = variable(u'Wind barbs', u'm/s', u'850 hPa')
 cp = variable(u'Convective precipitation', 'mm/h', u'')
 lp = variable(u'Large-scale precipitation', 'mm/h', u'')
 cycfreq = variable(u'Cyclone occurrence', '%', '')
@@ -86,6 +87,8 @@ o = overlay
 plotlist = [
 	plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
 		name='500 hPa Geopotential and SLP'), 
+	plot(u't850_msl', t850, [o('black dashes', t850, [0,]), o('black', msl, 5), o('black', barbs850, None)],
+		name='850 hPa Temperature, SLP and wind barbs'),
 	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
 		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
 		name='Total column water vapour, integrated fluxes and precipitation'),

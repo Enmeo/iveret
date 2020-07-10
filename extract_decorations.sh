@@ -4,7 +4,7 @@ ipath="/share/web/plots"
 #opath="/share/web/static/deco"
 opath="."
 
-plotdomain="no_for_full"
+plotdomain="ec_for_spolar_t850"
 
 # Aspect 2:1; for cross sections
 #geometry="103x460+921+0"
@@ -13,13 +13,13 @@ plotdomain="no_for_full"
 #geometry="147x720+1080+0"
 
 # Aspect 1:1; for ec_for_npolar, ec_for_spolar and no_for, no_kyst, no_kyst_hordaland, no_kyst_bergen, no_kyst_lofoten
-#geometry="130x960+960+0"
+geometry="130x960+960+0"
 
 # Aspect about 5:4; for no_for_arctic
 #geometry="102x956+750+0"
 
 # Aspect about 9:8; for ec_for_scandies, no_for_full, no_kyst_full
-geometry="112x927+825+0"
+#geometry="112x927+825+0"
 
 # Extract the init date from the last changed file 
 last_img=`ls -tr $ipath/${plotdomain}* | tail -n 1`
