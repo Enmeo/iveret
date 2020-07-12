@@ -424,6 +424,7 @@ if __name__ == '__main__':
     f1.close()
     f2.close()
     
+    conf.datapath.insert(1, basepath) # for the bathymetry
     f, bathy = metopen('settings/norkyst_bathymetry', 'h', no_static=True)
     static.bathymetry = bathy
     

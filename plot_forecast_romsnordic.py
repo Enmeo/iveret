@@ -177,7 +177,8 @@ if __name__ == '__main__':
 
     f1.close()
     f2.close()
-
+    
+    conf.datapath.insert(1, basepath) # for bathymetry
     f, bathy = metopen('settings/roms_nordic_bathymetry', 'h', no_static=True)
     static.bathymetry = bathy
 
