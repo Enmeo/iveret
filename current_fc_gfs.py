@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8
 
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta as td
 
 
 DATEFMT = '%Y%m%d%H'
