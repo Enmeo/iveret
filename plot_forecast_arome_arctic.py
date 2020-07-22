@@ -468,8 +468,8 @@ class rh2m_tp(precip):
         if done:
             return True
 
-        s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
-        st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
+        s=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
+        st=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
         overlays = [
             fig.map_overlay_shading(data['sfc','precipitation_amount'], static, **conf.plotf.merge('sfc', 'trr',
                 cmap=cm.trr, # Set a colormap
@@ -510,7 +510,7 @@ class rh2m_tp(precip):
 forecast = get_current_fc_arome()
 
 # Override 
-#forecast = dt(2018,1,24,12)
+#forecast = dt(2020,7,22,6)
 plot_only_init = False
 
 print('Plotting the AROME Arctic %s forecasts' % forecast.strftime('%Y-%m-%d %H'))

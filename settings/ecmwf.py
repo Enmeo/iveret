@@ -36,7 +36,7 @@ conf.register_variable([d.rwb_a, d.rwb_c], ['pv2000', '500'])
 conf.datapath.insert(1, '/share/base/ecmwf')
 
 landmask = np.load(basepath+'/settings/ecmwf_fc_sea_mask.npy')
-landmask_hr = np.load(basepath+'//settings/ecmwf_hrfc_sea_mask.npy')
+landmask_hr = np.load(basepath+'/settings/ecmwf_hrfc_sea_mask.npy')
 
 def mask_land(data):
 	data[landmask] = np.nan

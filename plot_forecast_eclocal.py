@@ -86,6 +86,17 @@ class plotter(object):
             return False
 
 
+class BarentsSea(plotter):
+    fcname = plotter.fcname[:-8] + '_barents'
+
+    std_plotconf = copy.copy(plotter.std_plotconf)
+    std_plotconf['m'] = proj.BarentsSeamap
+
+    figsize = (5.0,6.375)
+    figsize_deco = (5.68182,6.375)
+
+
+
 ######################################################
 # Plot archetypes
 
@@ -189,6 +200,12 @@ class t850_msl(plotter):
         return True
 
 
+# Temperature @ 850 hPa shading, wind barbs, and MSLP contours
+class t850_msl_barents(t850_msl,BarentsSea):
+    requires = [('t','850'), ('u','850'), ('u','850'), ('msl','sfc')]
+    plotname = 't850_msl'
+
+
 # Temperature @ 925 hPa shading, wind barbs, and MSLP contours
 class t925_msl(plotter):
     requires = [('t','925'), ('u','925'), ('v','925'), ('msl','sfc')]
@@ -225,6 +242,12 @@ class t925_msl(plotter):
         fig.map(data['t','925'], static, **plotconf)
 
         return True
+
+
+# Temperature @ 925 hPa shading, wind barbs, and MSLP contours
+class t925_msl_barents(t925_msl,BarentsSea):
+    requires = [('t','925'), ('u','925'), ('v','925'), ('msl','sfc')]
+    plotname = 't925_msl'
 
 
 # Specific humidity @ 850 hPa shading, wind barbs, and MSLP contours
@@ -267,6 +290,12 @@ class q850_msl(plotter):
         return True
 
 
+# Specific humidity @ 850 hPa shading, wind barbs, and MSLP contours
+class q850_msl_barents(q850_msl,BarentsSea):
+    requires = [('q','850'), ('t','850'), ('u','850'), ('v','850'), ('msl','sfc')]
+    plotname = 'q850_msl'
+
+
 # Temperature @ 925 hPa shading, wind barbs, and MSLP contours
 class q925_msl(plotter):
     requires = [('q','925'), ('t','850'), ('u','925'), ('v','925'), ('msl','sfc')]
@@ -306,6 +335,13 @@ class q925_msl(plotter):
 
         return True
 
+
+# Temperature @ 925 hPa shading, wind barbs, and MSLP contours
+class q925_msl_barents(q925_msl,BarentsSea):
+    requires = [('q','925'), ('t','850'), ('u','925'), ('v','925'), ('msl','sfc')]
+    plotname = 'q925_msl'
+
+
 class t2m_msl(plotter):
     requires = [('t2m', 'sfc'), ('msl', 'sfc'), ]
     plotname = 't2m_msl'
@@ -336,6 +372,12 @@ class t2m_msl(plotter):
         fig.map(data['t2m','sfc'], static, **plotconf)
 
         return True
+
+
+class t2m_msl_barents(t2m_msl,BarentsSea):
+    requires = [('t2m', 'sfc'), ('msl', 'sfc'), ]
+    plotname = 't2m_msl'
+
 
 # Surface fluxes, wind barbs, sea ice 
 class shf_winds(ff10,flux):
@@ -397,6 +439,13 @@ class shf_winds(ff10,flux):
         return True
 
 
+# Surface fluxes, wind barbs, sea ice 
+class shf_winds_barents(shf_winds,BarentsSea):
+    requires = [('u10', 'sfc'), ('v10', 'sfc'), ('sshf', 'sfc'), ('slhf', 'sfc'), ('sst', 'sfc'), ] # , ('ci', 'sfc')
+    requires_diagnostic = [(ff10.cal_ff10, 'sfc'), (flux.cal_sensible, 'sfc'), (flux.cal_latent, 'sfc'), ]
+    plotname = 'shf_winds'
+
+
 # Near-surface relative humidity, total precipitation and MIZ
 class rh2m_tp(precip,rh2m):
     requires = [('d2m', 'sfc'), ('t2m', 'sfc'), ('lsp', 'sfc'), ('cp', 'sfc'), ] #, ('ci', 'sfc')
@@ -411,8 +460,8 @@ class rh2m_tp(precip,rh2m):
         if done:
             return True
 
-        s=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
-        st=[0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
+        s=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
+        st=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
         overlays = [
             fig.map_overlay_shading(data['trr', 'sfc'], static, **conf.plotf.merge('sfc', 'trr',
                 cmap=cm.trr, # Set a colormap
@@ -447,6 +496,16 @@ class rh2m_tp(precip,rh2m):
         return True
 
 
+# Near-surface relative humidity, total precipitation and MIZ
+class rh2m_tp_barents(rh2m_tp,BarentsSea):
+    requires = [('d2m', 'sfc'), ('t2m', 'sfc'), ('lsp', 'sfc'), ('cp', 'sfc'), ] #, ('ci', 'sfc')
+    requires_diagnostic = [(precip.cal_crainrate, 'sfc'), 
+                (precip.cal_lsrainrate, 'sfc'), 
+                (precip.cal_trainrate, 'sfc'), 
+                (rh2m.rh2m_from_d2m, 'sfc'), ]
+    plotname = 'rh2m_tp'
+
+
 # -----------------------------------------------------------------------------
 
 # Most recent available data
@@ -459,13 +518,13 @@ print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
 # Everything
 plots = [
-    t2m_msl(),
-    t850_msl(),
-    t925_msl(),
-    q850_msl(),
-    q925_msl(),
-    shf_winds(), 
-    rh2m_tp(),
+    t2m_msl(),      t2m_msl_barents(),
+    t850_msl(),     t850_msl_barents(),
+    t925_msl(),     t925_msl_barents(),
+    q850_msl(),     q850_msl_barents(),
+    q925_msl(),     q925_msl_barents(),
+    shf_winds(),    shf_winds_barents(),
+    rh2m_tp(),      rh2m_tp_barents(),
 ]
 
 if plot_only_init:
