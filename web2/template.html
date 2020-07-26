@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <title>GFI forecast maps</title>
+  <link rel="stylesheet" href="http://iveret.gfi.uib.no/static/jqueryui.css" type="text/css">
+  <link rel="stylesheet" href="./vaerkart_new.css" type="text/css">
+  <script src="./moment.min.js" type="text/javascript"></script>
+  <script src="./iveret_constants.js" type="text/javascript"></script>
+  <script src="./vue.js"></script>
+
+  <!--<link ref="stylesheet" src="./vue-slider-component.default.css">-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vue-slider-component@latest/theme/default.css">
+  <script src="./vue-slider-component.umd.min.js"></script>
+  
+  <script type="text/javascript">
+  const most_recent_fcs = {
+    ec: moment.utc("{{ ec.strftime("%Y-%m-%d %H") }}"),
+    noaa: moment.utc("{{ noaa.strftime("%Y-%m-%d %H") }}"),
+    no: moment.utc("{{ no.strftime("%Y-%m-%d %H") }}"),
+    no_kyst: moment.utc("{{ no_kyst.strftime("%Y-%m-%d %H") }}"),
+  }
+  
+  // Shared state, manually passed down the Vue component hierarchy
+  var state = {
+    display_details: false,
+    plot_domain: 'natl',
+    date_fc: most_recent_fcs['ec'],
+    date_vis: new moment(most_recent_fcs['ec']).add(6, 'hours'),
+    archive: false,
+    columns: 2,
+    rows: 1,
+  }
+
+  // Some global constants
+  Vue.prototype.$base_url = Object.freeze('http://iveret.gfi.uib.no')
+  Vue.prototype.$plotnames = Object.freeze(plotnames) // TODO: Likely obsolete because of the below $plotdefs
+  Vue.prototype.$domainnames = Object.freeze(domainnames)
+  Vue.prototype.$fcsrcnames = Object.freeze(fcsrcnames)
+  Vue.prototype.$plots_by_domain = Object.freeze(plots_by_domain)
+  Vue.prototype.$domain_particles = Object.freeze(domain_particles)
+  Vue.prototype.$most_recent_fcs = Object.freeze(most_recent_fcs)
+  Vue.prototype.$leadtime_bdrs = Object.freeze(leadtime_bdrs)
+  Vue.prototype.$leadtime_max = Object.freeze(leadtime_max)
+  Vue.prototype.$refresh_intervals = Object.freeze(refresh_intervals)
+  Vue.prototype.$plotdefs = Object.freeze(plotdefs)
+  </script>
+</head>
+<body>
+  <div id="vue_root">
+    <div class="header" id="header">
+      <select name="domainselect" v-model="state.plot_domain">
+        <option v-for="[domain, name] in Object.entries($domainnames)" :value="domain">{% raw %}{{ name }}{% endraw %}</option>
+      </select>
+      <select name="colselect" v-model.number="state.columns">
+        <option value="1" selected="selected">1 column</option>
+        <option value="2">2 columns</option>
+        <option value="3">3 columns</option>
+      </select>
+      <select name="rowselect" v-model.number="state.rows">
+        <option value="1" selected="selected">1 row</option>
+        <option value="2">2 rows</option>
+        <option value="3">3 rows</option>
+      </select>
+    </div>
+
+    <div class="content" id="content">
+      <div class="panel_row" v-for="i in state.rows">
+        <plotpanel :state="state" init_fcsrc="ec" init_plot="z500_msl" v-for="j in state.columns" v-bind:key="j+10*i"></plotpanel>
+      </div>
+    </div>
+
+    <div id="footer" class="footer">
+      <slider v-model="tidx_vis" :min="0" :max="leadslider.nsteps" :marks="leadslider.ticks" :tooltip="'none'" :use-keyboard="false"></slider>
+    </div>
+  </div><!-- id="vue_root" -->
+  
+  <script src="./iveret_vue_app.js"></script>
+</body>
+
+</html>

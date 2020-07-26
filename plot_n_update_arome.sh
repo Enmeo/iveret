@@ -22,6 +22,7 @@ python3 $basepath/web/render_vaerkart_arome_vestland.py > $logpath/web_render_no
 python3 $basepath/web/render_vaerkart_arome_arctic.py > $logpath/web_render_no_arctic_out.log 2> $logpath/web_render_no_arctic_err.log
 python3 $basepath/web/render_vaerkart_arome_we60.py > $logpath/web_render_no_we60_out.log 2> $logpath/web_render_no_we60_err.log
 python3 $basepath/web/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoo_err.log
+python3 $basepath/web2/vue_page.py  > $logpath/vuepage_out.log 2> $logpath/vuepage_err.log
 
 # Clean-up old plots
 python3 $basepath/cleanup.py
