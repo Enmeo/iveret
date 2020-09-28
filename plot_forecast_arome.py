@@ -316,13 +316,12 @@ class q850_msl_Scandes(q850_msl,Scandes):
     plotname = 'q850_msl'
 
 
-
 class q850_msl_Vestland(q850_msl,Vestland):
     requires = [('850','specific_humidity_pl'), ('850','air_temperature_pl'), ('850','x_wind_pl'), ('850','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
     plotname = 'q850_msl'
 
 
-# Temperature @ 925 hPa shading, wind barbs, and MSLP contours
+# Specific humidity @ 925 hPa shading, wind barbs, and MSLP contours
 class q925_msl(t_msl):
     requires = [('925','specific_humidity_pl'), ('850','air_temperature_pl'), ('925','x_wind_pl'), ('925','y_wind_pl'), ('sfc','air_pressure_at_sea_level')]
     plotname = 'q925_msl'
@@ -809,82 +808,83 @@ class w850_ff_Vestland(w850_ff,Vestland):
 
 # -----------------------------------------------------------------------------
 
-# Most recent available data
-forecast = get_current_fc_arome()
-
-# Override 
-#forecast = dt(2019,8,27,18)
-plot_only_init = False
-
-print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
-
-plots = [
-    t850_msl(),    t850_msl_Scandes(),      t850_msl_Vestland(),
-    t925_msl(),    t925_msl_Scandes(),      t925_msl_Vestland(),
-    q850_msl(),    q850_msl_Scandes(),      q850_msl_Vestland(),
-    q925_msl(),    q925_msl_Scandes(),      q925_msl_Vestland(),
-    t2m_msl(),     t2m_msl_Scandes(),       t2m_msl_Vestland(),
-    ff10_fronts(), ff10_fronts_Scandes(),   ff10_fronts_Vestland(),
-    shf_wind(),    shf_wind_Scandes(),      shf_wind_Vestland(),
-    rh2m_tp(),     rh2m_tp_Scandes(),       rh2m_tp_Vestland(),
-    w850_ff(),     w850_ff_Scandes(),       w850_ff_Vestland(),   
-    w500_winds(),  w500_winds_Scandes(),    w500_winds_Vestland(),
-    w700_winds(),  w700_winds_Scandes(),    w700_winds_Vestland(),
-]
-
-fc_str = forecast.strftime('%Y%m%dT%HZ')
-
-# Load surface pressure to be able to mask areas under ground
-plev, q = 'sfc', 'surface_air_pressure'
-fname = f'{fc_str}/arome.{fc_str}.{plev}.{q}'
-data = {}
-f, data[plev,q], static = metopen(fname, q)
-mask = {}
-for plev, pthres in [('850', 850.0e2), ('925', 925.0e2), ]:
-    mask[plev] = data['sfc','surface_air_pressure'].squeeze() < pthres
-
-for plot in plots:
-    plot.error = False
- 
-    for plev, q in plot.requires:
-        if (plev,q) in data:
-            continue
-
-        fname = f'{fc_str}/arome.{fc_str}.{plev}.{q}'
-        try:
-            f, data[plev,q], static = metopen(fname, q)
-            data[plev,q] = data[plev,q].squeeze()
-            if plev in mask:
-                data[plev,q][mask[plev]] = np.nan
-        except:
-            plot.error = True
+if __name__ == '__main__':
+    # Most recent available data
+    forecast = get_current_fc_arome()
     
-    if not plot.error:
-        for plev, fun in plot.requires_diagnostic:
-            fun(plot, data, plev, static)
-
-# We need to replace the auto-detected x dimension with the alternative lon dimension
-static.x = f.variables['longitude'][::]
-static.y = f.variables['latitude'][::]
-static.gridtype = 'latlon'
-static.prepare_rotation()
-
-for tidx, date in zip(range(len(static.t)), static.t_parsed):
-    # Plot only 3-hourly data to speed up plotting
-    if not date.hour % 3 == 0:
-        continue
-
-    # Plot only initial time step
-    if plot_only_init and not date == forecast:
-        continue
-
-    data_inst = {}
-    for q in data:
-        data_inst[q] = data[q][tidx]
+    # Override 
+    #forecast = dt(2019,8,27,18)
+    plot_only_init = False
+    
+    print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
+    
+    plots = [
+        t850_msl(),    t850_msl_Scandes(),      t850_msl_Vestland(),
+        t925_msl(),    t925_msl_Scandes(),      t925_msl_Vestland(),
+        q850_msl(),    q850_msl_Scandes(),      q850_msl_Vestland(),
+        q925_msl(),    q925_msl_Scandes(),      q925_msl_Vestland(),
+        t2m_msl(),     t2m_msl_Scandes(),       t2m_msl_Vestland(),
+        ff10_fronts(), ff10_fronts_Scandes(),   ff10_fronts_Vestland(),
+        shf_wind(),    shf_wind_Scandes(),      shf_wind_Vestland(),
+        rh2m_tp(),     rh2m_tp_Scandes(),       rh2m_tp_Vestland(),
+        w850_ff(),     w850_ff_Scandes(),       w850_ff_Vestland(),   
+        w500_winds(),  w500_winds_Scandes(),    w500_winds_Vestland(),
+        w700_winds(),  w700_winds_Scandes(),    w700_winds_Vestland(),
+    ]
+    
+    fc_str = forecast.strftime('%Y%m%dT%HZ')
+    
+    # Load surface pressure to be able to mask areas under ground
+    plev, q = 'sfc', 'surface_air_pressure'
+    fname = f'{fc_str}/arome.{fc_str}.{plev}.{q}'
+    data = {}
+    f, data[plev,q], static = metopen(fname, q)
+    mask = {}
+    for plev, pthres in [('850', 850.0e2), ('925', 925.0e2), ]:
+        mask[plev] = data['sfc','surface_air_pressure'].squeeze() < pthres
     
     for plot in plots:
-        plot.plot(data_inst, static, forecast, date)
-        plt.close()
+        plot.error = False
+     
+        for plev, q in plot.requires:
+            if (plev,q) in data:
+                continue
+    
+            fname = f'{fc_str}/arome.{fc_str}.{plev}.{q}'
+            try:
+                f, data[plev,q], static = metopen(fname, q)
+                data[plev,q] = data[plev,q].squeeze()
+                if plev in mask:
+                    data[plev,q][mask[plev]] = np.nan
+            except:
+                plot.error = True
+        
+        if not plot.error:
+            for plev, fun in plot.requires_diagnostic:
+                fun(plot, data, plev, static)
+    
+    # We need to replace the auto-detected x dimension with the alternative lon dimension
+    static.x = f.variables['longitude'][::]
+    static.y = f.variables['latitude'][::]
+    static.gridtype = 'latlon'
+    static.prepare_rotation()
+    
+    for tidx, date in zip(range(len(static.t)), static.t_parsed):
+        # Plot only 3-hourly data to speed up plotting
+        if not date.hour % 3 == 0:
+            continue
+    
+        # Plot only initial time step
+        if plot_only_init and not date == forecast:
+            continue
+    
+        data_inst = {}
+        for q in data:
+            data_inst[q] = data[q][tidx]
+        
+        for plot in plots:
+            plot.plot(data_inst, static, forecast, date)
+            plt.close()
 
 
 # the end
