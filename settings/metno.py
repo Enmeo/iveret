@@ -33,6 +33,8 @@ w = ('upward_air_velocity_pl', 'upward_air_velocity_pl', 'Vertical wind', 'm s**
 ff10 = ('ff10', 'ff10', '10 metre wind speed', 'm s**-1')
 trr = ('trr', 'trr', 'Total rain rate', 'm h**-1')
 
+uw_ubal_div_bal = ('uw_ubal_div_bal', 'uw_ubal_div_bal', 'Large-scale divergence of mesoscale vertical momentum fluxes')
+
 # 1. Surface variables
 conf.sfclevs = ['sfc', ]
 conf.register_variable([msl, t2m, rh2m, sic, sst, sshff, slhff, tshff, sshff_frac, slhff_frac, ff10, trr], conf.sfclevs)
@@ -40,6 +42,11 @@ conf.register_variable([msl, t2m, rh2m, sic, sst, sshff, slhff, tshff, sshff_fra
 # 2. Pressure levels
 conf.plevs = ['925', '850', '700', '500', ]
 conf.register_variable([w, d.div, d.ff], conf.plevs)
+
+# 3. Pressure level intervals
+conf.plevs = ['700-925', '500-700', ]
+conf.register_variable([uw_ubal_div_bal,], conf.plevs)
+
 
 ##
 # Local settings.
