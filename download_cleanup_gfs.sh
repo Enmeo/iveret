@@ -3,9 +3,10 @@
 dest='/share/base/noaa'
 time=`python3 /home/ubuntu/sw/vaerkart/current_fc_gfs.py`
 
-# Clean-up old forecasts: Older than 22 hours = 1320 minutes
+# Clean-up old forecasts: Older than 11 hours = 660 minutes
+cd $dest
 if [[ `pwd` = *"share"* ]]; then 
-	find . -mmin +1320 -delete
+	find . -mmin +660 -delete
 else
 	echo "Skipping cleaning, wrong working directory!"
 fi
@@ -26,6 +27,5 @@ for lead in `seq -f '%03g' 78 6 240`; do
 	wget $baseurl/gfs.$timeurl/$hour/gfs.t${hour}z.pgrb2.0p50.f$lead
 done
 
-cd $dest
 
 # C'est le fin
