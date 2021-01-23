@@ -133,8 +133,8 @@ if __name__ == '__main__':
         sss_sfccur_Scandes(), sss_sfccur_BarentsSea(), #sss_sfccur_NAtlantic(),
     ]
 
-    fname1 = 'kyst/roms_nordic_an_%s.sfc' % forecast.strftime('%Y%m%d%H')
-    fname2 = 'kyst/roms_nordic_fc_%s.sfc' % forecast.strftime('%Y%m%d%H')
+    fname1 = 'roms_nordic_an_%s.sfc' % forecast.strftime('%Y%m%d%H')
+    fname2 = 'roms_nordic_fc_%s.sfc' % forecast.strftime('%Y%m%d%H')
     try:
         #print('Looking for %s' % fname)
         f1, static = metopen(fname1)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-dest='/share/base/metno/kyst'
+dest='/share/base/metno_kyst'
 time=`python3 /home/ubuntu/sw/vaerkart/current_fc_kyst.py`
 timeday=${time::-2}
 cd $dest

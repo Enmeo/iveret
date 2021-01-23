@@ -9,6 +9,7 @@ import dynlib.context.derived as d
 # General settings
 # ================
 
+conf.datapath.insert(1, '/share/base/metno_kyst')
 conf.datapath.insert(1, '/share/base/metno')
 
 
