@@ -66,7 +66,7 @@ class t2m_msl_Arctic(t2m_msl,Arctic):
 
 # Surface sensible and latent heat fluxes, near surface wind barbs, dangerous winds and MIZ.
 # Redefined here, because SST and SIC contours are only added here (not available for std AROME)
-class shf_wind_Arctic(tshf, ff10):
+class shf_wind_Arctic(tshf, ff10, Arctic):
     requires = [('sfc','integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time'), 
             ('sfc','integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time'),
             ('sfc','integral_of_surface_downward_sensible_heat_flux_wrt_time'),
@@ -76,7 +76,7 @@ class shf_wind_Arctic(tshf, ff10):
     requires_diagnostic = [('sfc', tshf.cal_tshf), ('sfc', ff10.cal_ff10), ]
     plotname = 'shf_wind'
     
-    std_plotconf = ff10.std_plotconf
+    std_plotconf = Arctic.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
     std_plotconf['vector_space_interval'] = 30
 
@@ -135,7 +135,7 @@ class shf_wind_Arctic(tshf, ff10):
 
 
 # Near surface winds and 850 hPa frontal volumes
-class ff10_fronts_Arctic(ff10_fronts,Arctic):
+class ff10_fronts_Arctic(ff10_fronts, Arctic):
     requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
 			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
 			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
@@ -151,7 +151,7 @@ class ff10_fronts_Arctic(ff10_fronts,Arctic):
 
 # Near-surface relative humidity, total precipitation and MIZ
 # Redefined here, because SIC contours are only added here (not available for std AROME)
-class rh2m_tp_Arctic(precip):
+class rh2m_tp_Arctic(precip, Arctic):
     requires = [('sfc', 'relative_humidity_2m'), ('sfc', 'precipitation_amount_acc'), ('sfc', 'SIC'), ]
     requires_diagnostic = [('sfc', precip.cal_avg_precip), ]
     plotname = 'rh2m_tp'
