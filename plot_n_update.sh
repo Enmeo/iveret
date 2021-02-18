@@ -29,6 +29,7 @@ python3 $basepath/plot_forecast.py isentropic > $logpath/web_plot_ec_isentropic_
 python3 $basepath/plot_forecast.py pv2 sfc > $logpath/web_plot_ec_pv2sfc_out.log 2> $logpath/web_plot_ec_pv2sfc_err.log &
 python3 $basepath/plot_forecast.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log &
 python3 $basepath/plot_forecast_slope.py > $logpath/web_plot_ec_slope_out.log 2> $logpath/web_plot_ec_slope_err.log &
+python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_out.log 2> $logpath/web_plot_ec_meteograms_err.log &
 python3 $basepath/plot_forecast.py plev > $logpath/web_plot_ec_plev_out.log 2> $logpath/web_plot_ec_plev_err.log
 
 # Mark the plotting as finished
@@ -40,6 +41,7 @@ python3 $basepath/web/render_vaerkart.py > $logpath/web_render_ec_out.log 2> $lo
 python3 $basepath/web/render_vaerkart_npolar.py > $logpath/web_render_ec_npolar_out.log 2> $logpath/web_render_ec_npolar_err.log
 python3 $basepath/web/render_vaerkart_spolar.py > $logpath/web_render_ec_spolar_out.log 2> $logpath/web_render_ec_spolar_err.log
 python3 $basepath/web/render_vaerkart_natl.py > $logpath/web_render_ec_natl_out.log 2> $logpath/web_render_ec_natl_err.log
+python3 $basepath/web/render_vaerkart_meteograms.py > $logpath/web_render_ec_meteograms_out.log 2> $logpath/web_render_ec_meteograms_err.log
 python3 $basepath/web/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoop_err.log
 python3 $basepath/web2/vue_page.py  > $logpath/vuepage_out.log 2> $logpath/vuepage_err.log
 
