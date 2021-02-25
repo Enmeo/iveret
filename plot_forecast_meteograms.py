@@ -14,10 +14,8 @@ import dynlib.utils
 
 from current_fc import *
 
-#from PersistentGraph_KMeans.persistentgraph import *
-#from PersistentGraph_KMeans.plots import *
-from PersistentGraph.persistentgraph import *
-from PersistentGraph.plots import *
+from PersistentGraph_KMeans.persistentgraph import *
+from PersistentGraph_KMeans.plots import *
 
 
 ######################################################
@@ -100,7 +98,7 @@ class t2m(plotter):
         return self.plot_finish()
 
 
-# 2m-Temperature
+# 2m-Temperature modalities
 class t2m_modalities(plotter):
     requires = ['t2m']
     plotname = 't2m_modal_bgo'
@@ -126,13 +124,13 @@ class t2m_modalities(plotter):
         g = PersistentGraph(
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['t2m'][:,:,bgoj,bgoi].T-T00,
-                #score_is_improving=False, # seems to require KMeans
-                #score_type='variance',
-                #zero_type='uniform',
+                score_is_improving=False,
+                score_type='variance',
+                zero_type='uniform',
         )
         g.construct_graph(verbose=False)
 
-        fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True) #, show_std=True)
+        fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True, show_std=True)
 
 
         # Mark zero-degree line (if within plot range)
@@ -174,6 +172,48 @@ class tcwv(plotter):
         return self.plot_finish()
 
 
+# Total column water vapour modalities
+class tcwv_modalities(plotter):
+    requires = ['tcwv']
+    plotname = 'tcwv_modal_bgo'
+
+    def plot(self, ctrl, ens, dateinit):
+        done = plotter.plot(self, ctrl, ens, dateinit)
+        if done:
+            return True
+
+        #list_var, list_names, time = preprocess_data(
+        #    filename = filename,
+        #    path_data = PATH_DATA,
+        #    var_names=['t2m'],
+        #    ind_time=None,
+        #    ind_members=None,
+        #    ind_long=[0],
+        #    ind_lat=[0],
+        #    to_standardize = False,
+        #)
+
+        g = PersistentGraph(
+                time_axis=mdates.date2num(ctrl['time']),
+                members=ens['tcwv'][:,:,bgoj,bgoi].T,
+                score_is_improving=False,
+                score_type='variance',
+                zero_type='uniform',
+        )
+        g.construct_graph(verbose=False)
+
+        fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True, show_std=True)
+
+        # Have yscale start at zero
+        ylim = plt.ylim()
+        plt.ylim((0, ylim[1]))
+
+        plt.ylabel('Total column water vapour [kg/m²]')
+        
+        return self.plot_finish()
+
+
+
 # -----------------------------------------------------------------------------
 
 bgoj = 10
@@ -191,6 +231,7 @@ plots = [
     t2m(), 
     t2m_modalities(), 
     tcwv(),
+    tcwv_modalities(),
 ]
 
 files_ctrl = [

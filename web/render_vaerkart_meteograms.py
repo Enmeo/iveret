@@ -67,8 +67,9 @@ t2 = variable(u'2m Temperature', u'°C', u'')
 o = overlay
 plotlist = [
 	plot(u't2m_bgo', t2, [], name='2m Temperature Bergen'), 
-	plot(u't2m_modal_bgo', t2, [], name='Multimodality in 2m Temperature Bergen'), 
+	plot(u't2m_modal_bgo', t2, [], name='Multimodality in 2m temperature Bergen'), 
 	plot(u'tcwv_bgo', tcwv, [], name='Total column water vapour Bergen'), 
+	plot(u'tcwv_modal_bgo', tcwv, [], name='Multimodality in total column water vapour Bergen'), 
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(15)]
