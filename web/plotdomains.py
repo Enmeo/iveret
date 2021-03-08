@@ -9,6 +9,7 @@ plotdomains = [
 	('ECMWF forecasts Northern Hemisphere (restricted)', '/closed/vaerkart_ec_npolar.html'),
 	('ECMWF forecasts Southern Hemisphere (restricted)', '/closed/vaerkart_ec_spolar.html'),
 	('ECMWF forecasts Scandinavia (restricted)', '/closed/vaerkart_ec_scandes.html'),
+	('ECMWF forecast Meteograms (restricted)', '/closed/vaerkart_ec_meteograms.html'),
 	('AROME forecasts Vestland', '/vaerkart_arome_vestland.html'),
 	('AROME forecasts Southern Norway', '/vaerkart_arome.html'),
 	('AROME forecasts Scandinavia', '/vaerkart_arome_scandes.html'),

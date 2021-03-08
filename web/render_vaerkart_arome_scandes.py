@@ -129,7 +129,7 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 t = env.get_template('template_jinja.html')
 c = {
     'plot_domains': plotdomains,
-    'plot_domain': plotdomains[9][0],
+    'plot_domain': plotdomains[10][0],
     'plot_prefix': 'no_for_full',
     'plotlist': plotlist, 
     'timlist': timlist,

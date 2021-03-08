@@ -14,8 +14,8 @@ import dynlib.utils
 
 from current_fc import *
 
-from PersistentGraph_KMeans.persistentgraph import *
-from PersistentGraph_KMeans.plots import *
+from PersistentGraph.persistentgraph import *
+from PersistentGraph.plots import *
 
 
 ######################################################
@@ -108,27 +108,16 @@ class t2m_modalities(plotter):
         if done:
             return True
 
-        #list_var, list_names, time = preprocess_data(
-        #    filename = filename,
-        #    path_data = PATH_DATA,
-        #    var_names=['t2m'],
-        #    ind_time=None,
-        #    ind_members=None,
-        #    ind_long=[0],
-        #    ind_lat=[0],
-        #    to_standardize = False,
-        #)
-
-        #t2m = list_var[0]
         T00 = 273.16
         g = PersistentGraph(
+                model_type='KMeans',
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['t2m'][:,:,bgoj,bgoi].T-T00,
                 score_is_improving=False,
                 score_type='variance',
                 zero_type='uniform',
         )
-        g.construct_graph(verbose=False)
+        g.construct_graph(verbose=False, quiet=True)
 
         fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True, show_std=True)
 
@@ -144,6 +133,47 @@ class t2m_modalities(plotter):
         plt.ylim(ylim)
 
         plt.ylabel('2m temperature [degC]')
+        plt.xlabel('')
+            
+        return self.plot_finish()
+
+
+# 2m-Temperature modalities (naive clustering method)
+class t2m_modalities_naive(plotter):
+    requires = ['t2m']
+    plotname = 't2m_modal_naive_bgo'
+
+    def plot(self, ctrl, ens, dateinit):
+        done = plotter.plot(self, ctrl, ens, dateinit)
+        if done:
+            return True
+
+        T00 = 273.16
+        g = PersistentGraph(
+                model_type='Naive',
+                time_axis=mdates.date2num(ctrl['time']),
+                members=ens['t2m'][:,:,bgoj,bgoi].T-T00,
+                score_is_improving=False,
+                score_type='variance',
+                zero_type='uniform',
+        )
+        g.construct_graph(verbose=False, quiet=True)
+
+        fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True, show_std=True)
+
+
+        # Mark zero-degree line (if within plot range)
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        if ylim[0] < 0 and ylim[1] > 0:
+            plt.plot(xlim, (0, 0), 'k', linewidth=0.5)
+
+        # This additional line should not affect the plot limits
+        plt.xlim(xlim)
+        plt.ylim(ylim)
+
+        plt.ylabel('2m temperature [degC]')
+        plt.xlabel('')
             
         return self.plot_finish()
 
@@ -182,25 +212,15 @@ class tcwv_modalities(plotter):
         if done:
             return True
 
-        #list_var, list_names, time = preprocess_data(
-        #    filename = filename,
-        #    path_data = PATH_DATA,
-        #    var_names=['t2m'],
-        #    ind_time=None,
-        #    ind_members=None,
-        #    ind_long=[0],
-        #    ind_lat=[0],
-        #    to_standardize = False,
-        #)
-
         g = PersistentGraph(
+                model_type='KMeans',
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['tcwv'][:,:,bgoj,bgoi].T,
                 score_is_improving=False,
                 score_type='variance',
                 zero_type='uniform',
         )
-        g.construct_graph(verbose=False)
+        g.construct_graph(verbose=False, quiet=True)
 
         fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True, show_std=True)
 
@@ -209,6 +229,115 @@ class tcwv_modalities(plotter):
         plt.ylim((0, ylim[1]))
 
         plt.ylabel('Total column water vapour [kg/m²]')
+        plt.xlabel('')
+        
+        return self.plot_finish()
+
+
+# Total column water vapour modalities (naive clustering method)
+class tcwv_modalities_naive(plotter):
+    requires = ['tcwv']
+    plotname = 'tcwv_modal_naive_bgo'
+
+    def plot(self, ctrl, ens, dateinit):
+        done = plotter.plot(self, ctrl, ens, dateinit)
+        if done:
+            return True
+
+        g = PersistentGraph(
+                model_type='Naive',
+                time_axis=mdates.date2num(ctrl['time']),
+                members=ens['tcwv'][:,:,bgoj,bgoi].T,
+                score_is_improving=False,
+                score_type='variance',
+                zero_type='uniform',
+        )
+        g.construct_graph(verbose=False, quiet=True)
+
+        fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True, show_std=True)
+
+        # Have yscale start at zero
+        ylim = plt.ylim()
+        plt.ylim((0, ylim[1]))
+
+        plt.ylabel('Total column water vapour [kg/m²]')
+        plt.xlabel('')
+        
+        return self.plot_finish()
+
+
+# Sea-level pressure
+class msl(plotter):
+    requires = ['msl']
+    plotname = 'msl_bgo'
+
+    def plot(self, ctrl, ens, dateinit):
+        done = plotter.plot(self, ctrl, ens, dateinit)
+        if done:
+            return True
+        
+        time = ctrl['time']
+        for member in range(ens['msl'].shape[1]):
+            plt.plot(time, ens['msl'][:,member,bgoj,bgoi]/100.0, 'C4', alpha=0.4, linewidth=1)
+
+        plt.plot(time, ctrl['msl'][:,bgoj,bgoi]/100.0, 'k', linewidth=2)
+        plt.ylabel('Sea-level pressure [hPa]')
+        
+        return self.plot_finish()
+
+
+# Sea-level pressure modalities
+class msl_modalities(plotter):
+    requires = ['msl']
+    plotname = 'msl_modal_bgo'
+
+    def plot(self, ctrl, ens, dateinit):
+        done = plotter.plot(self, ctrl, ens, dateinit)
+        if done:
+            return True
+
+        g = PersistentGraph(
+                model_type='KMeans',
+                time_axis=mdates.date2num(ctrl['time']),
+                members=ens['msl'][:,:,bgoj,bgoi].T/100.0,
+                score_is_improving=False,
+                score_type='variance',
+                zero_type='uniform',
+        )
+        g.construct_graph(verbose=False, quiet=True)
+
+        fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True, show_std=True)
+
+        plt.ylabel('Sea-level pressure [hPa]')
+        plt.xlabel('')
+        
+        return self.plot_finish()
+
+
+# Sea-level pressure modalities (naive clustering method)
+class msl_modalities_naive(plotter):
+    requires = ['msl']
+    plotname = 'msl_modal_naive_bgo'
+
+    def plot(self, ctrl, ens, dateinit):
+        done = plotter.plot(self, ctrl, ens, dateinit)
+        if done:
+            return True
+
+        g = PersistentGraph(
+                model_type='Naive',
+                time_axis=mdates.date2num(ctrl['time']),
+                members=ens['msl'][:,:,bgoj,bgoi].T/100.0,
+                score_is_improving=False,
+                score_type='variance',
+                zero_type='uniform',
+        )
+        g.construct_graph(verbose=False, quiet=True)
+
+        fig, ax = plot_as_graph(g, ax=plt.gca(), show_vertices=True, show_edges=True, show_std=True)
+
+        plt.ylabel('Sea-level pressure [hPa]')
+        plt.xlabel('')
         
         return self.plot_finish()
 
@@ -230,8 +359,13 @@ print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 plots = [
     t2m(), 
     t2m_modalities(), 
+    t2m_modalities_naive(), 
     tcwv(),
     tcwv_modalities(),
+    tcwv_modalities_naive(),
+    msl(),
+    msl_modalities(),
+    msl_modalities_naive(),
 ]
 
 files_ctrl = [
