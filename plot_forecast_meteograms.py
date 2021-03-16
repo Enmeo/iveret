@@ -219,6 +219,7 @@ class tcwv_modalities(plotter):
                 score_is_improving=False,
                 score_type='variance',
                 zero_type='uniform',
+                k_max=5,
         )
         g.construct_graph(verbose=False, quiet=True)
 
@@ -303,6 +304,7 @@ class msl_modalities(plotter):
                 score_is_improving=False,
                 score_type='variance',
                 zero_type='uniform',
+                k_max=5,
         )
         g.construct_graph(verbose=False, quiet=True)
 
