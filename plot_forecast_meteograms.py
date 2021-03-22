@@ -14,8 +14,8 @@ import dynlib.utils
 
 from current_fc import *
 
-from PersistentGraph.persistentgraph import *
-from PersistentGraph.plots import *
+from topens.PersistentGraph.persistentgraph import *
+from topens.PersistentGraph.plots import *
 
 
 ######################################################
@@ -113,8 +113,7 @@ class t2m_modalities(plotter):
                 model_type='KMeans',
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['t2m'][:,:,bgoj,bgoi].T-T00,
-                score_is_improving=False,
-                score_type='variance',
+                score_type='max_inertia',
                 zero_type='uniform',
         )
         g.construct_graph(verbose=False, quiet=True)
@@ -153,8 +152,7 @@ class t2m_modalities_naive(plotter):
                 model_type='Naive',
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['t2m'][:,:,bgoj,bgoi].T-T00,
-                score_is_improving=False,
-                score_type='variance',
+                score_type='max_diameter',
                 zero_type='uniform',
         )
         g.construct_graph(verbose=False, quiet=True)
@@ -216,8 +214,7 @@ class tcwv_modalities(plotter):
                 model_type='KMeans',
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['tcwv'][:,:,bgoj,bgoi].T,
-                score_is_improving=False,
-                score_type='variance',
+                score_type='max_inertia',
                 zero_type='uniform',
                 k_max=5,
         )
@@ -249,8 +246,7 @@ class tcwv_modalities_naive(plotter):
                 model_type='Naive',
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['tcwv'][:,:,bgoj,bgoi].T,
-                score_is_improving=False,
-                score_type='variance',
+                score_type='max_diameter',
                 zero_type='uniform',
         )
         g.construct_graph(verbose=False, quiet=True)
@@ -301,8 +297,7 @@ class msl_modalities(plotter):
                 model_type='KMeans',
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['msl'][:,:,bgoj,bgoi].T/100.0,
-                score_is_improving=False,
-                score_type='variance',
+                score_type='max_inertia',
                 zero_type='uniform',
                 k_max=5,
         )
@@ -330,8 +325,7 @@ class msl_modalities_naive(plotter):
                 model_type='Naive',
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['msl'][:,:,bgoj,bgoi].T/100.0,
-                score_is_improving=False,
-                score_type='variance',
+                score_type='max_diameter',
                 zero_type='uniform',
         )
         g.construct_graph(verbose=False, quiet=True)
