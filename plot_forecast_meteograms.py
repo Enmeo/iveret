@@ -114,7 +114,6 @@ class t2m_modalities(plotter):
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['t2m'][:,:,bgoj,bgoi].T-T00,
                 score_type='max_inertia',
-                zero_type='uniform',
         )
         g.construct_graph(verbose=False, quiet=True)
 
@@ -153,7 +152,6 @@ class t2m_modalities_naive(plotter):
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['t2m'][:,:,bgoj,bgoi].T-T00,
                 score_type='max_diameter',
-                zero_type='uniform',
         )
         g.construct_graph(verbose=False, quiet=True)
 
@@ -215,7 +213,6 @@ class tcwv_modalities(plotter):
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['tcwv'][:,:,bgoj,bgoi].T,
                 score_type='max_inertia',
-                zero_type='uniform',
                 k_max=5,
         )
         g.construct_graph(verbose=False, quiet=True)
@@ -247,7 +244,6 @@ class tcwv_modalities_naive(plotter):
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['tcwv'][:,:,bgoj,bgoi].T,
                 score_type='max_diameter',
-                zero_type='uniform',
         )
         g.construct_graph(verbose=False, quiet=True)
 
@@ -298,7 +294,6 @@ class msl_modalities(plotter):
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['msl'][:,:,bgoj,bgoi].T/100.0,
                 score_type='max_inertia',
-                zero_type='uniform',
                 k_max=5,
         )
         g.construct_graph(verbose=False, quiet=True)
@@ -326,7 +321,6 @@ class msl_modalities_naive(plotter):
                 time_axis=mdates.date2num(ctrl['time']),
                 members=ens['msl'][:,:,bgoj,bgoi].T/100.0,
                 score_type='max_diameter',
-                zero_type='uniform',
         )
         g.construct_graph(verbose=False, quiet=True)
 
