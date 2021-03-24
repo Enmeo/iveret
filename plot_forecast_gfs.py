@@ -1267,7 +1267,7 @@ def get_data_grib(f, plev, q):
         landmask = msgs[0].values
         vals[landmask == 1] = np.nan
     elif plev == 'sfc' and q == 'ci':
-        msgs = f.select(name='Sea-ice cover', typeOfLevel='surface')
+        msgs = f.select(name='Sea ice area fraction', typeOfLevel='surface')
         vals = msgs[0].values
         msgs = f.select(name='Land-sea mask')
         landmask = msgs[0].values
