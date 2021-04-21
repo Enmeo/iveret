@@ -168,6 +168,7 @@ class precip(plotter):
 class iwvtrans(plotter):
     pbot = 1000
     ptop = 200
+    scalefac = (pbot-ptop)*100/9.81
     
     # plevs must be in decending order
     def cal_iwvtransport(self, data, plevs, static):
@@ -190,6 +191,29 @@ class iwvtrans(plotter):
 
             data['iwvtransx','sfc'] /= self.pbot-self.ptop
             data['iwvtransy','sfc'] /= self.pbot-self.ptop
+            data['iwvt','sfc'] = np.sqrt(data['iwvtransx','sfc']**2 + data['iwvtransy','sfc']**2) * self.scalefac
+
+        if not ('iwvtaxis','sfc') in data:
+            dynfor.config.nsmooth = 0
+            dynfor.config.minlen = 2.0e6 
+            dynfor.config.jetint_thres = 5.0e-7
+            dynfor.config.searchrad = 1.5
+
+            # Interpolation to T84 resolution
+            u, conv = dynlib.utils.fill_nan(data['iwvtransx','sfc'])
+            v, conv = dynlib.utils.fill_nan(data['iwvtransy','sfc'])
+            br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
+            dynlib.sphere.trunc_triangular(br, bi, 84)
+            dynlib.sphere.trunc_triangular(cr, ci, 84)
+            iwvtxs, iwvtys = dynlib.sphere.sh_synthesis_vector(data['iwvtransx','sfc'].shape[2], br,bi,cr,ci)
+            iwvtxs *= self.scalefac
+            iwvtys *= self.scalefac
+
+            # Integrated water vapour transport axis detections
+            data['iwvtaxis','sfc'], data['iwvtoff','sfc'] = dynlib.detect.jetaxis(10000, 2000, 
+                    iwvtxs, iwvtys, static.dx, static.dy)
+            data['iwvtoff','sfc'] = data['iwvtoff','sfc'].astype('i4')
+
 
 # Deformation
 class deform(plotter):
@@ -279,8 +303,6 @@ class jets(ff):
 
         if not ('u_smooth',plev) in data:
             # Interpolation to T84 resolution
-            umask = np.isnan(data['u',plev])
-            vmask = np.isnan(data['v',plev])
             u, conv = dynlib.utils.fill_nan(data['u',plev])
             v, conv = dynlib.utils.fill_nan(data['v',plev])
             br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
@@ -829,7 +851,7 @@ class tcwv(precip,iwvtrans):
                 colors='c', ) ), 
             fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
                 scale=[1.0, 3.0, 10.0],
-                colors='m', ) ), 
+                colors='orchid', ) ), 
             fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
                 **conf.plot.merge('sfc', 'tcwv', linewidths=0.2) ),
             fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
@@ -848,6 +870,51 @@ class tcwv(precip,iwvtrans):
                 **self.std_plotconf
         )
         fig.map(data['tcwv','sfc'], static, **plotconf)
+
+        return True
+
+
+# Total column water vapour transport + axes
+class iwvt_axis(precip,iwvtrans):
+    requires = [('cp', 'sfc'), ('lsp', 'sfc'), 
+            ('u', '925'), ('v', '925'), ('q', '925'),
+            ('u', '850'), ('v', '850'), ('q', '850'), ('t', '850'),
+            ('u', '700'), ('v', '700'), ('q', '700'),
+            ('u', '500'), ('v', '500'), ('q', '500'),
+            ('u', '300'), ('v', '300'), ('q', '300'),
+    ]
+    requires_diagnostic = [(iwvtrans.cal_iwvtransport, ['925', '850', '700', '500', '300']),
+                (precip.cal_crainrate, 'sfc'), 
+                (precip.cal_lsrainrate, 'sfc') ]
+    plotname = 'iwvt_axis'
+
+    def plot(self, data, static, dateinit, datevalid):
+        done = plotter.plot(self, data, static, dateinit, datevalid)
+        if done:
+            return True
+
+        overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **conf.plot.merge('sfc', 'crr',
+                scale=[1.0, 3.0, 10.0],
+                colors='c', ) ), 
+            fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
+                scale=[1.0, 3.0, 10.0],
+                colors='orchid', ) ), 
+            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+                linewidths=[1], 
+                linestyles='solid',
+                colors='firebrick',
+                scale=range(-5,-3,2) ) ),
+            fig.map_overlay_lines(data['iwvtaxis','sfc'], data['iwvtoff','sfc'], static, linecolor='w', linewidth=4), 
+            fig.map_overlay_lines(data['iwvtaxis','sfc'], data['iwvtoff','sfc'], static, linecolor='gold', linewidth=2), 
+        ]
+
+        plotconf = conf.plotf.merge('sfc', 'tcwv',
+                overlays=overlays,
+                scale=np.arange(50,951,50),
+                ticks=np.arange(200,951,200),
+                **self.std_plotconf
+        )
+        fig.map(data['iwvt','sfc'], static, **plotconf)
 
         return True
 
@@ -1335,6 +1402,7 @@ PLOTS = {
         tcwv(),
         tcwv_npolar(),
         tcwv_spolar(),
+        iwvt_axis(),
         t850_perc(),
         tcwv_perc(),
     ], 
@@ -1360,8 +1428,7 @@ PLOTS = {
         jetfreq_msl_spolar(),
     ],
     'test': [
-        #t850_msl_npolar(),
-        t850_msl_spolar(),
+        iwvt_axis(),
     ],
     'sfc': [
         cc(),

@@ -99,7 +99,8 @@ irbarbspt315 = variable(u'Irrot. wind barbs', u'm/s', u'315 K')
 irbarbspt330 = variable(u'Irrot. wind barbs', u'm/s', u'330 K')
 ffpv2 = variable(u'Wind speed', u'm/s', u'PV 2')
 defang850 = variable(u'Axes of dilatation', u'', u'850 hPa')
-icwvt = variable(u'Integrated column water vapour transport', u'', u'')
+iwvt = variable(u'Column integral water vapour transport', u'kg m/s', u'')
+iwvtaxes = variable(u'Water vapour transport axes', u'', u'')
 jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
 
 o = overlay
@@ -117,9 +118,12 @@ plotlist = [
 	plot(u'slhf_winds', slhff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
 		o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
 		name='Latent heat fluxes, 10 m winds, SSTs and MIZ'),
-	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
+	plot(u'tcwv', tcwv, [o('black arrows', iwvt, None), 
 		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
 		name='Total column water vapour, fluxes and precip.'),
+	plot(u'iwvt_axis', iwvt, [o('yellow', iwvtaxes, None), 
+		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
+		name='Water vapour transport, axes, and precipitation'),
 	plot(u'cycfreq_msl', cycfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
 		name='Ensemble cyclone detections'),
 	plot(u'jetfreq_msl', jetfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
