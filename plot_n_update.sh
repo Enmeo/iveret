@@ -28,7 +28,6 @@ python3 $basepath/plot_forecast_eclocal.py > $logpath/web_plot_ec_local_out.log 
 python3 $basepath/plot_forecast.py isentropic > $logpath/web_plot_ec_isentropic_out.log 2> $logpath/web_plot_ec_isentropic_err.log &
 python3 $basepath/plot_forecast.py pv2 sfc > $logpath/web_plot_ec_pv2sfc_out.log 2> $logpath/web_plot_ec_pv2sfc_err.log &
 python3 $basepath/plot_forecast.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log &
-python3 $basepath/plot_forecast_slope.py > $logpath/web_plot_ec_slope_out.log 2> $logpath/web_plot_ec_slope_err.log &
 python3 $basepath/plot_forecast.py plev > $logpath/web_plot_ec_plev_out.log 2> $logpath/web_plot_ec_plev_err.log
 python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_out.log 2> $logpath/web_plot_ec_meteograms_err.log &
 
