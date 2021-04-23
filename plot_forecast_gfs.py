@@ -39,7 +39,7 @@ class plotter(object):
     fmt = '%Y%m%d%H'
 
     std_plotconf = {
-        'm': proj.NAfcmap,
+        'm': proj.N_Atlantic_forecast,
         'coastcolor': 'k',
         'coastwidth': 0.5,
         'grid_alpha': 0.25,
@@ -79,7 +79,7 @@ class plotter(object):
 
         if not data_available:
             fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-            plt.savefig(conf.plotpath + '/' + self.std_plotconf['save'])
+            plt.savefig(plotpath + '/' + self.std_plotconf['save'])
             return True
 
         else:
@@ -328,21 +328,21 @@ class t850_msl(t_msl):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['msl','sfc'], static, **pconfl.merge('sfc', 'msl', 
                 linewidths=[0.5], 
                 scale=range(900,1070,5),
                 alpha=0.8,) ), 
-            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+            fig.map_overlay_contour(data['t','850'], static, **pconfl.merge('850', 't',
                 linewidths=[1], 
                 linestyles='dashed',
                 scale=range(0,2,2) ) ),
-            fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('850', 't',
+        plotconf = pconf.merge('850', 't',
                 overlays=overlays,
                 scale=range(-34,36,2),
                 ticks=range(-30,31,10),
@@ -374,7 +374,7 @@ class t850_perc(t_msl, percentiles):
             fig.map_overlay_contour(data['t_percs', '850'], static, plev=None, q='perc', 
                 scale=[3.5, 15.5]),
         ]
-        plotconf = conf.plotf.merge('850', 't_ano',
+        plotconf = pconf.merge('850', 't_ano',
                 scale=s,
                 norm=mpl.colors.BoundaryNorm([-np.inf,]+s+[np.inf,], 256),
                 cb_tickspacing='uniform',
@@ -397,25 +397,25 @@ class z500_msl(z_msl):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc','msl',  
+            fig.map_overlay_contour(data['msl','sfc'], static, **pconfl.merge('sfc','msl',  
                 alpha=0.8,
                 contour_labels=True, 
                 contour_labels_format='%g',
                 linewidths=[1], 
                 scale=range(900,1070,5) ) ),
-            #fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
+            #fig.map_overlay_contour(data['z','500'], static, **pconfl.merge('500', 'z',
             #    contour_labels=True, 
             #    colors='white',
             #    linewidths=[1],
             #    linestyles='dashed',
             #    scale=range(472,601,16) ) ),
-            fig.map_overlay_contour(data['z','500'], static, **conf.plot.merge('500', 'z',
+            fig.map_overlay_contour(data['z','500'], static, **pconfl.merge('500', 'z',
                 contour_labels=False, 
                 colors='white',
                 linewidths=[2],
                 scale=range(552,554,2) ) ), 
         ]
-        plotconf = conf.plotf.merge('500', 'z',
+        plotconf = pconf.merge('500', 'z',
                 overlays=overlays,
                 scale=range(476,604,4),
                 ticks=range(480,601,20),
@@ -449,16 +449,16 @@ class pvpt315_wind(irot_wind):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
+        overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **pconfl.merge('pt315', 'pv', 
                 contour_labels=False, 
                 linewidths=[1.5],
                 scale=range(2,3,1) ) ), 
-            fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
+            fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **pconfl.merge('pt315', 'u',
                 quiver_length=200,
                 vector_space_numbers_xy=(45,30), ) ),
         ]
         s=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-        plotconf = conf.plotf.merge('pt315', 'pv',
+        plotconf = pconf.merge('pt315', 'pv',
                 overlays=overlays,
                 norm=mpl.colors.BoundaryNorm(s, 256),
                 scale=s,
@@ -480,16 +480,16 @@ class pvpt330_wind(irot_wind):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
+        overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **pconfl.merge('pt330', 'pv', 
                 contour_labels=False, 
                 linewidths=[1.5],
                 scale=range(2,3,1) ) ), 
-            fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **conf.plot.merge('pt330', 'u',
+            fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **pconfl.merge('pt330', 'u',
                 quiver_length=200,
                 vector_space_numbers_xy=(45,30), ) ),
         ]
         s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-        plotconf = conf.plotf.merge('pt330', 'pv',
+        plotconf = pconf.merge('pt330', 'pv',
                 overlays=overlays,
                 norm=mpl.colors.BoundaryNorm(s, 256),
                 scale=s,
@@ -511,16 +511,16 @@ class pvpt315_wind_npolar(pvpt315_wind,npolar):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
+        overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **pconfl.merge('pt315', 'pv', 
                 contour_labels=False, 
                 linewidths=[1.5],
                 scale=range(2,3,1) ) ), 
-            fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
+            fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **pconfl.merge('pt315', 'u',
                 quiver_length=200,
                 vector_space_numbers_xy=(45,45), ) ),
         ]
         s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-        plotconf = conf.plotf.merge('pt315', 'pv',
+        plotconf = pconf.merge('pt315', 'pv',
                 overlays=overlays,
                 norm=mpl.colors.BoundaryNorm(s, 256),
                 scale=s,
@@ -541,16 +541,16 @@ class pvpt330_wind_npolar(pvpt330_wind,npolar):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
+        overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **pconfl.merge('pt330', 'pv', 
                 contour_labels=False, 
                 linewidths=[1.5],
                 scale=range(2,3,1) ) ), 
-            fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **conf.plot.merge('pt330', 'u',
+            fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **pconfl.merge('pt330', 'u',
                 quiver_length=200,
                 vector_space_numbers_xy=(45,45), ) ),
         ]
         s=[0, 1.0,  2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-        plotconf = conf.plotf.merge('pt330', 'pv',
+        plotconf = pconf.merge('pt330', 'pv',
                 overlays=overlays,
                 norm=mpl.colors.BoundaryNorm(s, 256),
                 scale=s,
@@ -571,18 +571,18 @@ class pvpt315_wind_spolar(pvpt315_wind,spolar):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **conf.plot.merge('pt315', 'pv', 
+        overlays=[fig.map_overlay_contour(data['pv','pt315'], static, **pconfl.merge('pt315', 'pv', 
                 contour_labels=False, 
                 linewidths=[1.5],
                 hook=lambda pv: -1.0e6*pv,
                 scale=range(2,3,1) ) ), 
-            fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **conf.plot.merge('pt315', 'u',
+            fig.map_overlay_quiver(data['u_irot','pt315'], data['v_irot','pt315'], static, **pconfl.merge('pt315', 'u',
                 quiver_length=200,
                 vector_space_numbers_xy=(45,45), ) ),
         ]
         s=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
         st=[0, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0]
-        plotconf = conf.plotf.merge('pt315', 'pv',
+        plotconf = pconf.merge('pt315', 'pv',
                 overlays=overlays,
                 norm=mpl.colors.BoundaryNorm(s, 256),
                 scale=s,
@@ -607,18 +607,18 @@ class pvpt330_wind_spolar(pvpt330_wind,spolar):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **conf.plot.merge('pt330', 'pv', 
+        overlays=[fig.map_overlay_contour(data['pv','pt330'], static, **pconfl.merge('pt330', 'pv', 
                 contour_labels=False, 
                 linewidths=[1.5],
                 hook=lambda pv: -1.0e6*pv,
                 scale=range(2,3,1) ) ), 
-            fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **conf.plot.merge('pt330', 'u',
+            fig.map_overlay_quiver(data['u_irot','pt330'], data['v_irot','pt330'], static, **pconfl.merge('pt330', 'u',
                 quiver_length=200,
                 vector_space_numbers_xy=(45,45), ) ),
         ]
         s=[0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
         st=[0, -1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0, -9.0, -10.0]
-        plotconf = conf.plotf.merge('pt330', 'pv',
+        plotconf = pconf.merge('pt330', 'pv',
                 overlays=overlays,
                 norm=mpl.colors.BoundaryNorm(s, 256),
                 scale=s,
@@ -644,14 +644,14 @@ class ptpv2_jets(theta,jets):
             return True
         
         overlays = [
-            fig.map_overlay_contour(data['ff_smooth','pv2000'], static, **conf.plot.merge('pv2000', 'ff',
+            fig.map_overlay_contour(data['ff_smooth','pv2000'], static, **pconfl.merge('pv2000', 'ff',
                 scale=np.arange(30,91,15), 
             ) ),
             fig.map_overlay_lines(data['jetaxis','pv2000'], data['jaoff','pv2000'], static, linecolor='k', linewidth=6), 
             fig.map_overlay_lines(data['jetaxis','pv2000'], data['jaoff','pv2000'], static, linecolor='w', linewidth=4), 
         ]
     
-        plotconf = conf.plotf.merge('pv2000', 'pt',
+        plotconf = pconf.merge('pv2000', 'pt',
                 overlays=overlays,
                 scale=np.arange(270,396,5),
                 ticks=[270,285,300,315,330,350,370,395],
@@ -693,22 +693,22 @@ class tcwv(iwvtrans):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **conf.plot.merge('sfc', 'crr',
+        overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **pconfl.merge('sfc', 'crr',
                 scale=[1.0, 3.0, 10.0],
                 colors='c', ) ), 
-            fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
+            fig.map_overlay_contour(data['lsrr','sfc'], static, **pconfl.merge('sfc', 'lsrr',
                 scale=[1.0, 3.0, 10.0],
                 colors='m', ) ), 
             fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
-                **conf.plot.merge('sfc', 'tcwv', linewidths=0.2) ),
-            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+                **pconfl.merge('sfc', 'tcwv', linewidths=0.2) ),
+            fig.map_overlay_contour(data['t','850'], static, **pconfl.merge('850', 't',
                 linewidths=[1], 
                 linestyles='solid',
                 colors='firebrick',
                 scale=range(-5,-3,2) ) ),
         ]
 
-        plotconf = conf.plotf.merge('sfc', 'tcwv',
+        plotconf = pconf.merge('sfc', 'tcwv',
                 overlays=overlays,
                 scale=range(4,51,2),
                 ticks=range(10,51,10),
@@ -742,7 +742,7 @@ class tcwv_perc(percentiles):
             fig.map_overlay_contour(data['tcwv_percs', 'sfc'], static, plev=None, q='perc', 
                 scale=[3.5, 15.5]),
         ]
-        plotconf = conf.plotf.merge('sfc', 'tcwv_ano',
+        plotconf = pconf.merge('sfc', 'tcwv_ano',
                 scale=s,
                 norm=mpl.colors.BoundaryNorm([-np.inf,]+s+[np.inf,], 256),
                 cb_tickspacing='uniform',
@@ -771,22 +771,22 @@ class tcwv_npolar(tcwv,npolar):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **conf.plot.merge('sfc', 'crr',
+        overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **pconfl.merge('sfc', 'crr',
                 scale=[1.0, 3.0, 10.0],
                 colors='c', ) ), 
-             fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
+             fig.map_overlay_contour(data['lsrr','sfc'], static, **pconfl.merge('sfc', 'lsrr',
                 scale=[1.0, 3.0, 10.0],
                 colors='m', ) ), 
             fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
-                **conf.plot.merge('sfc', 'tcwv', linewidths=0.2) ),
-            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+                **pconfl.merge('sfc', 'tcwv', linewidths=0.2) ),
+            fig.map_overlay_contour(data['t','850'], static, **pconfl.merge('850', 't',
                 linewidths=[1], 
                 linestyles='solid',
                 colors='firebrick',
                 scale=range(-5,-3,2) ) ),
         ]
 
-        plotconf = conf.plotf.merge('sfc', 'tcwv',
+        plotconf = pconf.merge('sfc', 'tcwv',
                 overlays=overlays,
                 scale=range(4,65,2),
                 ticks=range(10,61,10),
@@ -816,22 +816,22 @@ class tcwv_spolar(tcwv,spolar):
         if done:
             return True
 
-        overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **conf.plot.merge('sfc', 'crr',
+        overlays=[fig.map_overlay_contour(data['crr','sfc'], static, **pconfl.merge('sfc', 'crr',
                 scale=[1.0, 3.0, 10.0],
                 colors='c', ) ), 
-             fig.map_overlay_contour(data['lsrr','sfc'], static, **conf.plot.merge('sfc', 'lsrr',
+             fig.map_overlay_contour(data['lsrr','sfc'], static, **pconfl.merge('sfc', 'lsrr',
                 scale=[1.0, 3.0, 10.0],
                 colors='m', ) ), 
             fig.map_overlay_quiver(data['iwvtransx','sfc'], data['iwvtransy','sfc'], static, 
-                **conf.plot.merge('sfc', 'tcwv', linewidths=0.2) ),
-            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't',
+                **pconfl.merge('sfc', 'tcwv', linewidths=0.2) ),
+            fig.map_overlay_contour(data['t','850'], static, **pconfl.merge('850', 't',
                 linewidths=[1], 
                 linestyles='solid',
                 colors='firebrick',
                 scale=range(-5,-3,2) ) ),
         ]
 
-        plotconf = conf.plotf.merge('sfc', 'tcwv',
+        plotconf = pconf.merge('sfc', 'tcwv',
                 overlays=overlays,
                 scale=range(4,65,2),
                 ticks=range(10,61,10),
@@ -858,14 +858,14 @@ class cc(plotter):
         s = np.array([0,] + list(np.arange(6.25,95,12.5)) + [100,])
         t = (s[1:]+s[:-1])/2.0
 
-        overlays=[fig.map_overlay_shading(data['mcc','sfc'], static, **conf.plotf.merge('sfc', 'mcc',
+        overlays=[fig.map_overlay_shading(data['mcc','sfc'], static, **pconf.merge('sfc', 'mcc',
                 alpha=0.5,
                 scale=s,
                 extend='neither',
                 antialiased=True,
                 cb_disable=True
             ) ), 
-             fig.map_overlay_shading(data['hcc','sfc'], static, **conf.plotf.merge('sfc', 'hcc',
+             fig.map_overlay_shading(data['hcc','sfc'], static, **pconf.merge('sfc', 'hcc',
                 alpha=0.4, 
                 scale=s,
                 extend='neither',
@@ -873,7 +873,7 @@ class cc(plotter):
                 cb_disable=True
             ) ), 
         ]
-        plotconf = conf.plotf.merge('sfc', 'lcc',
+        plotconf = pconf.merge('sfc', 'lcc',
                 overlays=overlays,
                 scale=s,
                 ticks=t,
@@ -902,38 +902,38 @@ class sshf_winds(ff10):
         shft = [-10000,]+shf+[10000,]
 
         overlays = [
-            fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 linewidths=0.5,
                 **self.std_plotconf) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='gold',
                 linewidths=[1],
                 scale=[17.2, ] ) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='coral',
                 linewidths=[1.5],
                 scale=[24.5, ] ) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='crimson',
                 linewidths=[2],
                 scale=[32.7, ] ) ),
-            fig.map_overlay_contour(data['ci','sfc'], static, **conf.plot.merge('sfc', 'ci',
+            fig.map_overlay_contour(data['ci','sfc'], static, **pconfl.merge('sfc', 'ci',
                 colors='royalblue',
                 linewidths=[1],
                 scale=[0.2, 0.8] ) ),
-            fig.map_overlay_contour(data['sst','sfc'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sst','sfc'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.5,
                 linewidths=[0.7],
                 scale=[2,4,6,8,12,14,16,18,22,24,26,28,32,34] ) ),
-            fig.map_overlay_contour(data['sst','sfc'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sst','sfc'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.6,
                 linewidths=[1],
                 scale=np.arange(0,31,10) ) ),
         ]
 
-        plotconf = conf.plotf.merge('sfc', 'sshff',
+        plotconf = pconf.merge('sfc', 'sshff',
                 cmap=cm.BrBG,
                 scale=shf,
                 norm=mpl.colors.BoundaryNorm(shft, 256),
@@ -962,38 +962,38 @@ class slhf_winds(ff10):
         shft = [-10000,]+shf+[10000,]
 
         overlays = [
-            fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 linewidths=0.5,
                 **self.std_plotconf) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='gold',
                 linewidths=[1],
                 scale=[17.2, ] ) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='coral',
                 linewidths=[1.5],
                 scale=[24.5, ] ) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='crimson',
                 linewidths=[2],
                 scale=[32.7, ] ) ),
-            fig.map_overlay_contour(data['ci','sfc'], static, **conf.plot.merge('sfc', 'ci',
+            fig.map_overlay_contour(data['ci','sfc'], static, **pconfl.merge('sfc', 'ci',
                 colors='royalblue',
                 linewidths=[1],
                 scale=[0.2, 0.8] ) ),
-            fig.map_overlay_contour(data['sst','sfc'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sst','sfc'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.5,
                 linewidths=[0.7],
                 scale=[2,4,6,8,12,14,16,18,22,24,26,28,32,34] ) ),
-            fig.map_overlay_contour(data['sst','sfc'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sst','sfc'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.6,
                 linewidths=[1],
                 scale=np.arange(0,31,10) ) ),
         ]
 
-        plotconf = conf.plotf.merge('sfc', 'slhff',
+        plotconf = pconf.merge('sfc', 'slhff',
                 cmap=cm.BrBG,
                 scale=shf,
                 norm=mpl.colors.BoundaryNorm(shft, 256),
@@ -1035,36 +1035,36 @@ class deform850_fronts(deform,fronts,spec_hum,precip):
 
 
         overlays = [
-            fig.map_overlay_shading(data['frovo','850'], static, **conf.plot.merge('850', 'z', 
+            fig.map_overlay_shading(data['frovo','850'], static, **pconfl.merge('850', 'z', 
                 colors=['seagreen', ],
                 alpha=0.3,
                 scale=[0.001, 2.0],
                 extend='neither',
                 cb_disable=True,) ),
             fig.map_overlay_lines(data['fronts','850'][0,::], data['froff','850'][0,::], static, 
-                **conf.plot.merge('850', 'z', linecolor='royalblue') ),
+                **pconfl.merge('850', 'z', linecolor='royalblue') ),
             fig.map_overlay_lines(data['fronts','850'][1,::], data['froff','850'][1,::], static, 
-                **conf.plot.merge('850', 'z', linecolor='orangered') ),
+                **pconfl.merge('850', 'z', linecolor='orangered') ),
             fig.map_overlay_lines(data['fronts','850'][2,::], data['froff','850'][2,::], static, 
-                **conf.plot.merge('850', 'z', linecolor='orchid') ),
-            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('850', 't', 
+                **pconfl.merge('850', 'z', linecolor='orchid') ),
+            fig.map_overlay_contour(data['t','850'], static, **pconfl.merge('850', 't', 
                 scale = [-5,],
                 colors='firebrick',
                 linestyles='solid',
                 linewidths=1, ) ),
-            fig.map_overlay_contour(data['trr','sfc'], static, **conf.plot.merge('sfc', 'trr', 
+            fig.map_overlay_contour(data['trr','sfc'], static, **pconfl.merge('sfc', 'trr', 
                 scale = [1,5,],
                 colors='teal',
                 linewidths=1, ) ),
-            fig.map_overlay_dilatation(defabs, defang, static, **conf.plot.merge('850', 'defabs',
+            fig.map_overlay_dilatation(defabs, defang, static, **pconfl.merge('850', 'defabs',
                 vector_space_numbers_xy=(54,36)) ),
-            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['msl','sfc'], static, **pconfl.merge('sfc', 'msl', 
                 linewidths=[0.5], 
                 scale=range(900,1070,5),
                 alpha=0.25,) ), 
         ]
 
-        plotconf = conf.plotf.merge('850', 'defabs',
+        plotconf = pconf.merge('850', 'defabs',
                 overlays=overlays,
                 scale=np.arange(10,36,5),
                 **self.std_plotconf

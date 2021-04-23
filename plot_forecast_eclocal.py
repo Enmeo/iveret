@@ -18,9 +18,8 @@ from settings.ecmwf import *
 from current_fc import get_current_fc
 
 
-conf.file_std = '%(time)d/ec.for-hr.%(time)d.%(plev)s.%(q)s'
-conf.plotf[None,'sst','hook'] = sst_mask_offset_hr
-conf.plot[None,'sst','hook'] = sst_mask_offset_hr
+pconf [None,'sst','hook'] = sst_mask_offset_hr
+pconfl[None,'sst','hook'] = sst_mask_offset_hr
 
 ######################################################
 # The base of _everything_
@@ -39,9 +38,9 @@ class plotter(object):
     fmt = '%Y%m%d%H'
 
     std_plotconf = {
-        'm': proj.Scandimap,
-        'coastcolor': 'gray',
-        'coast_alpha': 0.5,
+        'm': proj.Scandinavia,
+        'coastcolor': 'k',
+        'coastwidth': 0.5,
         'grid_alpha': 0.25,
         'grid_linestyle': '-',
         'grid_latmax': 90,
@@ -79,7 +78,7 @@ class plotter(object):
 
         if not data_available:
             fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-            plt.savefig(conf.plotpath + '/' + self.std_plotconf['save'])
+            plt.savefig(plotpath + '/' + self.std_plotconf['save'])
             return True
 
         else:
@@ -90,7 +89,7 @@ class BarentsSea(plotter):
     fcname = plotter.fcname[:-8] + '_barents'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.BarentsSeamap
+    std_plotconf['m'] = proj.Barents_Sea
 
     figsize = (5.0,6.375)
     figsize_deco = (5.68182,6.375)
@@ -173,24 +172,23 @@ class t850_msl(plotter):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['msl','sfc'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['t','850'], static, **pconfl.merge('sfc', 't2m',
                 linewidths=[1], 
                 linestyles='dashed',
                 scale=range(0,2,2) ) ),
-            fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('850', 't',
+        plotconf = pconf.merge('850', 't',
                 overlays=overlays,
-                cmap=cm.t, # Set a colormap
                 scale=range(-34,36,2),
                 ticks=range(-30,31,10),
                 **self.std_plotconf
@@ -217,24 +215,23 @@ class t925_msl(plotter):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['msl','sfc'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['t','925'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['t','925'], static, **pconfl.merge('sfc', 't2m',
                 linewidths=[1], 
                 linestyles='dashed',
                 scale=range(0,2,2) ) ),
-            fig.map_overlay_barbs(data['u','925'], data['v','925'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['u','925'], data['v','925'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('925', 't',
+        plotconf = pconf.merge('925', 't',
                 overlays=overlays,
-                cmap=cm.t, # Set a colormap
                 scale=range(-34,36,2),
                 ticks=range(-30,31,10),
                 **self.std_plotconf
@@ -261,25 +258,24 @@ class q850_msl(plotter):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['msl','sfc'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['t','850'], static, **pconfl.merge('sfc', 't2m',
                 linewidths=[1], 
                 linestyles='solid',
                 colors='firebrick',
                 scale=range(-5,-3,2) ) ),
-            fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['u','850'], data['v','850'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('850', 'q',
+        plotconf = pconf.merge('850', 'q',
                 overlays=overlays,
-                cmap=cm.q, # Set a colormap
                 hook=lambda x: x*1.0e3, # Convert to g/kg
                 scale=np.arange(1, 12.1, 0.5),
                 ticks=np.arange(2,12.1,2),
@@ -307,25 +303,24 @@ class q925_msl(plotter):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['msl','sfc'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['t','850'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['t','850'], static, **pconfl.merge('sfc', 't2m',
                 linewidths=[1], 
                 colors='firebrick',
                 linestyles='solid',
                 scale=range(-5,-3,2) ) ),
-            fig.map_overlay_barbs(data['u','925'], data['v','925'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['u','925'], data['v','925'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('925', 'q',
+        plotconf = pconf.merge('925', 'q',
                 overlays=overlays,
-                cmap=cm.q, # Set a colormap
                 hook=lambda x: x*1.0e3, # Convert to g/kg
                 scale=np.arange(1, 12.1, 0.5),
                 ticks=np.arange(2,12.1,2),
@@ -352,19 +347,18 @@ class t2m_msl(plotter):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['msl','sfc'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['msl','sfc'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['t2m','sfc'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['t2m','sfc'], static, **pconfl.merge('sfc', 't2m',
                 linewidths=[1], 
                 linestyles='dashed',
                 scale=range(0,2,2) ) ),
         ]
-        plotconf = conf.plotf.merge('sfc', 't2m',
+        plotconf = pconf.merge('sfc', 't2m',
                 overlays=overlays,
-                cmap=cm.t, # Set a colormap
                 scale=range(-34,36,2),
                 ticks=range(-30,31,10),
                 **self.std_plotconf
@@ -394,38 +388,38 @@ class shf_winds(ff10,flux):
         shft = [-10000,]+shf+[10000,]
 
         overlays = [
-            fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_barbs(data['u10','sfc'], data['v10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 linewidths=0.5,
                 **self.std_plotconf) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='gold',
                 linewidths=[1],
                 scale=[17.2, ] ) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='coral',
                 linewidths=[1.5],
                 scale=[24.5, ] ) ),
-            fig.map_overlay_contour(data['ff10','sfc'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['ff10','sfc'], static, **pconfl.merge('sfc', 'ff10',
                 colors='crimson',
                 linewidths=[2],
                 scale=[32.7, ] ) ),
-            #fig.map_overlay_contour(data['ci','sfc'], static, **conf.plot.merge('sfc', 'ci',
+            #fig.map_overlay_contour(data['ci','sfc'], static, **pconfl.merge('sfc', 'ci',
             #    colors='royalblue',
             #    linewidths=[1],
             #    scale=[0.2, 0.8] ) ),
-            fig.map_overlay_contour(data['sst','sfc'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sst','sfc'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.5,
                 linewidths=[0.7],
                 scale=[2,4,6,8,12,14,16,18,22,24,26,28,32,34] ) ),
-            fig.map_overlay_contour(data['sst','sfc'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sst','sfc'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.6,
                 linewidths=[1],
                 scale=np.arange(0,31,10) ) ),
         ]
 
-        plotconf = conf.plotf.merge('sfc', 'sshf',
+        plotconf = pconf.merge('sfc', 'sshf',
                 cmap=cm.BrBG,
                 scale=shf,
                 norm=mpl.colors.BoundaryNorm(shft, 256),
@@ -463,8 +457,7 @@ class rh2m_tp(precip,rh2m):
         s=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
         st=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
         overlays = [
-            fig.map_overlay_shading(data['trr', 'sfc'], static, **conf.plotf.merge('sfc', 'trr',
-                cmap=cm.trr, # Set a colormap
+            fig.map_overlay_shading(data['trr', 'sfc'], static, **pconf.merge('sfc', 'trr',
                 norm=mpl.colors.BoundaryNorm(st, 256),
                 cb_tickspacing='uniform',
                 extend='max',
@@ -472,7 +465,7 @@ class rh2m_tp(precip,rh2m):
                 scale=s,
                 ticks=st,
                 **self.std_plotconf ) ), 
-            #fig.map_overlay_contour(data['SIC'], static, **conf.plot.merge('sfc', 'sic',
+            #fig.map_overlay_contour(data['SIC'], static, **pconfl.merge('sfc', 'sic',
             #    colors='salmon',
             #    linewidths=[1],
             #    scale=[0.2, 0.8] ) ),
@@ -480,7 +473,7 @@ class rh2m_tp(precip,rh2m):
 
         s=[0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99] 
         st=[-1, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99, 10.0] 
-        plotconf = conf.plotf.merge('sfc', 'rh2m',
+        plotconf = pconf.merge('sfc', 'rh2m',
                 cmap=cm.Greys_r, # Set a colormap
                 norm=mpl.colors.BoundaryNorm(st, 256),
                 #cb_tickspacing='uniform',
@@ -513,6 +506,7 @@ forecast = get_current_fc()
 # Override
 #forecast = dt(2019,3,12,12)
 plot_only_init = False
+fcstr = forecast.strftime(plotter.fmt)
 
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
@@ -539,7 +533,7 @@ for plot in plots:
     for q, plev in plot.requires:
         if (q,plev) not in data:
             #try:
-            f, dat_, static = metopen(conf.file_std % {'time': int(forecast.strftime(plotter.fmt)), 'plev': plev, 'q': conf.qf[q]}, q)
+            f, dat_, static = metopen(f'{fcstr}/ec.for-hr.{fcstr}.{plev}.{q}', q)
             #except:
             #    print('Error loading data: ', (q, plev))
             #    plot.error = True

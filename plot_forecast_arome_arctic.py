@@ -25,7 +25,7 @@ class Arctic(plotter):
     fcname = plotter.fcname + '_arctic'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.BarentsSeamap
+    std_plotconf['m'] = proj.Barents_Sea
 
     figsize = (5.0,6.375)
     figsize_deco = (5.68182,6.375)
@@ -89,38 +89,38 @@ class shf_wind_Arctic(tshf, ff10, Arctic):
         shft = [-10000,]+shf+[10000,]
 
         overlays = [
-            fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **pconfl.merge('sfc', 'ff10', 
                 linewidths=0.5,
                 **self.std_plotconf) ),
-            fig.map_overlay_contour(data['sfc','ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['sfc','ff_10m'], static, **pconfl.merge('sfc', 'ff10',
                 colors='gold',
                 linewidths=[1],
                 scale=[17.2, ] ) ),
-            fig.map_overlay_contour(data['sfc','ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['sfc','ff_10m'], static, **pconfl.merge('sfc', 'ff10',
                 colors='coral',
                 linewidths=[1.5],
                 scale=[24.5, ] ) ),
-            fig.map_overlay_contour(data['sfc','ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['sfc','ff_10m'], static, **pconfl.merge('sfc', 'ff10',
                 colors='crimson',
                 linewidths=[2],
                 scale=[32.7, ] ) ),
-            fig.map_overlay_contour(data['sfc','SIC'], static, **conf.plot.merge('sfc', 'sic',
+            fig.map_overlay_contour(data['sfc','SIC'], static, **pconfl.merge('sfc', 'sic',
                 colors='blueviolet',
                 linewidths=[1],
                 scale=[0.2, 0.8] ) ),
-            fig.map_overlay_contour(data['sfc','SST'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sfc','SST'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.5,
                 linewidths=[0.7],
                 scale=[-1,1,2,3,4,6,7,8,9,11,12,13,14,16,17,18,19] ) ),
-            fig.map_overlay_contour(data['sfc','SST'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sfc','SST'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.6,
                 linewidths=[1],
                 scale=np.arange(0,21,5) ) ),
         ]
 
-        plotconf = conf.plotf.merge('sfc', 'tshff',
+        plotconf = pconf.merge('sfc', 'tshff',
                 cmap=cm.BrBG,
                 scale=shf,
                 norm=mpl.colors.BoundaryNorm(shft, 256),
@@ -164,8 +164,7 @@ class rh2m_tp_Arctic(precip, Arctic):
         s=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
         st=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
         overlays = [
-            fig.map_overlay_shading(data['sfc','precipitation_amount'], static, **conf.plotf.merge('sfc', 'trr',
-                cmap=cm.trr, # Set a colormap
+            fig.map_overlay_shading(data['sfc','precipitation_amount'], static, **pconf.merge('sfc', 'trr',
                 norm=mpl.colors.BoundaryNorm(st, 256),
                 cb_tickspacing='uniform',
                 extend='max',
@@ -173,7 +172,7 @@ class rh2m_tp_Arctic(precip, Arctic):
                 scale=s,
                 ticks=st,
                 **self.std_plotconf ) ), 
-            fig.map_overlay_contour(data['sfc','SIC'], static, **conf.plot.merge('sfc', 'sic',
+            fig.map_overlay_contour(data['sfc','SIC'], static, **pconfl.merge('sfc', 'sic',
                 colors='blueviolet',
                 linewidths=[1],
                 scale=[0.2, 0.8] ) ),
@@ -181,7 +180,7 @@ class rh2m_tp_Arctic(precip, Arctic):
 
         s=[0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99] 
         st=[-1, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99, 10.0] 
-        plotconf = conf.plotf.merge('sfc', 'rh2m',
+        plotconf = pconf.merge('sfc', 'rh2m',
                 cmap=cm.Greys_r, # Set a colormap
                 norm=mpl.colors.BoundaryNorm(st, 256),
                 #cb_tickspacing='uniform',

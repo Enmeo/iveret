@@ -159,7 +159,7 @@ class igw_flxdiv_lvl1(meso_momentum_flux):
         ]
 
         u_acc_scale = np.array([1, 2, 4, 8, 15, 30])/10.0
-        plotconf = conf.plotf.merge(self.plev_bnds, f'uw_ubal_div{self.bal}',
+        plotconf = pconf.merge(self.plev_bnds, f'uw_ubal_div{self.bal}',
                 cmap = 'Reds',
                 extend = 'both',
                 scale = np.log(u_acc_scale),

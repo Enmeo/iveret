@@ -5,7 +5,7 @@ import codecs
 from jinja2 import FileSystemLoader, Environment
 from datetime import datetime as dt, timedelta as td
 
-from settings.common import conf, basepath
+from settings.common import basepath, plotpath
 from current_fc import *
 from current_fc_gfs import *
 from mapdomains import mapdomains
@@ -13,7 +13,7 @@ from mapdomains import mapdomains
 from vardefs import *
 
 # Where to save the weather map; 
-filepath = conf.plotpath+'/../closed/vaerkart_natl.html'
+filepath = plotpath+'/../closed/vaerkart_natl.html'
 
 env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 

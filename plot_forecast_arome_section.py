@@ -15,6 +15,7 @@ import dynlib.thermodyn
 from current_fc_arome import get_current_fc_arome
 
 
+
 ######################################################
 # The base of _everything_
 
@@ -85,7 +86,7 @@ class plotter(object):
                 dateinit.strftime(self.fmt), datevalid.strftime(self.fmt), 
                 self.filetype
         )
-        plt.savefig(f'{conf.plotpath}/{fname}')
+        plt.savefig(f'{plotpath}/{fname}')
         plt.close()
 
 
@@ -150,7 +151,7 @@ class q_pt(pt):
             return True
         
         self.cs = plt.contourf(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'specific_humidity_ml']*1.0e3, 
-                np.arange(1,12.1,0.5), extend='both', cmap=cm.q)
+                np.arange(1,12.1,0.5), extend='both', cmap=cm.q())
         self.cs_labels = (np.arange(2,13,2), np.arange(2,13,2))
 
         plt.contour(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'air_temperature_ml'], 

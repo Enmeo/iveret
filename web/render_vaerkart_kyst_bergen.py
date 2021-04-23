@@ -1,19 +1,17 @@
 #!/usr/bin/env python
 # -*- encoding: utf8
 
-from __future__ import print_function, absolute_import, division, unicode_literals
-
 import codecs
 from jinja2 import FileSystemLoader, Environment
 from datetime import datetime as dt, timedelta as td
 
-from settings.common import conf, basepath
+from settings.common import basepath, plotpath
 from current_fc_kyst import get_current_fc_kyst
 from plotdomains_ocean import plotdomains
 
 
 # Where to save the weather map; 
-filepath = conf.plotpath+'/../ocean/vaerkart_kyst_bergen.html'
+filepath = plotpath+'/../ocean/vaerkart_kyst_bergen.html'
 
 env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 

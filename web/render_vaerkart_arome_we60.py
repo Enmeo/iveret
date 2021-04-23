@@ -1,19 +1,17 @@
 #!/usr/bin/env python
 # -*- encoding: utf8
 
-from __future__ import print_function, absolute_import, division, unicode_literals
-
 import codecs
 from jinja2 import FileSystemLoader, Environment
 from datetime import datetime as dt, timedelta as td
 
-from settings.common import conf, basepath
+from settings.common import basepath, plotpath
 from current_fc_arome import *
 from plotdomains import plotdomains
 
 
 # Where to save the weather map; 
-filepath = conf.plotpath+'/../vaerkart_arome_we60.html'
+filepath = plotpath+'/../vaerkart_arome_we60.html'
 
 env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
 

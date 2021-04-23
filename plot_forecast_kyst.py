@@ -12,6 +12,8 @@ from numpy import ma
 from dynlib.shorthands import *
 from settings.metno import *
 
+import dynlib.utils
+
 from current_fc_kyst import get_current_fc_kyst
 
 # Copy of rotate_vector function from Basemap 1.1.0, here used for the inverse rotation required to plot NorKyst flow vectors
@@ -120,7 +122,7 @@ class plotter(object):
     fmt = '%Y%m%d%H'
 
     std_plotconf = {
-        'm': proj.SNorwaymap,
+        'm': proj.S_Norway,
         'coastcolor': None,
         'coastwidth': 0.5,
         'grid_alpha': 0.25,
@@ -160,7 +162,7 @@ class plotter(object):
 
         if not data_available:
             fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-            plt.savefig(conf.plotpath + '/' + self.std_plotconf['save'])
+            plt.savefig(plotpath + '/' + self.std_plotconf['save'])
             return True
 
         else:
@@ -171,7 +173,7 @@ class Vestland(plotter):
     fcname = plotter.fcname + '_vestland'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.Vestlandmap
+    std_plotconf['m'] = proj.Vestland
 
     figsize = (6.4,6.4)
     figsize_deco = (7.27273,6.4)
@@ -181,7 +183,7 @@ class Bergen(plotter):
     fcname = plotter.fcname + '_bergen'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.Bergenmap
+    std_plotconf['m'] = proj.Bergen
 
     figsize = (6.4,6.4)
     figsize_deco = (7.27273,6.4)
@@ -217,9 +219,8 @@ class sst_sfccur(plotter):
                 **self.overlay_conf
             ),
         ]
-        plotconf = conf.plotf.merge('sfc', 'sst',
+        plotconf = pconf.merge('sfc', 'sst',
                 overlays=overlays,
-                cmap=cm.t, # Set a colormap
                 scale=np.arange(0,21.1,0.5),
                 ticks=range(0,21,5),
                 hook=None,
@@ -275,9 +276,9 @@ class ff_sfccur(plotter):
                 **self.overlay_conf
             ),
         ]
-        plotconf = conf.plotf.merge('sfc', 'ff10',
+        plotconf = pconf.merge('sfc', 'ff10',
                 overlays=overlays,
-                cmap=cm.t, # Set a colormap
+                cmap=cm.RdYlCyBu2,
                 hook=lambda x: x*100, # from m/s to cm/s
                 scale=np.arange(0,201,10),
                 ticks=range(0,201,40),
@@ -334,7 +335,7 @@ class sss_sfccur(plotter):
             ),
         ]
         sss_scale = [0, 20, 30, 32, 32.5, 33, 33.3, 33.6, 33.8, 34, 34.2, 34.4, 34.6, 34.8, 35, 35.2, 37]
-        plotconf = conf.plotf.merge('sfc', 'sst',
+        plotconf = pconf.merge('sfc', 'sst',
                 overlays=overlays,
                 cmap='viridis_r', # Set a colormap
                 scale=sss_scale,
@@ -413,8 +414,8 @@ if __name__ == '__main__':
                 plot.error = True
             elif q not in data:
                 data[q] = np.concatenate((
-                    utils.scale(f1.variables[q]).squeeze(),
-                    utils.scale(f2.variables[q]).squeeze(),
+                    dynlib.utils.scale(f1.variables[q]).squeeze(),
+                    dynlib.utils.scale(f2.variables[q]).squeeze(),
                 ), axis=0)
         
         if not plot.error:

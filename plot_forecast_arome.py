@@ -33,7 +33,7 @@ class plotter(object):
     fmt = '%Y%m%d%H'
 
     std_plotconf = {
-        'm': proj.SNorwaymap,
+        'm': proj.S_Norway,
         'coastcolor': 'k',
         'coastwidth': 0.5,
         'grid_alpha': 0.25,
@@ -73,7 +73,7 @@ class plotter(object):
 
         if not data_available:
             fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-            plt.savefig(conf.plotpath + '/' + self.std_plotconf['save'])
+            plt.savefig(plotpath + '/' + self.std_plotconf['save'])
             return True
 
         else:
@@ -84,7 +84,7 @@ class Scandes(plotter):
     fcname = plotter.fcname + '_full'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.Scandimap
+    std_plotconf['m'] = proj.Scandinavia
 
     figsize = (5.5,6.18)
     figsize_deco = (6.25,6.18)
@@ -94,7 +94,7 @@ class Vestland(plotter):
     fcname = plotter.fcname + '_vestland'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.Vestlandmap
+    std_plotconf['m'] = proj.Vestland
 
     figsize = (6.4,6.4)
     figsize_deco = (7.27273,6.4)
@@ -186,24 +186,23 @@ class t850_msl(t_msl):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['850','air_temperature_pl'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['850','air_temperature_pl'], static, **pconfl.merge('sfc', 't',
                 linewidths=[1], 
                 linestyles='dashed',
                 scale=range(0,2,2) ) ),
-            fig.map_overlay_barbs(data['850','x_wind_pl'], data['850','y_wind_pl'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['850','x_wind_pl'], data['850','y_wind_pl'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('sfc', 't2m',
+        plotconf = pconf.merge('sfc', 't',
                 overlays=overlays,
-                cmap=cm.t, # Set a colormap
                 scale=range(-34,36,2),
                 ticks=range(-30,31,10),
                 **self.std_plotconf
@@ -234,24 +233,23 @@ class t925_msl(t_msl):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['925','air_temperature_pl'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['925','air_temperature_pl'], static, **pconfl.merge('sfc', 't',
                 linewidths=[1], 
                 linestyles='dashed',
                 scale=range(0,2,2) ) ),
-            fig.map_overlay_barbs(data['925','x_wind_pl'], data['925','y_wind_pl'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['925','x_wind_pl'], data['925','y_wind_pl'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('sfc', 't2m',
+        plotconf = pconf.merge('sfc', 't',
                 overlays=overlays,
-                cmap=cm.t, # Set a colormap
                 scale=range(-34,36,2),
                 ticks=range(-30,31,10),
                 **self.std_plotconf
@@ -282,25 +280,24 @@ class q850_msl(t_msl):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['850','air_temperature_pl'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['850','air_temperature_pl'], static, **pconfl.merge('sfc', 't',
                 linewidths=[1], 
                 linestyles='solid',
                 colors='firebrick',
                 scale=range(-5,-3,2) ) ),
-            fig.map_overlay_barbs(data['850','x_wind_pl'], data['850','y_wind_pl'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['850','x_wind_pl'], data['850','y_wind_pl'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('sfc', 't2m',
+        plotconf = pconf.merge('sfc', 'q',
                 overlays=overlays,
-                cmap=cm.q, # Set a colormap
                 hook=lambda x: x*1.0e3, # Convert to g/kg
                 scale=np.arange(1, 12.1, 0.5),
                 ticks=np.arange(2,12.1,2),
@@ -332,25 +329,24 @@ class q925_msl(t_msl):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['850','air_temperature_pl'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['850','air_temperature_pl'], static, **pconfl.merge('sfc', 't',
                 linewidths=[1], 
                 colors='firebrick',
                 linestyles='solid',
                 scale=range(-5,-3,2) ) ),
-            fig.map_overlay_barbs(data['925','x_wind_pl'], data['925','y_wind_pl'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['925','x_wind_pl'], data['925','y_wind_pl'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
                 **self.std_plotconf) ),
         ]
-        plotconf = conf.plotf.merge('sfc', 't2m',
+        plotconf = pconf.merge('sfc', 'q',
                 overlays=overlays,
-                cmap=cm.q, # Set a colormap
                 hook=lambda x: x*1.0e3, # Convert to g/kg
                 scale=np.arange(1, 12.1, 0.5),
                 ticks=np.arange(2,12.1,2),
@@ -382,19 +378,18 @@ class t2m_msl(t_msl):
             return True
 
         overlays = [
-            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **conf.plot.merge('sfc', 'msl', 
+            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **pconfl.merge('sfc', 'msl', 
                 contour_labels=True, 
                 contour_labels_format='%1.0f',
                 linewidths=[1], 
                 scale=range(900,1070,2) ) ), 
-            fig.map_overlay_contour(data['sfc','air_temperature_2m'], static, **conf.plot.merge('sfc', 't2m',
+            fig.map_overlay_contour(data['sfc','air_temperature_2m'], static, **pconfl.merge('sfc', 't2m',
                 linewidths=[1], 
                 linestyles='dashed',
                 scale=range(0,2,2) ) ),
         ]
-        plotconf = conf.plotf.merge('sfc', 't2m',
+        plotconf = pconf.merge('sfc', 't2m',
                 overlays=overlays,
-                cmap=cm.t, # Set a colormap
                 scale=range(-34,36,2),
                 ticks=range(-30,31,10),
                 **self.std_plotconf
@@ -438,34 +433,34 @@ class shf_wind(tshf, ff10):
         shft = [-10000,]+shf+[10000,]
 
         overlays = [
-            fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **pconfl.merge('sfc', 'ff10', 
                 linewidths=0.5,
                 **self.std_plotconf) ),
-            fig.map_overlay_contour(data['sfc','ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['sfc','ff_10m'], static, **pconfl.merge('sfc', 'ff10',
                 colors='gold',
                 linewidths=[1],
                 scale=[17.2, ] ) ),
-            fig.map_overlay_contour(data['sfc','ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['sfc','ff_10m'], static, **pconfl.merge('sfc', 'ff10',
                 colors='coral',
                 linewidths=[1.5],
                 scale=[24.5, ] ) ),
-            fig.map_overlay_contour(data['sfc','ff_10m'], static, **conf.plot.merge('sfc', 'ff10',
+            fig.map_overlay_contour(data['sfc','ff_10m'], static, **pconfl.merge('sfc', 'ff10',
                 colors='crimson',
                 linewidths=[2],
                 scale=[32.7, ] ) ),
-            fig.map_overlay_contour(data['sfc','SFX_SST'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sfc','SFX_SST'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.5,
                 linewidths=[0.7],
                 scale=[-1,1,2,3,4,6,7,8,9,11,12,13,14,16,17,18,19] ) ),
-            fig.map_overlay_contour(data['sfc','SFX_SST'], static, **conf.plot.merge('sfc', 'sst',
+            fig.map_overlay_contour(data['sfc','SFX_SST'], static, **pconfl.merge('sfc', 'sst',
                 colors='k',
                 alpha=0.6,
                 linewidths=[1],
                 scale=np.arange(0,21,5) ) ),
         ]
 
-        plotconf = conf.plotf.merge('sfc', 'tshff',
+        plotconf = pconf.merge('sfc', 'tshff',
                 cmap=cm.BrBG,
                 scale=shf,
                 norm=mpl.colors.BoundaryNorm(shft, 256),
@@ -528,20 +523,19 @@ class ff10_fronts(ff10,fronts):
             return True
 
         overlays = [
-            fig.map_overlay_shading(data['850','frovo'], static, **conf.plot.merge(None, None,
+            fig.map_overlay_shading(data['850','frovo'], static, **pconfl.merge(None, None,
                 colors=['navy', ],
                 alpha=0.6,
                 scale=[0.001, 2.0],
                 extend='neither',
                 cb_disable=True,) ),
-            fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **pconfl.merge('sfc', 'ff10', 
                 linewidths=0.5,
                 **self.std_plotconf) ),
         ]
         
         s = np.arange(5.0,32.6,2.5)
-        plotconf = conf.plotf.merge('sfc', 'ff10',
-                cmap=cm.ff, 
+        plotconf = pconf.merge('sfc', 'ff10',
                 scale=s,
                 extend='both',
                 overlays=overlays,
@@ -594,8 +588,7 @@ class rh2m_tp(precip):
         s=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0] 
         st=[-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0] 
         overlays = [
-            fig.map_overlay_shading(data['sfc','precipitation_amount'], static, **conf.plotf.merge('sfc', 'trr',
-                cmap=cm.trr, # Set a colormap
+            fig.map_overlay_shading(data['sfc','precipitation_amount'], static, **pconf.merge('sfc', 'trr',
                 norm=mpl.colors.BoundaryNorm(st, 256),
                 cb_tickspacing='uniform',
                 extend='max',
@@ -607,7 +600,7 @@ class rh2m_tp(precip):
 
         s=[0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99] 
         st=[-1, 0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99, 10.0] 
-        plotconf = conf.plotf.merge('sfc', 'rh2m',
+        plotconf = pconf.merge('sfc', 'rh2m',
                 cmap=cm.Greys_r, # Set a colormap
                 norm=mpl.colors.BoundaryNorm(st, 256),
                 #cb_tickspacing='uniform',
@@ -646,7 +639,7 @@ class w500_winds(plotter):
             return True
 
         overlays = [
-            fig.map_overlay_barbs(data['500','x_wind_pl'], data['500','y_wind_pl'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['500','x_wind_pl'], data['500','y_wind_pl'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
@@ -654,7 +647,7 @@ class w500_winds(plotter):
         ]
         s=[-10,-5,-3,-2,-1,-0.5,-0.3,-0.2,-0.1,0.1,0.2,0.3,0.5,1,2,3,5,10] 
         st=[-100]+s+[100,]
-        plotconf = conf.plotf.merge('500', 'upward_air_velocity_pl',
+        plotconf = pconf.merge('500', 'upward_air_velocity_pl',
                 overlays=overlays,
                 cmap='RdGy_r', # Set a colormap
                 norm=mpl.colors.BoundaryNorm(st, 256),
@@ -701,7 +694,7 @@ class w700_winds(plotter):
             return True
 
         overlays = [
-            fig.map_overlay_barbs(data['700','x_wind_pl'], data['700','y_wind_pl'], static, **conf.plot.merge('sfc', 'ff10', 
+            fig.map_overlay_barbs(data['700','x_wind_pl'], data['700','y_wind_pl'], static, **pconfl.merge('sfc', 'ff10', 
                 alpha=0.5,
                 linewidths=0.5,
                 length=5,
@@ -709,7 +702,7 @@ class w700_winds(plotter):
         ]
         s=[-10,-5,-3,-2,-1,-0.5,-0.3,-0.2,-0.1,0.1,0.2,0.3,0.5,1,2,3,5,10] 
         st=[-100]+s+[100,]
-        plotconf = conf.plotf.merge('700', 'upward_air_velocity_pl',
+        plotconf = pconf.merge('700', 'upward_air_velocity_pl',
                 overlays=overlays,
                 cmap='RdGy_r', # Set a colormap
                 norm=mpl.colors.BoundaryNorm(st, 256),
@@ -763,7 +756,7 @@ class w850_ff(ff):
         w[mask] = np.nan
         overlays = [
             fig.map_overlay_shading(w, static, 
-                    **conf.plotf.merge('850','upward_air_velocity_pl',
+                    **pconf.merge('850','upward_air_velocity_pl',
                 cmap='RdGy_r', # Set a colormap
                 norm=mpl.colors.BoundaryNorm(st, 256),
                 cb_tickspacing='uniform',
@@ -772,7 +765,7 @@ class w850_ff(ff):
                 scale=s,
                 ticks=st,
                 **self.std_plotconf) ), 
-            fig.map_overlay_contour(data['925', 'ff'], static, **conf.plot.merge('925', 'ff',
+            fig.map_overlay_contour(data['925', 'ff'], static, **pconfl.merge('925', 'ff',
                 scale=np.arange(5,51,5),
                 colors=['tab:blue'],
                 linewidths=[0],
@@ -781,7 +774,7 @@ class w850_ff(ff):
                 **self.std_plotconf ) ), 
         ]
 
-        plotconf = conf.plotf.merge('925', 'ff',
+        plotconf = pconf.merge('925', 'ff',
                 scale=np.arange(5,51,5),
                 cmap='Blues',
                 extend='both',

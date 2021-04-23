@@ -47,7 +47,7 @@ class plotter(object):
 
         if not data_available:
             fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-            plt.savefig(conf.plotpath + '/' + self.saveas)
+            plt.savefig(plotpath + '/' + self.saveas)
             return True
 
         else:
@@ -58,7 +58,7 @@ class plotter(object):
         ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday=(0)))
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%d %b'))
         ax.xaxis.set_minor_locator(mdates.DayLocator())
-        plt.savefig(conf.plotpath + '/' + self.saveas)
+        plt.savefig(plotpath + '/' + self.saveas)
 
         return True
 
@@ -340,7 +340,7 @@ bgoi = 10
 
 forecast = get_current_fc()
 # Override
-#forecast = dt(2019,12,10,0)
+forecast = dt(2021,4,22,0)
 fcstr = forecast.strftime(DATEFMT)
 
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))

@@ -12,6 +12,8 @@ from numpy import ma
 from dynlib.shorthands import *
 from settings.metno import *
 
+import dynlib.utils
+
 from current_fc_kyst import get_current_fc_kyst
 from plot_forecast_kyst import rotate_vector_i, plotter, sst_sfccur, sss_sfccur, ff_sfccur
 
@@ -20,7 +22,7 @@ class Scandes(plotter):
     fcname = plotter.fcname + '_full'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.Scandimap
+    std_plotconf['m'] = proj.Scandinavia
 
     figsize = (5.5,6.18)
     figsize_deco = (6.25,6.18)
@@ -30,7 +32,7 @@ class BarentsSea(plotter):
     fcname = plotter.fcname + '_barents'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.BarentsSeamap
+    std_plotconf['m'] = proj.Barents_Sea
 
     figsize = (5.0,6.375)
     figsize_deco = (5.68182,6.375)
@@ -40,7 +42,7 @@ class NAtlantic(plotter):
     fcname = plotter.fcname + '_natlantic'
     
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.NAfcmap
+    std_plotconf['m'] = proj.N_Atlantic_forecast
 
     figsize = (7.2,4.8)
     figsize_deco = (8.18182,4.8)
@@ -167,8 +169,8 @@ if __name__ == '__main__':
                 plot.error = True
             elif q not in data:
                 data[q] = np.concatenate((
-                    utils.scale(f1.variables[q]).squeeze(),
-                    utils.scale(f2.variables[q]).squeeze(),
+                    dynlib.utils.scale(f1.variables[q]).squeeze(),
+                    dynlib.utils.scale(f2.variables[q]).squeeze(),
                 ), axis=0)
         
         if not plot.error:
