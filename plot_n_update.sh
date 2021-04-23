@@ -6,7 +6,7 @@ logpath='/home/ubuntu/log'
 plotstat="$logpath/status"
 
 fc=`python3 $basepath/current_fc.py`
-lastfile="/share/base/ecmwf/$fc/ec.for-NA.$fc.200.w.nc"
+lastfile="/share/base/ecmwf/$fc/ec.for-hr.$fc.700.t.nc"
 
 attempts=18
 while [ ! -f $lastfile ] && [ $attempts -gt 0 ]; do
