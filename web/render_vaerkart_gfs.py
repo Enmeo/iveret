@@ -98,12 +98,6 @@ ffpv2 = variable(u'Wind speed', u'm/s', u'PV 2')
 defang850 = variable(u'Axes of dilatation', u'', u'850 hPa')
 icwvt = variable(u'Integrated column water vapour transport', u'', u'')
 jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
-uslope = variable(u'Average isentropic slope', u'm/km', '200-600 hPa')
-lslope = variable(u'Average isentropic slope', u'm/km', '600-900 hPa')
-rwb_a500 = variable(u'Anticyclonic Rossby wave breaking', u'', '500 hPa') 
-rwb_c500 = variable(u'Cyclonic Rossby wave breaking', u'', '500 hPa') 
-rwb_apv2 = variable(u'Anticyclonic Rossby wave breaking', u'', 'PV 2') 
-rwb_cpv2 = variable(u'Cyclonic Rossby wave breaking', u'', 'PV 2') 
 
 o = overlay
 plotlist = [
@@ -127,10 +121,6 @@ plotlist = [
 		name='Cloud cover'),
 	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
 		name='PV2 Pot. temperature, jets and wind speed'),
-	plot(u'ffpv2_rwb', ffpv2, [
-        o('red', rwb_apv2, None), o('orange', rwb_cpv2, None),
-        o('blue', rwb_a500, None), o('cyan', rwb_c500, None), ],
-		name='PV2 Wind speed and Rossby wave breaking'),
 	plot(u't850_perc', t850a, [
 			o('black', t850p, ['monthly recurrence']), 
 			o('grey', t850p, ['yearly recurrence']), 

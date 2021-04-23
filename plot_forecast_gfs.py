@@ -181,34 +181,6 @@ class deform(plotter):
         if not ('defang', plev) in data:
             data['defang',plev] = dynlib.diag.def_angle(data['u',plev], data['v', plev], static.dx, static.dy)
 
-# Rossby wave breaking
-class wavebreaking(theta):
-    def __convert_and_mask(self, rwb_a, rwb_c, data, plev):
-        rwb_a = rwb_a.astype('f8')
-        rwb_a[rwb_a < 0.5] = np.nan
-        rwb_c = rwb_c.astype('f8')
-        rwb_c[rwb_c < 0.5] = np.nan
-
-        data['rwb_a',plev], data['rwb_c',plev] = rwb_a, rwb_c
-
-    def detect_wavebreaking(self, data, plev, static):
-        if not ('rwb_a', plev) in data:
-            # PT on PV2
-            if plev == 'pv2000':
-                theta.cal_theta(self, data, plev, static)
-                rwb_a, rwb_c = dynlib.detect.rwb_by_contour(data['pt',plev], 'PT',
-                        static.x[0,:], static.y[:,0], 21, static.dx, static.dy)
-
-            # Z500 
-            elif plev == '500':
-                rwb_a, rwb_c = dynlib.detect.rwb_by_contour(data['z',plev], 'Z5',
-                        static.x[0,:], static.y[:,0], 21, static.dx, static.dy)
-            
-            else:
-                raise ValueError(f'Unknown vertical level {plev} for wavebreaking detection')
-            
-            self.__convert_and_mask(rwb_a, rwb_c, data, plev)
-
 # Frontal diagnostics
 class fronts(plotter):
     def detect_frontalvolumes(self, data, plev, static):
@@ -704,45 +676,6 @@ class ptpv2_jets_spolar(ptpv2_jets,spolar):
     plotname = 'ptpv2_jets'
 
 
-# Potential temperature@PV2 shading and wind barbs
-class ffpv2_rwb(wavebreaking, jets, theta):
-    requires = [('u', 'pv2000'), ('v', 'pv2000'), ('t', 'pv2000'), ('p', 'pv2000'), ('z', '500'), ]
-    requires_diagnostic = [
-    #    (wavebreaking.detect_wavebreaking, 'pv2000'), 
-        (jets.cal_ff, 'pv2000'),
-        (wavebreaking.detect_wavebreaking, '500'), 
-    ]
-    plotname = 'ffpv2_rwb'
-
-    def plot(self, data, static, dateinit, datevalid):
-        done = jets.plot(self, data, static, dateinit, datevalid)
-        if done:
-            return True
-
-        overlays = [
-            #fig.map_overlay_shading(data['rwb_a','pv2000'], static, **conf.plot.merge('pv2000', 'rwb_a',
-            #    scale=[-2, -0.5, 2], colors=['k', 'tab:red', ], tile=True, alpha=0.4, cb_disable=True, )),
-            #fig.map_overlay_shading(data['rwb_c','pv2000'], static, **conf.plot.merge('pv2000', 'rwb_c',
-            #   scale=[-2, -0.5, 2], colors=['k', 'tab:orange', ], tile=True, alpha=0.4, cb_disable=True, )),
-            fig.map_overlay_shading(data['rwb_a','500'], static, **conf.plot.merge('500', 'rwb_a',
-                scale=[-2, -0.5, 2], colors=['k', 'tab:blue', ], tile=True, alpha=0.4, cb_disable=True, )),
-            fig.map_overlay_shading(data['rwb_c','500'], static, **conf.plot.merge('500', 'rwb_c',
-                scale=[-2, -0.5, 2], colors=['k', 'tab:cyan', ], tile=True, alpha=0.4, cb_disable=True,)),
-        ]
-    
-        plotconf = conf.plotf.merge('pv2000', 'ff',
-                overlays=overlays,
-                scale=np.arange(0,101,5),
-                ticks=np.arange(30,91,30),
-                extend='max',
-                cmap='Greys',
-                **self.std_plotconf
-        )
-        fig.map(data['ff', 'pv2000'], static, **plotconf)
-
-        return True
-
-
 # Total column water vapour
 class tcwv(iwvtrans):
     requires = [('tcwv', 'sfc'), ('crr', 'sfc'), ('lsrr', 'sfc'), 
@@ -1161,10 +1094,8 @@ PLOTS = {
         ptpv2_jets(),
         ptpv2_jets_npolar(),
         ptpv2_jets_spolar(),
-        ffpv2_rwb(),
     ],
     'test': [
-        ffpv2_rwb(),
     ],
     'sfc': [
         cc(),
@@ -1247,15 +1178,15 @@ def get_data_grib(f, plev, q):
     elif plev == 'sfc' and q == 'lcc':
         if f[1].forecastTime == 0:
             return np.zeros(f[1].values.shape)
-        msgs = f.select(typeOfFirstFixedSurface='214')
+        msgs = f.select(typeOfFirstFixedSurface='214', stepType='instant')
     elif plev == 'sfc' and q == 'mcc':
         if f[1].forecastTime == 0:
             return np.zeros(f[1].values.shape)
-        msgs = f.select(typeOfFirstFixedSurface='224')
+        msgs = f.select(typeOfFirstFixedSurface='224', stepType='instant')
     elif plev == 'sfc' and q == 'hcc':
         if f[1].forecastTime == 0:
             return np.zeros(f[1].values.shape)
-        msgs = f.select(typeOfFirstFixedSurface='234')
+        msgs = f.select(typeOfFirstFixedSurface='234', stepType='instant')
     elif plev == 'sfc' and  q == 'u10':
         msgs = f.select(name='10 metre U wind component')
     elif plev == 'sfc' and  q == 'v10':
