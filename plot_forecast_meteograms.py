@@ -340,7 +340,7 @@ bgoi = 10
 
 forecast = get_current_fc()
 # Override
-forecast = dt(2021,4,22,0)
+#forecast = dt(2021,4,27,0)
 fcstr = forecast.strftime(DATEFMT)
 
 print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
