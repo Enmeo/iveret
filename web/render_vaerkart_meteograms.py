@@ -90,7 +90,8 @@ t = env.get_template('template_jinja_meteograms.html')
 c = {
     'plot_domains': plotdomains,
     'plot_domain': plotdomains[7][0],
-    'plot_prefix': 'ec_for_meteograms',
+    'fcsrc': 'ec', 
+    'domain': 'meteograms',
     'plotlist': plotlist, 
     'timlist': timlist,
     'leadlist': leadlist,
@@ -99,7 +100,7 @@ c = {
     'initplot': plotlist[0],
     'date_begin': date_fc,
     'date_init': date_fc,
-    'plotdir': '/plots',
+    'plotdir': 'maps',
     'display_details': False,
     'archive': {},
 }

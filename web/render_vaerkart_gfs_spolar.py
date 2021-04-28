@@ -27,35 +27,35 @@ print('Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H 
 
 # Defining stuff
 class variable(object):
-	def __init__(self, name, units, level):
-		self.name = name
-		self.units = units
-		self.level = level
+    def __init__(self, name, units, level):
+        self.name = name
+        self.units = units
+        self.level = level
 
-		#self.overlays = overlays
+        #self.overlays = overlays
 
 class plot(object):
-	def __init__(self, prefix, shading, overlays=[], name=None):
-		self.prefix = prefix
-		self.shading = shading
-		self.overlays = overlays
-		
-		if name:
-			self.name = name
-		elif self.shading.level:
-			self.name = '%s on %s' % (self.shading.name, self.shading.level)
-		else:
-			self.name = self.shading.name
+    def __init__(self, prefix, shading, overlays=[], name=None):
+        self.prefix = prefix
+        self.shading = shading
+        self.overlays = overlays
+        
+        if name:
+            self.name = name
+        elif self.shading.level:
+            self.name = '%s on %s' % (self.shading.name, self.shading.level)
+        else:
+            self.name = self.shading.name
 
 class overlay(object):
-	def __init__(self, color, variable, contours):
-		self.color = color
-		self.var = variable
-		if type(contours) == list:
-			self.contours = ', '.join(map(str, contours))
-		else:
-			self.ci = contours
-		
+    def __init__(self, color, variable, contours):
+        self.color = color
+        self.var = variable
+        if type(contours) == list:
+            self.contours = ', '.join(map(str, contours))
+        else:
+            self.ci = contours
+        
 
 
 # Defining stuff
@@ -91,13 +91,13 @@ jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
 
 o = overlay
 plotlist = [
-	plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
-		name='500 hPa Geopotential and SLP'), 
-	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
-		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
-		name='Total column water vapour, integrated fluxes and precipitation'),
-	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
-		name='PV2 Pot. temperature, jets and wind speed'),
+    plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
+        name='500 hPa Geopotential and SLP'), 
+    plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
+        o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
+        name='Total column water vapour, integrated fluxes and precipitation'),
+    plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
+        name='PV2 Pot. temperature, jets and wind speed'),
 ]
 
 fclist = [date_base - td(0.25)*i for i in range(29)]
@@ -112,19 +112,20 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 # Rendering
 t = env.get_template('template_jinja.html')
 c = {
-	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[2][0],
-	'plot_prefix': 'noaa_for_spolar',
-	'plotlist': plotlist, 
-	'timlist': timlist,
-	'leadlist': leadlist,
-	'leadlist_link': leadlist_link,
-	'fclist': fclist, 
-	'initplot': plotlist[0],
-	'date_begin': date_fc,
-	'date_init': date_fc,
-	'plotdir': 'plots',
-	'display_details': False,
+    'plot_domains': plotdomains,
+    'plot_domain': plotdomains[2][0],
+    'fcsrc': 'noaa',
+    'domain': 'spolar',
+    'plotlist': plotlist, 
+    'timlist': timlist,
+    'leadlist': leadlist,
+    'leadlist_link': leadlist_link,
+    'fclist': fclist, 
+    'initplot': plotlist[0],
+    'date_begin': date_fc,
+    'date_init': date_fc,
+    'plotdir': 'maps',
+    'display_details': False,
 }
 
 f = codecs.open(filepath, mode='w', encoding='utf-8')

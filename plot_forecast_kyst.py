@@ -111,7 +111,7 @@ def rotate_vector_i(proj,uin,vin,lons,lats,returnxy=False):
 # Genering plot
 class plotter(object):
     filetype = 'png'
-    fcname = 'no_kyst'
+    fcname = 'no_kyst_for'
     
     # Add colorbar and legend
     decorations = False

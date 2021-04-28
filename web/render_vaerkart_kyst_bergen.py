@@ -89,7 +89,8 @@ t = env.get_template('template_jinja.html')
 c = { 
     'plot_domains': plotdomains,
     'plot_domain': plotdomains[0][0],
-    'plot_prefix': 'no_kyst_bergen',
+    'fcsrc': 'no_kyst',
+    'domain': 'bergen',
     'plotlist': plotlist, 
     'timlist': timlist,
     'leadlist': leadlist,
@@ -98,7 +99,7 @@ c = {
     'initplot': plotlist[0],
     'date_begin': date_fc,
     'date_init': date_fc,
-    'plotdir': '/plots',
+    'plotdir': 'maps',
     'display_details': False,
 }
 

@@ -27,36 +27,36 @@ print('Creating page for forecasts from %s.' % date_base.strftime('%d.%m.%Y, %H 
 
 # Defining stuff
 class variable(object):
-	def __init__(self, name, units, level, addinfo=u''):
-		self.name = name
-		self.units = units
-		self.level = level
-		self.addinfo = addinfo
+    def __init__(self, name, units, level, addinfo=u''):
+        self.name = name
+        self.units = units
+        self.level = level
+        self.addinfo = addinfo
 
-		#self.overlays = overlays
+        #self.overlays = overlays
 
 class plot(object):
-	def __init__(self, prefix, shading, overlays=[], name=None):
-		self.prefix = prefix
-		self.shading = shading
-		self.overlays = overlays
-		
-		if name:
-			self.name = name
-		elif self.shading.level:
-			self.name = '%s on %s' % (self.shading.name, self.shading.level)
-		else:
-			self.name = self.shading.name
+    def __init__(self, prefix, shading, overlays=[], name=None):
+        self.prefix = prefix
+        self.shading = shading
+        self.overlays = overlays
+        
+        if name:
+            self.name = name
+        elif self.shading.level:
+            self.name = '%s on %s' % (self.shading.name, self.shading.level)
+        else:
+            self.name = self.shading.name
 
 class overlay(object):
-	def __init__(self, color, variable, contours):
-		self.color = color
-		self.var = variable
-		if type(contours) == list:
-			self.contours = ', '.join(map(str, contours))
-		else:
-			self.ci = contours
-		
+    def __init__(self, color, variable, contours):
+        self.color = color
+        self.var = variable
+        if type(contours) == list:
+            self.contours = ', '.join(map(str, contours))
+        else:
+            self.ci = contours
+        
 
 
 # Defining stuff
@@ -99,36 +99,36 @@ jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
 
 o = overlay
 plotlist = [
-	plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
-		name='500 hPa Geopotential and SLP'), 
-	plot(u't850_msl', t850, [o('black dashes', t850, [0,]), o('black', msl, 5), o('black', barbs850, None)],
-		name='850 hPa Temperature, SLP and wind barbs'),
-	plot(u'deform850_fronts', def850, [o('black double-arrows', defang850, None), o('dark cyan shading', frovo850, None), 
-		o('red, blue, purple', fronts850, None), o('dark red', t850, [-5,]), ],
-		name='850 hPa Deformation, fronts and precipitation'),
-	plot(u'sshf_winds', sshff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
-		o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
-		name='Sensible heat fluxes, 10 m winds, SSTs and MIZ'),
-	plot(u'slhf_winds', slhff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
-		o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
-		name='Latent heat fluxes, 10 m winds, SSTs and MIZ'),
-	plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
-		o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
-		name='Total column water vapour, fluxes and precip.'),
-	plot(u'tcc', lcc, [o('orange shading', mcc, None), o('white shading', hcc, None)],
-		name='Cloud cover'),
-	plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
-		name='PV2 Pot. temperature, jets and wind speed'),
-	plot(u't850_perc', t850a, [
-			o('black', t850p, ['monthly recurrence']), 
-			o('grey', t850p, ['yearly recurrence']), 
-			o('white', t850p, ['new record']), ], 
-		name='850 hPa Temperature anomalies'),
-	plot(u'tcwv_perc', tcwva, [
-			o('black', tcwvp, ['monthly recurrence']), 
-			o('grey', tcwvp, ['yearly recurrence']), 
-			o('white', tcwvp, ['new record']), ], 
-		name='Total column water vapour anomalies'),
+    plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
+        name='500 hPa Geopotential and SLP'), 
+    plot(u't850_msl', t850, [o('black dashes', t850, [0,]), o('black', msl, 5), o('black', barbs850, None)],
+        name='850 hPa Temperature, SLP and wind barbs'),
+    plot(u'deform850_fronts', def850, [o('black double-arrows', defang850, None), o('dark cyan shading', frovo850, None), 
+        o('red, blue, purple', fronts850, None), o('dark red', t850, [-5,]), ],
+        name='850 hPa Deformation, fronts and precipitation'),
+    plot(u'sshf_winds', sshff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
+        o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
+        name='Sensible heat fluxes, 10 m winds, SSTs and MIZ'),
+    plot(u'slhf_winds', slhff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
+        o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
+        name='Latent heat fluxes, 10 m winds, SSTs and MIZ'),
+    plot(u'tcwv', tcwv, [o('black arrows', icwvt, None), 
+        o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
+        name='Total column water vapour, fluxes and precip.'),
+    plot(u'tcc', lcc, [o('orange shading', mcc, None), o('white shading', hcc, None)],
+        name='Cloud cover'),
+    plot(u'ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
+        name='PV2 Pot. temperature, jets and wind speed'),
+    plot(u't850_perc', t850a, [
+            o('black', t850p, ['monthly recurrence']), 
+            o('grey', t850p, ['yearly recurrence']), 
+            o('white', t850p, ['new record']), ], 
+        name='850 hPa Temperature anomalies'),
+    plot(u'tcwv_perc', tcwva, [
+            o('black', tcwvp, ['monthly recurrence']), 
+            o('grey', tcwvp, ['yearly recurrence']), 
+            o('white', tcwvp, ['new record']), ], 
+        name='Total column water vapour anomalies'),
 ]
 
 fclist = [date_base - td(0.25)*i for i in range(29)]
@@ -143,19 +143,20 @@ timlist = [date_fc + td(0,3600*lead) for lead in leadlist]
 # Rendering
 t = env.get_template('template_jinja.html')
 c = {
-	'plot_domains': plotdomains,
-	'plot_domain': plotdomains[0][0],
-	'plot_prefix': 'noaa_for',
-	'plotlist': plotlist, 
-	'timlist': timlist,
-	'leadlist': leadlist,
-	'leadlist_link': leadlist_link,
-	'fclist': fclist, 
-	'initplot': plotlist[0],
-	'date_begin': date_fc,
-	'date_init': date_fc,
-	'plotdir': 'plots',
-	'display_details': False,
+    'plot_domains': plotdomains,
+    'plot_domain': plotdomains[0][0],
+    'fcsrc': 'noaa',
+    'domain': 'natl',
+    'plotlist': plotlist, 
+    'timlist': timlist,
+    'leadlist': leadlist,
+    'leadlist_link': leadlist_link,
+    'fclist': fclist, 
+    'initplot': plotlist[0],
+    'date_begin': date_fc,
+    'date_init': date_fc,
+    'plotdir': 'maps',
+    'display_details': False,
 }
 
 f = codecs.open(filepath, mode='w', encoding='utf-8')

@@ -128,7 +128,8 @@ t = env.get_template('template_jinja.html')
 c = {
     'plot_domains': plotdomains,
     'plot_domain': plotdomains[10][0],
-    'plot_prefix': 'no_for_full',
+    'fcsrc': 'no',
+    'domain': 'scandes',
     'plotlist': plotlist, 
     'timlist': timlist,
     'leadlist': leadlist,
@@ -137,7 +138,7 @@ c = {
     'initplot': plotlist[0],
     'date_begin': date_fc,
     'date_init': date_fc,
-    'plotdir': 'plots',
+    'plotdir': 'maps',
     'display_details': False,
 }
 

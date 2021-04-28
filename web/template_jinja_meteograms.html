@@ -11,33 +11,34 @@
   <script src="/static/moment.js" type="text/javascript"></script>
   <script src="/static/vaerkart.js" type="text/javascript"></script>
   <script type="text/javascript">
-	// Defining the data base of init and valid times
-	var avail_fcs = [{% for fc in fclist %}moment.utc("{{ fc.strftime("%Y-%m-%d %H") }}"){% if not loop.last %}, {% endif %}{% endfor %}];
-	var avail_leads = [{% for lead in leadlist %}{{ lead }}{% if not loop.last %}, {% endif %}{% endfor %}];
+    // Defining the data base of init and valid times
+    var avail_fcs = [{% for fc in fclist %}moment.utc("{{ fc.strftime("%Y-%m-%d %H") }}"){% if not loop.last %}, {% endif %}{% endfor %}];
+    var avail_leads = [{% for lead in leadlist %}{{ lead }}{% if not loop.last %}, {% endif %}{% endfor %}];
 
-	// Constants
-	var browse_tims = [{% for tim in timlist %}moment.utc("{{ tim.strftime("%Y-%m-%d %H") }}"){% if not loop.last %}, {% endif %}{% endfor %}];
-	var plot_prefix = '{{ plot_prefix }}';
-	var plotdir = '{{ plotdir }}';
-	var units = {}; {% for plot in plotlist %}
-	units['{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}
-	{% if archive %}var archive_available = true;
-	var archive_start = moment.utc("{{ archive.start.strftime("%Y-%m-%d %H") }}");
-	var archive_vars = [{% for plot in archive.plots %}"{{ plot }}"{% if not loop.last %}, {% endif %}{% endfor %}];
-	var archive_step = {{ archive.step }};
-	{% else %}var archive_available = false;{% endif %}
+    // Constants
+    var browse_tims = [{% for tim in timlist %}moment.utc("{{ tim.strftime("%Y-%m-%d %H") }}"){% if not loop.last %}, {% endif %}{% endfor %}];
+    var fcsrc = '{{ fcsrc }}';
+    var domain = '{{ domain }}';
+    var plotdir = '{{ plotdir }}';
+    var units = {}; {% for plot in plotlist %}
+    units['{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}
+    {% if archive %}var archive_available = true;
+    var archive_start = moment.utc("{{ archive.start.strftime("%Y-%m-%d %H") }}");
+    var archive_vars = [{% for plot in archive.plots %}"{{ plot }}"{% if not loop.last %}, {% endif %}{% endfor %}];
+    var archive_step = {{ archive.step }};
+    {% else %}var archive_available = false;{% endif %}
 
-	// Initial values
-	var cur_leads = avail_leads;
-	var prefix = {}; {% for i in "1234" %} 
-	prefix[{{ i }}] ='{{ initplot.prefix }}'; {% endfor %}
-	var date_fc = avail_fcs[0];
-	var date_vis = moment.utc("{{ date_init.strftime("%Y-%m-%d %H") }}");
-	var lead_vis = 0;
-	var display_details = {{ display_details|lower }};
-	var cur_panels = 11;
-	var _shifted = false;
-	var _archive = false;
+    // Initial values
+    var cur_leads = avail_leads;
+    var prefix = {}; {% for i in "1234" %} 
+    prefix[{{ i }}] ='{{ initplot.prefix }}'; {% endfor %}
+    var date_fc = avail_fcs[0];
+    var date_vis = moment.utc("{{ date_init.strftime("%Y-%m-%d %H") }}");
+    var lead_vis = 0;
+    var display_details = {{ display_details|lower }};
+    var cur_panels = 11;
+    var _shifted = false;
+    var _archive = false;
   </script>
 </head>
 <body>
@@ -69,12 +70,12 @@
       {% for plot in plotlist %}<div id="{{ plot.prefix }}_details1"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
         <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %}{% if plot.shading.addinfo %}, {{ plot.shading.addinfo }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
         <ul class="overlay">{% for o in plot.overlays %}
-	  <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+      <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.color }}">{{ o.color }}</span>){% if o.ci %}, contour interval = {{ o.ci }} {{ o.var.units }}{% elif o.contours %}, contours at {{ o.contours }} {{ o.var.units }}{% endif %}</li>{% endfor %}
         </ul>{% endif %}
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container1" class="map">
-          <img id="map1" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+	  <img id="map1" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix }}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
       </div> <!-- plot -->
     </div> <!-- panel -->
@@ -92,7 +93,7 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container2" class="map">
-          <img id="map2" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+	  <img id="map2" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix }}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
       </div> <!-- plot -->
     </div> <!-- panel -->
@@ -110,7 +111,7 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container3" class="map">
-          <img id="map3" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+	  <img id="map3" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix }}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
       </div> <!-- plot -->
     </div> <!-- panel -->
@@ -128,7 +129,7 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container4" class="map">
-          <img id="map4" src="./{{ plotdir }}/{{ plot_prefix }}_{{ initplot.prefix }}_from_{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+	  <img id="map4" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix }}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
       </div> <!-- plot -->
     </div> <!-- panel -->
