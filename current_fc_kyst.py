@@ -8,12 +8,11 @@ def get_current_fc_kyst():
 	''' Return the most recent available forecast init time '''
 
 	now = dt.now()
-	if now.hour in range(0,5):
-		forecast = dt(now.year,now.month,now.day,0)
-		forecast -= td(2,0)
-	else:
+	if now.hour in range(0,11):
 		forecast = dt(now.year,now.month,now.day,0)
 		forecast -= td(1,0)
+	else:
+		forecast = dt(now.year,now.month,now.day,0)
 
 	# Override
 	#forecast = dt(2018,10,8,0)
