@@ -71,7 +71,5 @@ ffpv2 = variable(u'Wind speed', u'm/s', u'PV 2')
 defang850 = variable(u'Axes of dilatation', u'', u'850 hPa')
 icwvt = variable(u'Integrated column water vapour transport', u'', u'')
 jetaxespv2 = variable(u'Jet axes', u'', u'PV 2')
-uslope = variable(u'Average isentropic slope', u'm/km', '200-600 hPa')
-lslope = variable(u'Average isentropic slope', u'm/km', '600-900 hPa')
 
 # C'est le fin

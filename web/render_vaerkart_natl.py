@@ -66,10 +66,6 @@ plotlist = {
                 o('grey', t850p, ['yearly recurrence']), 
                 o('white', t850p, ['new record']), ], 
             name='Total column water vapour anomalies'),
-        plot(u'slope_upper', uslope, [o('black', ffpv2, [30, 45, 60, 75, 90]), ],
-            name='Upper-level slopes and tropopause winds'),
-        plot(u'slope_lower', lslope, [o('black', ffpv2, [30, 45, 60, 75, 90]), ],
-            name='Lower-level slopes and tropopause winds'),
     ],
     ('GFS', 'noaa'): [
         plot(u'z500_msl', z500, [o('white', z500, [552,]), o('black', msl, 5)], 
