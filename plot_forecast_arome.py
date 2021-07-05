@@ -162,8 +162,8 @@ class fronts(plotter):
 
     def detect_frontalvolumes(self, data, plev, static):
         dynfor.config.nsmooth = 90
-        dynfor.config.tfp_mingrad_largescale = 3.5e-5
-        dynfor.config.tfp_mingrad_smallscale = 3.5e-5
+        dynfor.config.tfp_mingrad_largescale = 4.0e-5
+        dynfor.config.tfp_mingrad_smallscale = 6.0e-5
         dynfor.config.minsize = 10000.0e6
 
         if not (plev,'frovo') in data:
