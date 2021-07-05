@@ -11,3 +11,6 @@ vaer*.html
 mpl_config
 .DS_Store
 myeasylog.log
+
+dynlib
+topens
