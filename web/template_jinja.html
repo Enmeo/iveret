@@ -1,4 +1,4 @@
-<!doctype html>
+<!doctype html>{% if domain == 'natl' or domain == 'snorway'%}{% set testing = '' %}{% else %}{% set domain_ = domain+'_' %}{% endif %}
 
 <html lang="en">
 <head>
@@ -75,10 +75,10 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container1" class="map">
-          <img id="map1" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+          <img id="map1" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
         <div class="cbar_container">
-          <img class="cbar" id="cbar1" src="/static/deco/cbar_{{ fcsrc }}_for_{{ initplot.prefix }}.png" />
+	  <img class="cbar" id="cbar1" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
           <div class="cbar_units" id="cbar_units1">[{{ initplot.shading.units }}]</div>
         </div>
       </div> <!-- plot -->
@@ -97,10 +97,10 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container2" class="map">
-          <img id="map2" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+          <img id="map2" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
         <div class="cbar_container">
-          <img class="cbar" id="cbar2" src="/static/deco/cbar_{{ fcsrc }}_for_{{ initplot.prefix }}.png" />
+          <img class="cbar" id="cbar2" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
           <div class="cbar_units" id="cbar_units2">[{{ initplot.shading.units }}]</div>
         </div>
       </div> <!-- plot -->
@@ -119,10 +119,10 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container3" class="map">
-          <img id="map3" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+          <img id="map3" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
         <div class="cbar_container">
-          <img class="cbar" id="cbar3" src="/static/deco/cbar_{{ fcsrc }}_for_{{ initplot.prefix }}.png" />
+          <img class="cbar" id="cbar3" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
           <div class="cbar_units" id="cbar_units3">[{{ initplot.shading.units }}]</div>
         </div>
       </div> <!-- plot -->
@@ -141,10 +141,10 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container4" class="map">
-          <img id="map4" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+          <img id="map4" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
         <div class="cbar_container">
-          <img class="cbar" id="cbar4" src="/static/deco/cbar_{{ fcsrc }}_for_{{ initplot.prefix }}.png" />
+          <img class="cbar" id="cbar4" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
           <div class="cbar_units" id="cbar_units4">[{{ initplot.shading.units }}]</div>
         </div>
       </div> <!-- plot -->
