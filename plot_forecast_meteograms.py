@@ -24,7 +24,8 @@ from topens.PersistentGraph.plots import *
 # Genering plot
 class plotter(object):
     filetype = 'png'
-    fcname = 'ec_for_meteograms'
+    fcsrc = 'ec'
+    domain = 'meteograms'
     
     # Which data is required for the plot
     requires = []
@@ -36,7 +37,8 @@ class plotter(object):
     
     # Do the art; to be overriden in derived classes
     def plot(self, ctrl, ens, dateinit):
-        self.saveas = f'{self.fcname}_{self.plotname}_from_{dateinit.strftime(self.fmt)}_for_{dateinit.strftime(self.fmt)}.{self.filetype}'
+        self.saveas = (f'{self.domain}/{self.plotname}/{self.fcsrc}/'
+                f'{dateinit.strftime(self.fmt)}_for_{dateinit.strftime(self.fmt)}.{self.filetype}')
 
         fi = plt.figure(figsize=self.figsize, dpi=96)
         fi.subplotpars.update(left=0.1, right=0.99, top=0.98, bottom=0.1)

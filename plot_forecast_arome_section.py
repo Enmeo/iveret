@@ -23,7 +23,8 @@ from current_fc_arome import get_current_fc_arome
 class plotter(object):
     filetype = 'png'
     sect = 'W-E_60'
-    fcname = 'no_for_we60'
+    fcsrc = 'no'
+    domain = 'we60'
     
     # Add colorbar and legend
     decorations = False
@@ -81,11 +82,12 @@ class plotter(object):
 
         ax.set_facecolor('0.7')
 
-        fname = '%s_%s_from_%s_for_%s.%s' % (
-                self.fcname, self.plotname, 
+        fname = '%s/%s/%s/%s_for_%s.%s' % (
+                self.domain, self.plotname, self.fcsrc, 
                 dateinit.strftime(self.fmt), datevalid.strftime(self.fmt), 
                 self.filetype
         )
+
         plt.savefig(f'{plotpath}/{fname}')
         plt.close()
 
@@ -151,7 +153,7 @@ class q_pt(pt):
             return True
         
         self.cs = plt.contourf(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'specific_humidity_ml']*1.0e3, 
-                np.arange(1,12.1,0.5), extend='both', cmap=cm.q())
+                np.arange(1,12.1,0.5), extend='both', cmap=cm.WYlBuKPi)
         self.cs_labels = (np.arange(2,13,2), np.arange(2,13,2))
 
         plt.contour(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'air_temperature_ml'], 
@@ -192,7 +194,7 @@ class eturb_pt(pt):
 # Most recent available data
 forecast = get_current_fc_arome()
 # Override 
-#forecast = dt(2019,12,11,6)
+#forecast = dt(2021,7,5,0)
 plot_only_init = False
 
 print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))

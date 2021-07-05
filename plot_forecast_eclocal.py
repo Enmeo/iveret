@@ -27,7 +27,8 @@ pconfl[None,'sst','hook'] = sst_mask_offset_hr
 # Genering plot
 class plotter(object):
     filetype = 'png'
-    fcname = 'ec_for_scandes'
+    fcsrc = 'ec'
+    domain = 'scandes'
     
     # Add colorbar and legend
     decorations = False
@@ -53,8 +54,8 @@ class plotter(object):
     
     # Do the art; to be overriden in derived classes
     def plot(self, data, static, dateinit, datevalid):
-        self.std_plotconf['save'] = '%s_%s_from_%s_for_%s.%s' % (
-                self.fcname, self.plotname, 
+        self.std_plotconf['save'] = '%s/%s/%s/%s_for_%s.%s' % (
+                self.domain, self.plotname, self.fcsrc, 
                 dateinit.strftime(self.fmt), datevalid.strftime(self.fmt), 
                 self.filetype
         )
@@ -86,7 +87,7 @@ class plotter(object):
 
 
 class BarentsSea(plotter):
-    fcname = plotter.fcname[:-8] + '_barents'
+    domain = 'barents'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.Barents_Sea

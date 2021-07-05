@@ -22,7 +22,8 @@ from current_fc_arome import get_current_fc_arome
 # Genering plot
 class plotter(object):
     filetype = 'png'
-    fcname = 'no_for'
+    fcsrc = 'no'
+    domain = 'snorway'
     
     # Add colorbar and legend
     decorations = False
@@ -48,8 +49,8 @@ class plotter(object):
     
     # Do the art; to be overriden in derived classes
     def plot(self, data, static, dateinit, datevalid):
-        self.std_plotconf['save'] = '%s_%s_from_%s_for_%s.%s' % (
-                self.fcname, self.plotname, 
+        self.std_plotconf['save'] = '%s/%s/%s/%s_for_%s.%s' % (
+                self.domain, self.plotname, self.fcsrc, 
                 dateinit.strftime(self.fmt), datevalid.strftime(self.fmt), 
                 self.filetype
         )
@@ -81,7 +82,7 @@ class plotter(object):
 
 
 class Scandes(plotter):
-    fcname = plotter.fcname + '_full'
+    domain = 'scandes'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.Scandinavia
@@ -91,7 +92,7 @@ class Scandes(plotter):
 
 
 class Vestland(plotter):
-    fcname = plotter.fcname + '_vestland'
+    domain = 'vestland'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.Vestland

@@ -111,7 +111,8 @@ def rotate_vector_i(proj,uin,vin,lons,lats,returnxy=False):
 # Genering plot
 class plotter(object):
     filetype = 'png'
-    fcname = 'no_kyst_for'
+    fcsrc = 'no_kyst'
+    domain = 'snorway'
     
     # Add colorbar and legend
     decorations = False
@@ -137,8 +138,8 @@ class plotter(object):
     
     # Do the art; to be overriden in derived classes
     def plot(self, data, static, dateinit, datevalid):
-        self.std_plotconf['save'] = '%s_%s_from_%s_for_%s.%s' % (
-                self.fcname, self.plotname, 
+        self.std_plotconf['save'] = '%s/%s/%s/%s_for_%s.%s' % (
+                self.domain, self.plotname, self.fcsrc, 
                 dateinit.strftime(self.fmt), datevalid.strftime(self.fmt), 
                 self.filetype
         )
@@ -170,7 +171,7 @@ class plotter(object):
 
 
 class Vestland(plotter):
-    fcname = plotter.fcname + '_vestland'
+    domain = 'vestland'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.Vestland
@@ -180,7 +181,7 @@ class Vestland(plotter):
 
     
 class Bergen(plotter):
-    fcname = plotter.fcname + '_bergen'
+    domain = 'bergen'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.Bergen

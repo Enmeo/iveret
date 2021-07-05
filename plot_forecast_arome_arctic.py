@@ -22,7 +22,7 @@ from plot_forecast_arome import plotter, t_msl, ff, ff10, tshf, precip, fronts, 
 # Arctic plot domain
 
 class Arctic(plotter):
-    fcname = plotter.fcname + '_arctic'
+    domain = 'barents'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.Barents_Sea

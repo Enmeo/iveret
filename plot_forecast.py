@@ -25,7 +25,8 @@ from current_fc import *
 # Genering plot
 class plotter(object):
     filetype = 'png'
-    fcname = 'ec_for'
+    fcsrc = 'ec'
+    domain = 'natl'
     
     # Add colorbar and legend
     decorations = False
@@ -52,8 +53,8 @@ class plotter(object):
     
     # Do the art; to be overriden in derived classes
     def plot(self, data, static, dateinit, datevalid):
-        self.std_plotconf['save'] = '%s_%s_from_%s_for_%s.%s' % (
-                self.fcname, self.plotname, 
+        self.std_plotconf['save'] = '%s/%s/%s/%s_for_%s.%s' % (
+                self.domain, self.plotname, self.fcsrc, 
                 dateinit.strftime(self.fmt), datevalid.strftime(self.fmt), 
                 self.filetype
         )
@@ -86,7 +87,7 @@ class plotter(object):
 
 # Base for all northern stereographic maps
 class npolar(plotter):
-    fcname = plotter.fcname + '_npolar'
+    domain = 'npolar'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = lambda: Basemap(projection='npstere',boundinglat=10,lon_0=-50,resolution='c', area_thresh=10000)
@@ -97,7 +98,7 @@ class npolar(plotter):
 
 # Base for all southern stereographic maps
 class spolar(plotter):
-    fcname = plotter.fcname + '_spolar'
+    domain = 'spolar'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
     std_plotconf['m'] = proj.s_hemisphere
