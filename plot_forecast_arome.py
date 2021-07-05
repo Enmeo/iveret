@@ -12,6 +12,7 @@ from settings.metno import *
 import dynlib.diag
 import dynlib.detect
 import dynlib.thermodyn
+import dynlib.utils
 
 from current_fc_arome import get_current_fc_arome
 
@@ -143,11 +144,27 @@ class precip(plotter):
 
 # Frontal diagnostics
 class fronts(plotter):
+    def cal_eqpt(self, data, plev, static):
+        if not (plev,'eqpt') in data:
+            p = np.empty(data[plev,'air_temperature_pl'].shape)
+            p[:,:,:] = 100.0 * int(plev)
+            data[plev,'eqpt'] = dynlib.thermodyn.thetae_from_q(data[plev,'specific_humidity_pl'], 
+                        data[plev,'air_temperature_pl'], p)
+
+            del p
+
+    def cal_ptv(self, data, plev, static):
+        if not (plev,'ptv') in data:
+            mv = dynlib.thermodyn.mv_from_q(data['850','specific_humidity_pl'][np.newaxis,:,:])[0,:,:]
+            data[plev,'ptv'] = data['850','air_temperature_pl'] * (1 + 0.61 * mv) * \
+                            (1000.0/int(plev))**(dynfor.consts.rl/dynfor.consts.cp) 
+
+
     def detect_frontalvolumes(self, data, plev, static):
-        dynfor.config.nsmooth = 100
-        dynfor.config.tfp_mingrad_largescale = 5.0e-5
-        dynfor.config.tfp_mingrad_smallscale = 15.0e-5
-        dynfor.config.minsize = 3000.0e6
+        dynfor.config.nsmooth = 90
+        dynfor.config.tfp_mingrad_largescale = 3.5e-5
+        dynfor.config.tfp_mingrad_smallscale = 3.5e-5
+        dynfor.config.minsize = 10000.0e6
 
         if not (plev,'frovo') in data:
             PLEVS = ['700', '850', '925', ]
@@ -155,19 +172,17 @@ class fronts(plotter):
 
             s = data[plev,'air_temperature_pl'].shape
             s = s[:1] + (len(PLEVS), ) + s[1:]
-            eqpt = np.empty(s)
+            ptv = np.empty(s)
 
             p = np.empty(data[plev,'air_temperature_pl'].shape)
             for pidx,plev_ in zip(range(len(PLEVS)), PLEVS):
-                if not (plev_,'eqpt') in data:
-                    p[:,:,:] = 100.0 * int(plev_)
-                    data[plev_,'eqpt'] = dynlib.thermodyn.thetae_from_q(data[plev_,'specific_humidity_pl'], 
-                            data[plev_,'air_temperature_pl'], p)
+                if not (plev_,'ptv') in data:
+                    self.cal_ptv(data, plev_, static)
 
-                eqpt[:,pidx,:,:] = data[plev_,'eqpt']
+                ptv[:,pidx,:,:] = dynlib.utils.smooth_xy_nan(data[plev_,'ptv'], 10)
 
-            frovo = dynlib.detect.frontalvolume_smallscale(eqpt, static.dx, static.dy)
-            del eqpt
+            frovo = dynlib.detect.frontalvolume_smallscale(ptv, static.dx, static.dy)
+            del ptv
             
             data[plev,'frovo'] = frovo[:,pidx,:,:]
             data[plev,'frovo'][data[plev,'frovo'] > 0.5] = 1
