@@ -26,6 +26,7 @@ pconf[None,'ff10','cmap'] = cm.WYlGn
 
 pconf[None,'t','cmap'] = cm.RdYlCyBu2
 pconf[None,'t2m','cmap'] = cm.RdYlCyBu2
+pconf[None,'sst','cmap'] = cm.RdYlCyBu2
 pconf[None,'t_ano','cmap'] = cm.RdYlCyBu2
 pconf[None,'pt','cmap'] = cm.RdYlCyBu2
 pconf[None,'eqpt','cmap'] = cm.RdYlCyBu2
