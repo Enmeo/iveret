@@ -592,7 +592,7 @@ class ff10_fronts_Vestland(ff10_fronts,Vestland):
 
 # Near-surface relative humidity and total precipitation
 class rh2m_tp(precip):
-    requires = [('sfc', 'relative_humidity_2m'), ('sfc', 'precipitation_amount_acc')]
+    requires = [('sfc', 'relative_humidity_2m'), ('sfc', 'precipitation_amount_acc'), ('850','air_temperature_pl'), ]
     requires_diagnostic = [('sfc', precip.cal_avg_precip), ]
     plotname = 'rh2m_tp'
 
@@ -612,6 +612,11 @@ class rh2m_tp(precip):
                 scale=s,
                 ticks=st,
                 **self.std_plotconf ) ), 
+            fig.map_overlay_contour(data['850','air_temperature_pl'], static, **pconfl.merge('sfc', 't',
+                linewidths=[1],
+                linestyles='solid',
+                colors='firebrick',
+                scale=range(-5,-3,2) ) ),
         ]
 
         s=[0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.99] 
