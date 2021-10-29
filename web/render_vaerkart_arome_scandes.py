@@ -71,9 +71,6 @@ w500 = variable(u'Vertical wind', u'm/s', '500 hPa')
 w700 = variable(u'Vertical wind', u'm/s', '700 hPa')
 tshff = variable(u'Total Surface heat flux', u'W/m²', u'')
 
-mesoflxdiv1 = variable(u'Acceleration due to mesoscale momentum flux divergence', u'm/s/h', '700-925 hPa')
-mesoflxdiv2 = variable(u'Acceleration due to mesoscale momentum flux divergence', u'm/s/h', '500-700 hPa')
-
 msl = variable(u'Sea level pressure', 'hPa', u'')
 barbs10 = variable(u'10 m Wind barbs', u'm/s', u'')
 barbs500 = variable(u'Wind barbs', u'm/s', u'500 hPa')
@@ -102,10 +99,6 @@ plotlist = [
         name='500 hPa Vertical wind and wind barbs'),
     plot(u'w700_winds', w700, [o('black', barbs700, None), ], 
         name='700 hPa Vertical wind and wind barbs'),
-    plot(u'igw_flxdiv_lvl1', mesoflxdiv1, [o('pale blue', barbs850, None), o('black arrows', mesoflxdiv1, None)],
-        name='700-925 hPa meso. momentum flux divergence and 850 hPa wind barbs'),
-    plot(u'igw_flxdiv_lvl2', mesoflxdiv2, [o('pale blue', barbs500, None), o('black arrows', mesoflxdiv2, None)],
-        name='500-700 hPa meso. momentum flux divergence and 500 hPa wind barbs'),
     plot(u'ff10_fronts', ff10, [o('blue shading', frovo850, None), o('black', barbs10, None)],
         name='10m wind speed, barbs and frontal volumes at 850 hPa'),
     plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), ], 

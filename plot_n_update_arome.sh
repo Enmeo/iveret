@@ -10,7 +10,6 @@ $basepath/download_cleanup_arome.sh > $logpath/web_download_no_out.log 2> $logpa
 # Do the plotting first
 python3 $basepath/plot_forecast_arome_arctic.py > $logpath/web_plot_no_arctic_out.log 2> $logpath/web_plot_no_arctic_err.log &
 python3 $basepath/plot_forecast_arome_section.py > $logpath/web_plot_no_sect_out.log 2> $logpath/web_plot_no_sect_err.log &
-python3 $basepath/plot_forecast_arome_igw.py > $logpath/web_plot_no_igw_out.log 2> $logpath/web_plot_no_igw_err.log
 python3 $basepath/plot_forecast_arome.py > $logpath/web_plot_no_out.log 2> $logpath/web_plot_no_err.log
 
 # Mark the plotting as finished
