@@ -28,6 +28,7 @@ qs = {
     'integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time': sfclevs.keys(),
     'integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time': sfclevs.keys(),
     'integral_of_surface_downward_sensible_heat_flux_wrt_time': sfclevs.keys(),
+    'cloud_base_altitude': sfclevs.keys(),
     'SFX_SST': sfclevs.keys(), 
 }
 
@@ -38,7 +39,7 @@ source_urls = {
 
 exclude = {
     'arome': [],
-    'arome_arctic': ['SFX_SST', ],
+    'arome_arctic': ['SFX_SST', 'cloud_base_altitude', ],
 }
 
 xdims = {'arome': 948, 'arome_arctic': 738}

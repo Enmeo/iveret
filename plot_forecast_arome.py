@@ -397,6 +397,50 @@ class t2m_msl_Vestland(t2m_msl,Vestland):
     plotname = 't2m_msl'
 
 
+# Cloud base altitude
+class clba_msl(plotter):
+    requires = [('sfc','cloud_base_altitude'), ('sfc','air_pressure_at_sea_level')]
+    plotname = 'clba_msl'
+
+    def plot(self, data, static, dateinit, datevalid):
+        done = plotter.plot(self, data, static, dateinit, datevalid)
+        if done:
+            return True
+
+        overlays = [
+            fig.map_overlay_contour(data['sfc','air_pressure_at_sea_level'], static, **pconfl.merge('sfc', 'msl', 
+                contour_labels=True,
+                contour_labels_format='%1.0f',
+                linewidths=[1],
+                scale=range(900,1070,2) ) ),
+        ]
+
+        clba_scale = [0,100,200,300,400,500,750,1000,1250,1500,2000,2500,3000,4000,5000,6000,7000,8000,30000]
+        plotconf = pconf.merge('sfc', 'clba',
+                cmap=cm.cividis,
+                scale=clba_scale[:-1],
+                ticks=[0, 200, 500, 1000, 1500, 3000, 5000, 8000,],
+                norm=mpl.colors.BoundaryNorm(clba_scale, 256),
+                cb_tickspacing='uniform',
+                extend='max',
+                overlays=overlays,
+                **self.std_plotconf
+        )
+        fig.map(data['sfc','cloud_base_altitude'], static, **plotconf)
+
+        return True
+
+
+class clba_msl_Scandes(clba_msl,Scandes):
+    requires = [('sfc','cloud_base_altitude'), ('sfc','air_pressure_at_sea_level')]
+    plotname = 'clba_msl'
+
+
+class clba_msl_Vestland(clba_msl,Vestland):
+    requires = [('sfc','cloud_base_altitude'), ('sfc','air_pressure_at_sea_level')]
+    plotname = 'clba_msl'
+
+
 # Surface sensible and latent heat fluxes, near surface wind barbs, dangerous winds.
 class shf_wind(tshf, ff10):
     requires = [('sfc','integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time'), 
@@ -806,6 +850,7 @@ if __name__ == '__main__':
         q850_msl(),    q850_msl_Scandes(),      q850_msl_Vestland(),
         q925_msl(),    q925_msl_Scandes(),      q925_msl_Vestland(),
         t2m_msl(),     t2m_msl_Scandes(),       t2m_msl_Vestland(),
+        clba_msl(),    clba_msl_Scandes(),      clba_msl_Vestland(),
         ff10_caos(),   ff10_caos_Scandes(),     ff10_caos_Vestland(),
         shf_wind(),    shf_wind_Scandes(),      shf_wind_Vestland(),
         rh2m_tp(),     rh2m_tp_Scandes(),       rh2m_tp_Vestland(),
