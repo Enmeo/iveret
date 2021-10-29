@@ -78,8 +78,8 @@ barbs700 = variable(u'Wind barbs', u'm/s', u'700 hPa')
 barbs850 = variable(u'Wind barbs', u'm/s', u'850 hPa')
 barbs925 = variable(u'Wind barbs', u'm/s', u'925 hPa')
 ff925 = variable(u'Wind speed', u'm/s', u'925 hPa')
-frovo850 = variable(u'Frontal volumes', '', '850 hPa')
 sst = variable(u'Sea surface temperature', '°C', u'')
+caoidx = variable(u'Cold-air outbreak index', 'K', u'')
 
 o = overlay
 plotlist = [
@@ -99,8 +99,8 @@ plotlist = [
         name='500 hPa Vertical wind and wind barbs'),
     plot(u'w700_winds', w700, [o('black', barbs700, None), ], 
         name='700 hPa Vertical wind and wind barbs'),
-    plot(u'ff10_fronts', ff10, [o('blue shading', frovo850, None), o('black', barbs10, None)],
-        name='10m wind speed, barbs and frontal volumes at 850 hPa'),
+    plot(u'ff10_caos', ff10, [o('blue shading', caoidx, [2, 4, 8, 12,]), o('black', barbs10, None)],
+        name='10m wind speed, barbs and CAO index'),
     plot(u'rh2m_tp', tp, [o('grey shading', rh2, [20, 40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 99]), ], 
         name='2m Relative humidity and precipitation'),
     plot(u'shf_wind', tshff, [o('grey', sst, 1), o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 

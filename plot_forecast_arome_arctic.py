@@ -14,8 +14,8 @@ import dynlib.detect
 import dynlib.thermodyn
 
 from current_fc_arome import get_current_fc_arome
-from plot_forecast_arome import plotter, t_msl, ff, ff10, tshf, precip, fronts, \
-        t850_msl, t925_msl, q850_msl, q925_msl, t2m_msl, ff10_fronts, w500_winds, w700_winds, w850_ff
+from plot_forecast_arome import plotter, t_msl, ff, ff10, tshf, precip, caos, \
+        t850_msl, t925_msl, q850_msl, q925_msl, t2m_msl, ff10_caos, w500_winds, w700_winds, w850_ff
 
 
 ######################################################
@@ -135,13 +135,12 @@ class shf_wind_Arctic(tshf, ff10, Arctic):
 
 
 # Near surface winds and 850 hPa frontal volumes
-class ff10_fronts_Arctic(ff10_fronts, Arctic):
+class ff10_caos_Arctic(ff10_caos, Arctic):
     requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
-			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
-			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
-			('700','specific_humidity_pl'), ('700','air_temperature_pl'), ]
-    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', fronts.detect_frontalvolumes), ]
-    plotname = 'ff10_fronts' 
+            ('sfc', 'air_pressure_at_sea_level'), ('sfc', 'SST'),
+			('850','air_temperature_pl'), ]
+    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', caos.cal_cao_index), ]
+    plotname = 'ff10_caos'
 
     std_plotconf = Arctic.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
@@ -152,7 +151,8 @@ class ff10_fronts_Arctic(ff10_fronts, Arctic):
 # Near-surface relative humidity, total precipitation and MIZ
 # Redefined here, because SIC contours are only added here (not available for std AROME)
 class rh2m_tp_Arctic(precip, Arctic):
-    requires = [('sfc', 'relative_humidity_2m'), ('sfc', 'precipitation_amount_acc'), ('sfc', 'SIC'), ]
+    requires = [('sfc', 'relative_humidity_2m'), ('sfc', 'precipitation_amount_acc'),
+             ('850','air_temperature_pl'), ('sfc', 'SIC'), ]
     requires_diagnostic = [('sfc', precip.cal_avg_precip), ]
     plotname = 'rh2m_tp'
 
@@ -172,6 +172,11 @@ class rh2m_tp_Arctic(precip, Arctic):
                 scale=s,
                 ticks=st,
                 **self.std_plotconf ) ), 
+            fig.map_overlay_contour(data['850','air_temperature_pl'], static, **pconfl.merge('sfc', 't',
+                linewidths=[1],
+                linestyles='solid',
+                colors='firebrick',
+                scale=range(-5,-3,2) ) ),
             fig.map_overlay_contour(data['sfc','SIC'], static, **pconfl.merge('sfc', 'sic',
                 colors='blueviolet',
                 linewidths=[1],
@@ -242,7 +247,7 @@ if __name__ == '__main__':
         t925_msl_Arctic(), 
         q850_msl_Arctic(), 
         q925_msl_Arctic(), 
-        ff10_fronts_Arctic(),
+        ff10_caos_Arctic(),
         t2m_msl_Arctic(), 
         shf_wind_Arctic(), 
         rh2m_tp_Arctic(), 

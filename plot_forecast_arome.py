@@ -142,51 +142,23 @@ class precip(plotter):
             data['sfc','precipitation_amount'][1:,::] = (data['sfc','precipitation_amount_acc'][1:,::] - 
                     data['sfc','precipitation_amount_acc'][0:-1,::])/3.0
 
-# Frontal diagnostics
-class fronts(plotter):
-    def cal_eqpt(self, data, plev, static):
-        if not (plev,'eqpt') in data:
-            p = np.empty(data[plev,'air_temperature_pl'].shape)
-            p[:,:,:] = 100.0 * int(plev)
-            data[plev,'eqpt'] = dynlib.thermodyn.thetae_from_q(data[plev,'specific_humidity_pl'], 
-                        data[plev,'air_temperature_pl'], p)
+# Cold air outbreaks
+class caos(plotter):
+    def cal_cao_index(self, data, plev, static):
+        if not (plev, 'cao_index') in data:
+            if ('sfc','SFX_SST') in data:
+                plevq_sst = ('sfc','SFX_SST')
+            else:
+                plevq_sst = ('sfc', 'SST')
 
-            del p
-
-    def cal_ptv(self, data, plev, static):
-        if not (plev,'ptv') in data:
-            mv = dynlib.thermodyn.mv_from_q(data['850','specific_humidity_pl'][np.newaxis,:,:])[0,:,:]
-            data[plev,'ptv'] = data['850','air_temperature_pl'] * (1 + 0.61 * mv) * \
-                            (1000.0/int(plev))**(dynfor.consts.rl/dynfor.consts.cp) 
-
-
-    def detect_frontalvolumes(self, data, plev, static):
-        dynfor.config.nsmooth = 90
-        dynfor.config.tfp_mingrad_largescale = 4.0e-5
-        dynfor.config.tfp_mingrad_smallscale = 6.0e-5
-        dynfor.config.minsize = 10000.0e6
-
-        if not (plev,'frovo') in data:
-            PLEVS = ['700', '850', '925', ]
-            pidx = PLEVS.index(plev)
-
-            s = data[plev,'air_temperature_pl'].shape
-            s = s[:1] + (len(PLEVS), ) + s[1:]
-            ptv = np.empty(s)
-
-            p = np.empty(data[plev,'air_temperature_pl'].shape)
-            for pidx,plev_ in zip(range(len(PLEVS)), PLEVS):
-                if not (plev_,'ptv') in data:
-                    self.cal_ptv(data, plev_, static)
-
-                ptv[:,pidx,:,:] = dynlib.utils.smooth_xy_nan(data[plev_,'ptv'], 10)
-
-            frovo = dynlib.detect.frontalvolume_smallscale(ptv, static.dx, static.dy)
-            del ptv
-            
-            data[plev,'frovo'] = frovo[:,pidx,:,:]
-            data[plev,'frovo'][data[plev,'frovo'] > 0.5] = 1
-            del frovo
+            data[plev,'cao_index'] = dynlib.detect.cold_air_outbreak_index(
+                    data[plev,'air_temperature_pl'].copy(),
+                    data['sfc','air_pressure_at_sea_level'],
+                    data[plevq_sst],
+                    data[plevq_sst] < 272.16,
+                    np.isnan(data[plevq_sst]),
+            )
+            data[plev,'cao_index'][np.isnan(data[plev,'cao_index'])] = 0.0
 
 ######################################################
 # Specific plots
@@ -521,13 +493,12 @@ class shf_wind_Vestland(shf_wind,Vestland):
 
 
 # Near surface winds and 850 hPa frontal volumes
-class ff10_fronts(ff10,fronts):
-    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
-			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
-			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
-			('700','specific_humidity_pl'), ('700','air_temperature_pl'), ]
-    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', fronts.detect_frontalvolumes), ]
-    plotname = 'ff10_fronts' 
+class ff10_caos(ff10,caos):
+    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'),
+            ('sfc', 'air_pressure_at_sea_level'), ('sfc', 'SFX_SST'),
+			('850','air_temperature_pl'), ]
+    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', caos.cal_cao_index), ]
+    plotname = 'ff10_caos'
     
     std_plotconf = ff10.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
@@ -539,12 +510,11 @@ class ff10_fronts(ff10,fronts):
             return True
 
         overlays = [
-            fig.map_overlay_shading(data['850','frovo'], static, **pconfl.merge(None, None,
-                colors=['navy', ],
-                alpha=0.6,
-                scale=[0.001, 2.0],
-                extend='neither',
-                cb_disable=True,) ),
+            fig.map_overlay_contour(data['850','cao_index'], static, **pconfl.merge('sfc', 'cao_index',
+                linewidths=[0.9, 1.5, 1.2, 1.2],
+                linestyles='solid',
+                colors='darkblue',
+                scale=[2,4,8,12]) ),
             fig.map_overlay_barbs(data['sfc','x_wind_10m'], data['sfc','y_wind_10m'], static, **pconfl.merge('sfc', 'ff10', 
                 linewidths=0.5,
                 **self.std_plotconf) ),
@@ -562,13 +532,12 @@ class ff10_fronts(ff10,fronts):
         return True
 
 
-class ff10_fronts_Scandes(ff10_fronts,Scandes):
-    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
-			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
-			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
-			('700','specific_humidity_pl'), ('700','air_temperature_pl'), ]
-    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', fronts.detect_frontalvolumes), ]
-    plotname = 'ff10_fronts' 
+class ff10_caos_Scandes(ff10_caos,Scandes):
+    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'),
+            ('sfc', 'air_pressure_at_sea_level'), ('sfc', 'SFX_SST'),
+			('850','air_temperature_pl'), ]
+    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', caos.cal_cao_index), ]
+    plotname = 'ff10_caos'
 
     std_plotconf = Scandes.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
@@ -576,13 +545,12 @@ class ff10_fronts_Scandes(ff10_fronts,Scandes):
     std_plotconf['cb_shrink'] = 0.65
 
 
-class ff10_fronts_Vestland(ff10_fronts,Vestland):
-    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'), 
-			('925','specific_humidity_pl'), ('925','air_temperature_pl'), 
-			('850','specific_humidity_pl'), ('850','air_temperature_pl'), 
-			('700','specific_humidity_pl'), ('700','air_temperature_pl'), ]
-    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', fronts.detect_frontalvolumes), ]
-    plotname = 'ff10_fronts' 
+class ff10_caos_Vestland(ff10_caos,Vestland):
+    requires = [('sfc','x_wind_10m'), ('sfc','y_wind_10m'),
+            ('sfc', 'air_pressure_at_sea_level'), ('sfc', 'SFX_SST'),
+			('850','air_temperature_pl'), ]
+    requires_diagnostic = [('sfc', ff10.cal_ff10), ('850', caos.cal_cao_index), ]
+    plotname = 'ff10_caos'
 
     std_plotconf = Vestland.std_plotconf
     std_plotconf['vector_disable_interpolation'] = True
@@ -838,7 +806,7 @@ if __name__ == '__main__':
         q850_msl(),    q850_msl_Scandes(),      q850_msl_Vestland(),
         q925_msl(),    q925_msl_Scandes(),      q925_msl_Vestland(),
         t2m_msl(),     t2m_msl_Scandes(),       t2m_msl_Vestland(),
-        ff10_fronts(), ff10_fronts_Scandes(),   ff10_fronts_Vestland(),
+        ff10_caos(),   ff10_caos_Scandes(),     ff10_caos_Vestland(),
         shf_wind(),    shf_wind_Scandes(),      shf_wind_Vestland(),
         rh2m_tp(),     rh2m_tp_Scandes(),       rh2m_tp_Vestland(),
         w850_ff(),     w850_ff_Scandes(),       w850_ff_Vestland(),   
