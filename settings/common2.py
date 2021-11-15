@@ -46,8 +46,8 @@ pconf [None,'Temperature','hook'] = lambda t: t - 273.15
 pconfl[None,'Temperature','hook'] = lambda t: t - 273.15
 pconf [None,'2m Temperature','hook'] = lambda t: t - 273.15
 pconfl[None,'2m Temperature','hook'] = lambda t: t - 273.15
-pconf [None,'Sea surface temperature','hook'] = lambda t: t - 273.15
-pconfl[None,'Sea surface temperature','hook'] = lambda t: t - 273.15
+pconf [None,'Sea-surface temperature','hook'] = lambda t: t - 273.15
+pconfl[None,'Sea-surface temperature','hook'] = lambda t: t - 273.15
 
 pconf [None,'Specific humidity','hook'] = lambda q: q*1.0e3
 pconfl[None,'Specific humidity','hook'] = lambda q: q*1.0e3

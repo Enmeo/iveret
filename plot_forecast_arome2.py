@@ -20,11 +20,15 @@ from current_fc_arome import get_current_fc_arome
 
 q_map = {
     '2m Temperature': 'air_temperature_2m',
+    '2m Relative humidity': 'relative_humidity_2m',
+    'Cloud base altitude': 'cloud_base_altitude',
     'Temperature': 'air_temperature_pl',
     'Specific humidity': 'specific_humidity_pl',
     'Sea-level pressure': 'air_pressure_at_sea_level',
     '10m Wind barbs': ('x_wind_10m', 'y_wind_10m'),
     'Wind barbs': ('x_wind_pl', 'y_wind_pl'),
+    'Vertical wind': 'upward_air_velocity_pl',
+    'Sea-surface temperature': 'SFX_SST',
 }
 
 
@@ -58,50 +62,55 @@ def get(fc_str, level, var):
     return dat
 
 
-# Wind speed
-class ff(plotter):
-    def cal_ff(self, data, plev, static):
-        if not (plev,'ff') in data:
-            data[plev,'ff'] = np.sqrt(data[plev,'x_wind_pl']**2.0 + data[plev,'y_wind_pl']**2.0)
+def get_ff(fc_str, level, var):
+    plev = level2plev(level)
+    u = get_single(fc_str, plev, 'x_wind_pl')
+    v = get_single(fc_str, plev, 'y_wind_pl')
 
-# 10m wind speed
-class ff10(ff):
-    def cal_ff10(self, data, plev, static):
-        if not ('sfc','ff_10m') in data:
-            data['sfc','ff_10m'] = np.sqrt(data['sfc','x_wind_10m']**2.0 + data['sfc','y_wind_10m']**2.0)
+    return np.sqrt(u**2 + v**2)
 
-    def cal_tshf(self, data, plev, static):
-        if not ('sfc','tshff') in data:
-            total = (data['sfc','integral_of_surface_downward_sensible_heat_flux_wrt_time'] +
-                    data['sfc','integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time'] + 
-                    data['sfc','integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time'])
+def get_ff10(fc_str, level, var):
+    u10 = get_single(fc_str, 'sfc', 'x_wind_10m')
+    v10 = get_single(fc_str, 'sfc', 'y_wind_10m')
 
-            data['sfc','tshff'] = np.zeros(total.shape)
-            data['sfc','tshff'][1:,::] = (total[:-1,::] - total[1:,::])/10800.0
+    return np.sqrt(u10**2 + v10**2)
+
+def get_cao(fc_str, level, var):
+    t = get_single(fc_str, '850', 'air_temperature_pl')
+    msl = get_single(fc_str, 'sfc', 'air_pressure_at_sea_level')
+    sst = get_single(fc_str, 'sfc', 'SFX_SST')
+
+    CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, sst < 272.16, np.isnan(sst))
+    CAOi[np.isnan(CAOi)] = 0.0
+
+    return CAOi
+
+def get_tp(fc_str, level, var):
+    tpc = get_single(fc_str, 'sfc', 'precipitation_amount_acc')
+    tp = np.zeros(tpc.shape)
+    tp[1:,::] = (tpc[1:,::] - tpc[:-1,::])/3.0
+
+    return tp
+
+def get_sthf(fc_str, level, var):
+    sshf = get_single(fc_str, 'sfc', 'integral_of_surface_downward_sensible_heat_flux_wrt_time')
+    slhf1 = get_single(fc_str, 'sfc', 'integral_of_surface_downward_latent_heat_evaporation_flux_wrt_time')
+    slhf2 = get_single(fc_str, 'sfc', 'integral_of_surface_downward_latent_heat_sublimation_flux_wrt_time')
+    sthf = sshf + slhf1 + slhf2
+
+    sthff = np.zeros(sthf.shape)
+    sthff[1:,::] = (sthf[:-1,::] - sthf[1:,::])/10800.0
+
+    return sthff
 
 
-def cal_avg_precip(self, data, plev, static):
-    if not ('sfc','precipitation_amount') in data:
-        data['sfc','precipitation_amount'] = np.zeros(data['sfc','precipitation_amount_acc'].shape)
-        data['sfc','precipitation_amount'][1:,::] = (data['sfc','precipitation_amount_acc'][1:,::] - 
-                data['sfc','precipitation_amount_acc'][0:-1,::])/3.0
-
-def cal_cao_index(self, data, plev, static):
-    if not (plev, 'cao_index') in data:
-        if ('sfc','SFX_SST') in data:
-            plevq_sst = ('sfc','SFX_SST')
-        else:
-            plevq_sst = ('sfc', 'SST')
-
-        data[plev,'cao_index'] = dynlib.detect.cold_air_outbreak_index(
-                data[plev,'air_temperature_pl'].copy(),
-                data['sfc','air_pressure_at_sea_level'],
-                data[plevq_sst],
-                data[plevq_sst] < 272.16,
-                np.isnan(data[plevq_sst]),
-        )
-        data[plev,'cao_index'][np.isnan(data[plev,'cao_index'])] = 0.0
-
+get_special = {
+    'Wind speed': get_ff,
+    '10m Wind speed': get_ff10,
+    'Cold-air outbreak index': get_cao,
+    'Total precipitation': get_tp,
+    'Surface total heat flux': get_sthf,
+}
 
 
 # -----------------------------------------------------------------------------
@@ -110,13 +119,13 @@ if __name__ == '__main__':
     # Most recent available data
     forecast = get_current_fc_arome()
     
-    # Override 
+    # Override
     #forecast = dt(2019,8,27,18)
     plot_only_init = False
     
     print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
     
-    plots = [plotter(domainname, domains[domainname], 'metno', plotname, plot) 
+    plots = [plotter(domainname, domains[domainname], 'metno', plotname, plot)
             for domainname, plots_by_domain in plots['metno'].items() for plotname, plot in plots_by_domain.items()]
     
     fc_str = forecast.strftime('%Y%m%dT%HZ')
@@ -135,7 +144,10 @@ if __name__ == '__main__':
             if (plev,q) in data:
                 continue
 
-            data[plev,q] = get(fc_str, plev, q)
+            if q in get_special:
+                data[plev,q] = get_special[q](fc_str, plev, q)
+            else:
+                data[plev,q] = get(fc_str, plev, q)
     
     # We need to replace the auto-detected x dimension with the alternative lon dimension
     static.x = f.variables['longitude'][::]
