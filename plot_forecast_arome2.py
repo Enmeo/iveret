@@ -125,8 +125,8 @@ if __name__ == '__main__':
     
     print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
     
-    plots = [plotter(domainname, domains[domainname], 'metno', plotname, plot)
-            for domainname, plots_by_domain in plots['metno'].items() for plotname, plot in plots_by_domain.items()]
+    plots = [plotter(domainname, domains[domainname], 'no', plotname, plot)
+            for domainname, plots_by_domain in plots['no'].items() for plotname, plot in plots_by_domain.items()]
     
     fc_str = forecast.strftime('%Y%m%dT%HZ')
     
