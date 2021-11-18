@@ -24,7 +24,7 @@ fi
 $basepath/cleanup_ec.sh
 
 # Do the plotting first
-python3 $basepath/plot_forecast_eclocal.py > $logpath/web_plot_ec_local_out.log 2> $logpath/web_plot_ec_local_err.log &
+python3 $basepath/plot_forecast_eclocal2.py > $logpath/web_plot_ec_local_out.log 2> $logpath/web_plot_ec_local_err.log &
 python3 $basepath/plot_forecast.py isentropic > $logpath/web_plot_ec_isentropic_out.log 2> $logpath/web_plot_ec_isentropic_err.log &
 python3 $basepath/plot_forecast.py pv2 sfc > $logpath/web_plot_ec_pv2sfc_out.log 2> $logpath/web_plot_ec_pv2sfc_err.log &
 python3 $basepath/plot_forecast.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log &

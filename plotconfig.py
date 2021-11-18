@@ -71,7 +71,7 @@ domains = {
     ),
     'spolar': domain(proj.s_hemisphere, (6.4,6.4), (7.27273,6.4)),
     'natl': domain(proj.N_Atlantic_forecast, (7.2,4.8), (8.18182,4.8)),
-    'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30),
+    'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30, vector_space_numbers_xy=(30,40)),
     'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
     'vestland': domain(proj.Vestland, (6.4,6.4), (7.27273,6.4), vector_space_interval=5),
     'barents': domain(proj.Barents_Sea, (5.0,6.375), (5.68182,6.375)),
@@ -196,26 +196,22 @@ plot_archetypes = {
     't925_msl': plot(t925, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t925, [0,], linestyles='dashed'),
             o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
-            o('black', barbs925, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5,
-                vector_disable_interpolation=True),
+            o('black', barbs925, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
         ], name='925 hPa Temperature, SLP and wind barbs'),
     't850_msl': plot(t850, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t850, [0,], linestyles='dashed'),
             o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
-            o('black', barbs850, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5,
-                vector_disable_interpolation=True),
+            o('black', barbs850, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
         ], name='850 hPa Temperature, SLP and wind barbs'),
     'q925_msl': plot(q925, scale=np.arange(1,12.1,0.5), ticks=np.arange(2,12.1,2), overlays=[
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
             o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
-            o('black', barbs925, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5,
-                vector_disable_interpolation=True),
+            o('black', barbs925, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='925 hPa Specific humidity, SLP and wind barbs'),
     'q850_msl': plot(q850, scale=np.arange(1,12.1,0.5), ticks=np.arange(2,12.1,2), overlays=[
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
             o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
-            o('black', barbs850, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5,
-                vector_disable_interpolation=True),
+            o('black', barbs850, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='850 hPa Specific humidity, SLP and wind barbs'),
     'w850_ff': plot(ff925, scale=range(5,51,5), cmap='Blues', overlays=[
             o('grey-red shading', w850, wl_scale, otype='shading',
@@ -226,18 +222,15 @@ plot_archetypes = {
     ], name='850 hPa Vertical wind and 925 hPa wind speed'),
     'w500_winds': plot(w500, scale=w_scale, ticks=w_ticks, norm=mpl.colors.BoundaryNorm(w_ticks, 256),
         cb_tickspacing='uniform', cmap='RdGy_r', overlays=[
-            o('black', barbs500, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5,
-                vector_disable_interpolation=True),
+            o('black', barbs500, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='500 hPa Vertical wind and wind barbs'),
     'w700_winds': plot(w700, scale=w_scale, ticks=w_ticks, norm=mpl.colors.BoundaryNorm(w_ticks, 256),
         cb_tickspacing='uniform', cmap='RdGy_r', overlays=[
-            o('black', barbs700, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5,
-                vector_disable_interpolation=True),
+            o('black', barbs700, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='700 hPa Vertical wind and wind barbs'),
     'ff10_caos': plot(ff10, scale=np.arange(5.0,32.6,2.5), overlays=[
             o('blue', caoidx, [2, 4, 8, 12,], linewidths=[0.9, 1.5, 1.2, 1.2, ], colors='darkblue'),
-            o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5,
-                vector_disable_interpolation=True),
+            o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='10m wind speed, barbs and CAO index'),
     'rh2m_tp': plot(rh2, scale=rh_scale, cmap='Greys_r', ticks=rh_ticks, norm=mpl.colors.BoundaryNorm(rh_ticks, 256), overlays=[
             o('blue shading', tp, tp_scale, otype='shading', alpha=0.5, ticks=tp_ticks, extend='max', ticklabels=tp_labels,
@@ -248,9 +241,9 @@ plot_archetypes = {
         cb_tickspacing='uniform', extend='max', overlays=[
             o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
     ], name='Cloud base altitude and SLP'),
-    'shf_wind': plot(sthff, scale=shf_scale, cmap='BrBG', norm=mpl.colors.BoundaryNorm(shf_ticks, 256),
+    'shf_winds': plot(sthff, scale=shf_scale, cmap='BrBG', norm=mpl.colors.BoundaryNorm(shf_ticks, 256),
         cb_tickspacing='uniform', overlays=[
-            o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5, vector_disable_interpolation=True),
+            o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
             o('grey', sst, range(-1,21), linewidths=[0.7, 1.2,] + [0.7, 0.7, 0.7, 0.7, 1.2]*4, alpha=0.5),
             o('yellow', ff10, [17.2, ], colors='gold'),
             o('orange', ff10, [24.5, ], colors='coral'),
@@ -263,10 +256,13 @@ def _select(plot_names):
 
 plots = {
     'no': {
-        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_wind']),
-        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_wind']),
-        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_wind']),
-    }
+        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
+        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
+        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
+    },
+    'ec_local': {
+        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
+    },
 }
 
 del o
@@ -283,6 +279,9 @@ STD_PLOTCONF = {
     'show': False,
     'title': None,
 }
+STD_PLOTCONF_PER_FCSRC = {
+    'no': dict(vector_disable_interpolation=True),
+}
 
 # Doing the actual plotting
 class plotter(object):
@@ -296,6 +295,7 @@ class plotter(object):
 
         self.requires = [(plotdef.shading.level, plotdef.shading.name), ] + [(o.var.level, o.var.name) for o in plotdef.overlays]
         self.std_plotconf = copy.copy(STD_PLOTCONF)
+        self.std_plotconf.update(STD_PLOTCONF_PER_FCSRC.get(fcsrc, {}))
 
         # Domain-specific plot configuration
         self.std_plotconf['m'] = domain.proj

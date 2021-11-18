@@ -7,7 +7,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 
 from plotconfig import *
-from settings.metno import *
+from settings.common2 import *
 
 import dynlib.diag
 import dynlib.detect
@@ -129,6 +129,7 @@ if __name__ == '__main__':
             for domainname, plots_by_domain in plots['no'].items() for plotname, plot in plots_by_domain.items()]
     
     fc_str = forecast.strftime('%Y%m%dT%HZ')
+    conf.datapath.insert(1, '/share/base/metno')
     
     # Load surface pressure to be able to mask areas under ground
     plev, q = 'sfc', 'surface_air_pressure'
