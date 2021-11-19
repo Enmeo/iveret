@@ -29,6 +29,7 @@ q_map = {
     'Wind barbs': ('x_wind_pl', 'y_wind_pl'),
     'Vertical wind': 'upward_air_velocity_pl',
     'Sea-surface temperature': 'SFX_SST',
+    'Sea ice concentration': 'SFX_SIC',
 }
 
 

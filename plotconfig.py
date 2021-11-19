@@ -74,7 +74,7 @@ domains = {
     'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30, vector_space_numbers_xy=(30,40)),
     'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
     'vestland': domain(proj.Vestland, (6.4,6.4), (7.27273,6.4), vector_space_interval=5),
-    'barents': domain(proj.Barents_Sea, (5.0,6.375), (5.68182,6.375)),
+    'barents': domain(proj.Barents_Sea, (5.0,6.375), (5.68182,6.375), vector_space_interval=30, vector_space_numbers_xy=(30,40)),
 }
 
 # Defining variables
@@ -235,6 +235,7 @@ plot_archetypes = {
     'rh2m_tp': plot(rh2, scale=rh_scale, cmap='Greys_r', ticks=rh_ticks, norm=mpl.colors.BoundaryNorm(rh_ticks, 256), overlays=[
             o('blue shading', tp, tp_scale, otype='shading', alpha=0.5, ticks=tp_ticks, extend='max', ticklabels=tp_labels,
                 cb_tickspacing='uniform', norm=mpl.colors.BoundaryNorm(tp_ticks, 256)),
+            o('violet', sic, [0.2, 0.8], colors='blueviolet'),
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
     ], name='2m Relative humidity and precipitation'),
     'clba_msl': plot(clba, scale=clba_scale[:-1], ticks=clba_ticks, cmap='cividis', norm=mpl.colors.BoundaryNorm(clba_scale, 256),
@@ -245,6 +246,7 @@ plot_archetypes = {
         cb_tickspacing='uniform', overlays=[
             o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
             o('grey', sst, range(-1,21), linewidths=[0.7, 1.2,] + [0.7, 0.7, 0.7, 0.7, 1.2]*4, alpha=0.5),
+            o('violet', sic, [0.2, 0.8], colors='blueviolet'),
             o('yellow', ff10, [17.2, ], colors='gold'),
             o('orange', ff10, [24.5, ], colors='coral'),
             o('red', ff10, [32.7, ], colors='crimson'),
@@ -260,8 +262,12 @@ plots = {
         'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
         'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
     },
+    'no_arctic': {
+        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
+    },
     'ec_local': {
         'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
+        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
     },
 }
 

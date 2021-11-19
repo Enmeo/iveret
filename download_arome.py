@@ -30,6 +30,7 @@ qs = {
     'integral_of_surface_downward_sensible_heat_flux_wrt_time': sfclevs.keys(),
     'cloud_base_altitude': sfclevs.keys(),
     'SFX_SST': sfclevs.keys(), 
+    'SFX_SIC': sfclevs.keys(),
 }
 
 source_urls = {
@@ -39,7 +40,7 @@ source_urls = {
 
 exclude = {
     'arome': [],
-    'arome_arctic': ['SFX_SST', 'cloud_base_altitude', ],
+    'arome_arctic': ['SFX_SST', 'SFX_SIC', 'cloud_base_altitude', ],
 }
 
 xdims = {'arome': 948, 'arome_arctic': 738}
