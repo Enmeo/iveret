@@ -70,7 +70,7 @@
       {% for plot in plotlist %}<div id="{{ plot.prefix }}_details1"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
         <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %}{% if plot.shading.addinfo %}, {{ plot.shading.addinfo }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
         <ul class="overlay">{% for o in plot.overlays %}
-	  <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.colorlabel }}">{{ o.colorlabel }}</span>){% if o.contour_label %}, {{ o.contour_label }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+		<li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.colorclass }}" style="color: {{ o.colorclass }}">{{ o.colorlabel }}</span>){% if o.contour_label %}, {{ o.contour_label }} {{ o.var.units }}{% endif %}</li>{% endfor %}
         </ul>{% endif %}
       </div>{% endfor %}
       <div class="plot">
@@ -92,7 +92,7 @@
       {% for plot in plotlist %}<div id="{{ plot.prefix }}_details2"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
         <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %}{% if plot.shading.addinfo %}, {{ plot.shading.addinfo }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
         <ul class="overlay">{% for o in plot.overlays %}
-          <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.colorlabel }}">{{ o.colorlabel }}</span>){% if o.contour_label %}, {{ o.contour_label }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+          <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.colorclass }}" style="color: {{ o.colorclass }}">{{ o.colorlabel }}</span>){% if o.contour_label %}, {{ o.contour_label }} {{ o.var.units }}{% endif %}</li>{% endfor %}
         </ul>{% endif %}
       </div>{% endfor %}
       <div class="plot">
@@ -114,7 +114,7 @@
       {% for plot in plotlist %}<div id="{{ plot.prefix }}_details3"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
         <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %}{% if plot.shading.addinfo %}, {{ plot.shading.addinfo }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
         <ul class="overlay">{% for o in plot.overlays %}
-          <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.colorlabel }}">{{ o.colorlabel }}</span>){% if o.contour_label %}, {{ o.contour_label }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+          <li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.colorclass }}" style="color: {{ o.colorclass }}">{{ o.colorlabel }}</span>){% if o.contour_label %}, {{ o.contour_label }} {{ o.var.units }}{% endif %}</li>{% endfor %}
         </ul>{% endif %}
       </div>{% endfor %}
       <div class="plot">
@@ -136,7 +136,7 @@
       {% for plot in plotlist %}<div id="{{ plot.prefix }}_details4"{% if not plot == initplot or not display_details %} style="display: none;"{% endif %} class="plot_details">
         <p class="shading"><span class="varname">{{ plot.shading.name }}</span>{% if plot.shading.units %} [{{ plot.shading.units }}]{% endif %}{% if plot.shading.level %} on {{ plot.shading.level }}{% endif %}{% if plot.shading.addinfo %}, {{ plot.shading.addinfo }}{% endif %} (<span class="black">shading</span>)</p>{% if plot.overlays %}
         <ul class="overlay">{% for o in plot.overlays %}
-		<li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.colorlabel }}">{{ o.colorlabel }}</span>){% if o.contour_label %}, {{ o.contour_label }} {{ o.var.units }}{% endif %}</li>{% endfor %}
+		<li><span class="varname">{{ o.var.name }}</span>{% if o.var.units %} [{{ o.var.units }}]{% endif %}{% if o.var.level %} on {{ o.var.level }}{% endif %}{% if o.var.addinfo %}, {{ o.var.addinfo }}{% endif %} (<span class="{{ o.colorclass }}" style="color: {{ o.colorclass }}">{{ o.colorlabel }}</span>){% if o.contour_label %}, {{ o.contour_label }} {{ o.var.units }}{% endif %}</li>{% endfor %}
         </ul>{% endif %}
       </div>{% endfor %}
       <div class="plot">

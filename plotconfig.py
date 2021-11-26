@@ -46,8 +46,16 @@ class plot(object):
             self.name = self.shading.name
 
 class overlay(object):
+    _replace_colornames = {
+        'tab:blue': 'steelblue',
+    }
+
     def __init__(self, colorlabel, variable, contours, otype='contour', **plotconf):
         self.colorlabel = colorlabel
+        if 'colors' in plotconf and type(plotconf['colors']) == str:
+            self.colorclass = self._replace_colornames.get(plotconf['colors'], plotconf['colors'])
+        else:
+            self.colorclass = colorlabel
         self.plotconf = plotconf
         self.var = variable
         self.contours = contours
