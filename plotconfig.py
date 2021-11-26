@@ -282,12 +282,13 @@ pages = {
     ('ec', 'npolar'): ('ECMWF forecasts Northern Hemisphere (restricted)', '/closed/vaerkart_ec_npolar.html'),
     ('ec', 'spolar'): ('ECMWF forecasts Southern Hemisphere (restricted)', '/closed/vaerkart_ec_spolar.html'),
     ('ec', 'scandes'): ('ECMWF forecasts Scandinavia (restricted)', '/closed/vaerkart_ec_scandes.html'),
+    ('ec', 'barents'): ('ECMWF forecasts Barents Sea (restricted)', '/closed/vaerkart_ec_barents.html'),
     ('ec', 'meteograms'): ('ECMWF forecast Meteograms (restricted)', '/closed/vaerkart_ec_meteograms.html'),
     ('no', 'vestland'): ('AROME forecasts Vestland', '/vaerkart_arome_vestland.html'),
     ('no', 'snorway'): ('AROME forecasts Southern Norway', '/vaerkart_arome.html'),
     ('no', 'scandes'): ('AROME forecasts Scandinavia', '/vaerkart_arome_scandes.html'),
     ('no', 'we60'): ('AROME forecasts Cross section 60°N', '/vaerkart_arome_we60.html'),
-    ('no', 'barents'): ('AROME Arctic forecasts', '/vaerkart_arome_arctic.html'),
+    ('no', 'barents'): ('AROME Arctic forecasts Barents Sea', '/vaerkart_arome_arctic.html'),
 }
 
 plots_per_page = {

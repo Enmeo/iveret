@@ -177,5 +177,13 @@ if __name__ == '__main__':
             plot.plot(data_inst, static, forecast, date)
             plt.close()
 
+    print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
+
+    fclist = [forecast - td(0.25)*i for i in range(29)]
+    leadlist = range(0,67,3)
+    leadlist_link = range(0,67,6)
+    render_webpage('vestland', 'no', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('snorway', 'no', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('scandes', 'no', forecast, fclist, leadlist, leadlist_link)
 
 # the end

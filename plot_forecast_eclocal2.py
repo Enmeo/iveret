@@ -180,5 +180,12 @@ if __name__ == '__main__':
             plot.plot(data_inst, static, forecast, date)
             plt.close()
 
+    print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
+
+    fclist = [forecast - td(0.5)*i for i in range(15)]
+    leadlist = range(0,73,3)
+    leadlist_link = range(0,73,6)
+    render_webpage('scandes', 'ec', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('barents', 'ec', forecast, fclist, leadlist, leadlist_link)
 
 # the end

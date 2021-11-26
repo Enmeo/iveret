@@ -35,7 +35,6 @@ python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_
 echo $fc > $plotstat/ecmwf
 
 # Then render the fitting website
-python3 $basepath/web/render_vaerkart_scandes.py > $logpath/web_render_ec_scandes_out.log 2> $logpath/web_render_ec_scandes_err.log
 python3 $basepath/web/render_vaerkart.py > $logpath/web_render_ec_out.log 2> $logpath/web_render_ec_err.log
 python3 $basepath/web/render_vaerkart_npolar.py > $logpath/web_render_ec_npolar_out.log 2> $logpath/web_render_ec_npolar_err.log
 python3 $basepath/web/render_vaerkart_spolar.py > $logpath/web_render_ec_spolar_out.log 2> $logpath/web_render_ec_spolar_err.log
