@@ -8,8 +8,10 @@ from dynlib.plotsettings.default import pconf, pconfl
 
 
 # Set the default output location (e.g. for plots)
-plotpath = '/share/web/plots'
-basepath = '/home/ubuntu/sw/vaerkart'
+VAERKART_ROOT = '/home/ubuntu/sw/vaerkart'
+
+WEB_ROOT = '/share/web'
+plotpath = f'{WEB_ROOT}/plots'
 
 
 pconf[None, None, 'cb_orientation'] = 'vertical'

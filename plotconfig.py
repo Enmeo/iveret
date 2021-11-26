@@ -4,9 +4,11 @@
 
 import copy
 import matplotlib as mpl
+import codecs
+from datetime import datetime as dt, timedelta as td
 
 from dynlib.shorthands import *
-from settings.common2 import pconf, pconfl
+from settings.common2 import pconf, pconfl, WEB_ROOT, VAERKART_ROOT
 
 
 #
@@ -52,9 +54,9 @@ class overlay(object):
         self.otype = otype
         
         if type(contours) == list:
-            self.contour_label = ', '.join(map(str, contours))
+            self.contour_label = 'contours at ' + ', '.join(map(str, contours))
         elif type(contours) == range:
-            self.contour_label = contours.step
+            self.contour_label = f'contour interval = {contours.step}'
         elif type(contours) == type(None):
             self.contour_label = None
         else:
@@ -271,6 +273,40 @@ plots = {
     },
 }
 
+# (How) Can this be derived from the plot defintions above?
+pages = {
+    ('noaa', 'natl'): ('GFS forecasts North Atlantic', '/vaerkart.html'),
+    ('noaa', 'npolar'): ('GFS forecasts Northern Hemisphere', '/vaerkart_npolar.html'),
+    ('noaa', 'spolar'): ('GFS forecasts Southern Hemisphere', '/vaerkart_spolar.html'),
+    ('ec', 'natl'): ('ECMWF forecasts North Atlantic (restricted)', '/closed/vaerkart_ec.html'),
+    ('ec', 'npolar'): ('ECMWF forecasts Northern Hemisphere (restricted)', '/closed/vaerkart_ec_npolar.html'),
+    ('ec', 'spolar'): ('ECMWF forecasts Southern Hemisphere (restricted)', '/closed/vaerkart_ec_spolar.html'),
+    ('ec', 'scandes'): ('ECMWF forecasts Scandinavia (restricted)', '/closed/vaerkart_ec_scandes.html'),
+    ('ec', 'meteograms'): ('ECMWF forecast Meteograms (restricted)', '/closed/vaerkart_ec_meteograms.html'),
+    ('no', 'vestland'): ('AROME forecasts Vestland', '/vaerkart_arome_vestland.html'),
+    ('no', 'snorway'): ('AROME forecasts Southern Norway', '/vaerkart_arome.html'),
+    ('no', 'scandes'): ('AROME forecasts Scandinavia', '/vaerkart_arome_scandes.html'),
+    ('no', 'we60'): ('AROME forecasts Cross section 60°N', '/vaerkart_arome_we60.html'),
+    ('no', 'barents'): ('AROME Arctic forecasts', '/vaerkart_arome_arctic.html'),
+}
+
+plots_per_page = {
+    ('noaa', 'natl'): [],
+    ('noaa', 'npolar'): [],
+    ('noaa', 'spolar'): [],
+    ('ec', 'natl'): [],
+    ('ec', 'npolar'): [],
+    ('ec', 'spolar'): [],
+    ('ec', 'scandes'): plots['ec_local']['scandes'],
+    ('ec', 'barents'): plots['ec_local']['barents'],
+    ('ec', 'meteograms'): [],
+    ('no', 'vestland'): plots['no']['vestland'],
+    ('no', 'snorway'): plots['no']['snorway'],
+    ('no', 'scandes'): plots['no']['scandes'],
+    ('no', 'we60'): [],
+    ('no', 'barents'): plots['no_arctic']['barents'],
+}
+
 del o
 
 DECORATIONS = False
@@ -382,6 +418,50 @@ def level2plev(level):
     else:
         raise ValueError(f'Unknown vertical level `{level}`.')
 
+
+
+def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link):
+    from jinja2 import FileSystemLoader, Environment
+    env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/web'))
+    
+    # Find saveto and plotlist by domain and fcsrc
+    saveto = WEB_ROOT + pages[fcsrc,domain][1]
+    plotlist = []
+    for prefix, plot in plots_per_page[fcsrc,domain].items():
+        plot.prefix = prefix
+        plotlist.append(plot)
+
+    # Rendering
+    t = env.get_template('template_jinja2.html')
+    c = {
+        'plot_domains': pages.values(),
+        'plot_domain': pages[fcsrc,domain][0],
+        'fcsrc': fcsrc,
+        'domain': domain,
+        'plotlist': plotlist,
+        'timlist': [date_fc + td(0,3600*lead) for lead in leadlist],
+        'leadlist': leadlist,
+        'leadlist_link': leadlist_link,
+        'fclist': fclist,
+        'initplot': plotlist[0],
+        'date_begin': date_fc,
+        'date_init': date_fc,
+        'plotdir': 'maps',
+        'display_details': False,
+    }
+    if fcsrc == 'ec' and domain == 'natl':
+        c['archive'] = {
+            'start': dt(2017,9,22),
+            'plots': ['z500_msl', 't850_msl', 'tcwv'],
+            'step': 12,
+        }
+
+
+    f = codecs.open(saveto, mode='w', encoding='utf-8')
+    f.write(t.render(**c))
+    f.close()
+
+    return
 
 
 # C'est le fin
