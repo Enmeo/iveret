@@ -197,30 +197,39 @@ shf_scale = [-300,-200,-140,-100,-70,-50,-30,-20,-14,-10, 30,50,70,100,140,200,3
 shf_ticks = [-10000,]+shf_scale+[10000,]
 
 # Defining what is available per plot domain and data source
+def plot_archetypes(msl_ci=2, msl_reduce=False):
+    if msl_reduce:
+        selected_msl_kwargs = dict(alpha=0.8, linewidths=[0.5])
+    else:
+        selected_msl_kwargs = dict(contour_labels=True, contour_labels_format='%1.0f')
 
-plot_archetypes = {
+    return {
+    'z500_msl': plot(z500, scale=range(476,604,4), ticks=range(480,601,20), overlays=[
+            o('white', z500, [552,], colors='white', linewidths=[2]), 
+            o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
+        ], name='500 hPa Geopotential and SLP'), 
     't2m_msl': plot(t2, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t2, [0,], linestyles='dashed'),
-            o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
+            o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
         ], name='2m Temperature and SLP'),
     't925_msl': plot(t925, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t925, [0,], linestyles='dashed'),
-            o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
+            o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
             o('black', barbs925, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
         ], name='925 hPa Temperature, SLP and wind barbs'),
     't850_msl': plot(t850, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t850, [0,], linestyles='dashed'),
-            o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
+            o('black', msl, range(900,1070,msl_ci), **selected_msl_kwargs),
             o('black', barbs850, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
         ], name='850 hPa Temperature, SLP and wind barbs'),
     'q925_msl': plot(q925, scale=np.arange(1,12.1,0.5), ticks=np.arange(2,12.1,2), overlays=[
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
-            o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
+            o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
             o('black', barbs925, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='925 hPa Specific humidity, SLP and wind barbs'),
     'q850_msl': plot(q850, scale=np.arange(1,12.1,0.5), ticks=np.arange(2,12.1,2), overlays=[
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
-            o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
+            o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
             o('black', barbs850, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='850 hPa Specific humidity, SLP and wind barbs'),
     'w850_ff': plot(ff925, scale=range(5,51,5), cmap='Blues', overlays=[
@@ -250,7 +259,7 @@ plot_archetypes = {
     ], name='2m Relative humidity and precipitation'),
     'clba_msl': plot(clba, scale=clba_scale[:-1], ticks=clba_ticks, cmap='cividis', norm=mpl.colors.BoundaryNorm(clba_scale, 256),
         cb_tickspacing='uniform', extend='max', overlays=[
-            o('black', msl, range(900,1070,2), contour_labels=True, contour_labels_format='%1.0f'),
+            o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
     ], name='Cloud base altitude and SLP'),
     'shf_winds': plot(sthff, scale=shf_scale, cmap='BrBG', norm=mpl.colors.BoundaryNorm(shf_ticks, 256),
         cb_tickspacing='uniform', overlays=[
@@ -263,8 +272,50 @@ plot_archetypes = {
     ], name='Surface fluxes, 10m winds and SSTs'),
 }
 
-def _select(plot_names):
-    return {plot_name: plot_archetypes[plot_name] for plot_name in plot_names}
+## Old ECMWF plot definitions
+#old_ecmwf_plots = [
+#    plot('deform850_fronts', def850, [o('black double-arrows', defang850, None), o('dark cyan shading', frovo850, None), 
+#        o('dark cyan contour', tp, [1,5]), o('red, blue, purple', fronts850, None), o('dark red', t850, [-5,]), ],
+#        name='850 hPa Deformation, fronts and precipitation'),
+#    plot('sshf_winds', sshff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
+#        o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
+#        name='Sensible heat fluxes, 10 m winds, SSTs and MIZ'),
+#    plot('slhf_winds', slhff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
+#        o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
+#        name='Latent heat fluxes, 10 m winds, SSTs and MIZ'),
+#    plot('tcwv', tcwv, [o('black arrows', iwvt, None), 
+#        o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
+#        name='Total column water vapour, fluxes and precip.'),
+#    plot('iwvt_axis', iwvt, [o('yellow', iwvtaxes, None), 
+#        o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
+#        name='Water vapour transport, axes, and precipitation'),
+#    plot('cycfreq_msl', cycfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
+#        name='Ensemble cyclone detections'),
+#    plot('jetfreq_msl', jetfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
+#        name='Ensemble jet detections'),
+#    plot('tcc', lcc, [o('orange shading', mcc, None), o('white shading', hcc, None)],
+#        name='Cloud cover'),
+#    plot('pvpt315_irot_wind', pvpt315, [o('black', irbarbspt315, None), ],
+#        name='315 K Pot. Vorticity and irrot. winds'),
+#    plot('pvpt330_irot_wind', pvpt330, [o('black', irbarbspt330, None), ],
+#        name='330 K Pot. Vorticity and irrot. winds'),
+#    plot('ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
+#        name='PV2 Pot. temperature, jets and wind speed'),
+#    plot('t850_perc', t850a, [
+#            o('black', t850p, ['monthly recurrence']), 
+#            o('grey', t850p, ['yearly recurrence']), 
+#            o('white', t850p, ['new record']), ], 
+#        name='850 hPa Temperature anomalies'),
+#    plot('tcwv_perc', tcwva, [
+#            o('black', tcwvp, ['monthly recurrence']), 
+#            o('grey', tcwvp, ['yearly recurrence']), 
+#            o('white', tcwvp, ['new record']), ], 
+#        name='Total column water vapour anomalies'),
+#]
+
+def _select(plot_names, **kwargs):
+    plots = plot_archetypes(**kwargs)
+    return {plot_name: plots[plot_name] for plot_name in plot_names}
 
 plots = {
     'no': {
@@ -279,6 +330,9 @@ plots = {
         'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
     },
+    'ec': {
+        'natl': _select(['z500_msl', 't850_msl'], msl_ci=5, msl_reduce=True),
+    }
 }
 
 # (How) Can this be derived from the plot defintions above?

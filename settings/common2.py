@@ -44,6 +44,8 @@ pconf[None,'Low cloud cover','cmap'] = cm.KBu
 pconf[None,'Mid-level cloud cover','cmap'] = cm.KOr
 pconf[None,'High cloud cover','cmap'] = cm.gray
 
+pconf [None,'Geopotential','hook'] = lambda z: z/98.1 # from m/s^2 to gpdm
+pconfl[None,'Geopotential','hook'] = lambda z: z/98.1
 pconf [None,'Temperature','hook'] = lambda t: t - 273.15
 pconfl[None,'Temperature','hook'] = lambda t: t - 273.15
 pconf [None,'2m Temperature','hook'] = lambda t: t - 273.15
