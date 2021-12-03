@@ -189,6 +189,29 @@ class eturb_pt(pt):
         return True
 
 
+# Wind speed shading, potential temperature contours
+class cc_pt(pt):
+    requires = [('W-E_60', 'cloud_area_fraction_ml'), ('W-E_60', 'air_temperature_ml'), ]
+    requires_diagnostic = [pt.cal_pt, ]
+    plotname = 'cc_pt'
+
+    def plot(self, data, static, dateinit, datevalid):
+        done = ff.plot(self, data, static, dateinit, datevalid)
+        if done:
+            return True
+        
+        self.cs = plt.contourf(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'cloud_area_fraction_ml'], 
+                [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99], extend='both', cmap='Blues')
+        self.cs_labels = (np.arange(-2,1.01,0.5), [0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0])
+
+        plt.contour(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'pt'], 
+                np.arange(250, 451, 5), colors='0.3', linewidths=0.7)
+        plt.contour(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'pt'], 
+                [270, 300, 350], colors='0.2', linewidths=2)
+
+        return True
+
+
 # -----------------------------------------------------------------------------
 
 # Most recent available data
@@ -202,7 +225,8 @@ print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 plots = [
     ff_pt(), 
     q_pt(), 
-    eturb_pt(),
+    cc_pt(),
+#    eturb_pt(),
 ]
 
 fc_str = forecast.strftime('%Y%m%dT%HZ')

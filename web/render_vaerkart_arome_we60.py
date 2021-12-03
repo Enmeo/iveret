@@ -60,6 +60,7 @@ class overlay(object):
 # Defining stuff
 q = variable(u'Specific humidity', u'g/kg', u'')
 eturb = variable(u'Turbulent kinetic energy', u'm²/s²', u'')
+cc = variable(u'Cloud cover area fraction', u'', u'')
 ff = variable(u'Wind speed', u'm/s', u'')
 v = variable(u'Cross-plane winds', u'm/s', u'')
 t = variable(u'Temperature', u'°C', u'')
@@ -73,8 +74,10 @@ plotlist = [
         name='Winds and pot. temperature'),
     plot(u'q_pt', q, [o('red', t, [0, ]), o('black', pt, 5), o('thick black', pt, [270, 300, 350, ])],
         name='Humidity and pot. temperature'),
-    plot(u'eturb_pt', eturb, [o('black', pt, 5), o('thick black', pt, [270, 300, 350, ])],
-        name='Turbulence and pot. temperature'),
+#    plot(u'eturb_pt', eturb, [o('black', pt, 5), o('thick black', pt, [270, 300, 350, ])],
+#        name='Turbulence and pot. temperature'),
+    plot(u'cc_pt', cc, [o('black', pt, 5), o('thick black', pt, [270, 300, 350, ])],
+        name='Cloud cover and pot. temperature'),
 ]
 
 fclist = [date_base - td(0.25)*i for i in range(29)]
