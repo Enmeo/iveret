@@ -383,17 +383,17 @@ class cycdetect_ens(plotter):
 # Percentile plots
 class percentiles(plotter):
     BASE_PATH = '/home/ubuntu/data'
+    conf.datapath.insert(1, BASE_PATH)
 
     def cal_percentiles(self, data, info, static):
         q, plev, base_period = info
         qp = '%s_percs' % q
         qa = '%s_ano' % q
         if not (qp, plev) in data or not (qa,plev) in data:
-            filename = self.BASE_PATH + '/ei.ans.%s.%s.%s.npz' % (base_period, plev, qp)
+            filename = 'ea.ans.%s.%s.%s' % (base_period, plev, qp)
             print('Using base data from %s' % filename)
-            f = np.load(filename)
-            base_data = f['dat']
-            percs = f['percs']
+            f, base_data = metopen(filename, q, no_static=True)
+            percs = f.variables['percentile'][:]
             f.close()
             
             # Current month (index, starting with January as 0)
@@ -508,7 +508,7 @@ class t850_msl_spolar(t850_msl,spolar):
 # Temperature@850hPa shading and MSLP contours
 class t850_perc(t_msl, percentiles):
     requires = [('t', '850'), ]
-    requires_diagnostic = [(percentiles.cal_percentiles, ['t', '850', '1979-2017', ]), ]
+    requires_diagnostic = [(percentiles.cal_percentiles, ['t', '850', '1979-2020', ]), ]
     plotname = 't850_perc'
 
     def plot(self, data, static, dateinit, datevalid):
@@ -1406,7 +1406,7 @@ PLOTS = {
         tcwv_spolar(),
         iwvt_axis(),
         t850_perc(),
-        tcwv_perc(),
+#        tcwv_perc(),
     ], 
     'isentropic': [
         pvpt315_wind(),
@@ -1430,7 +1430,7 @@ PLOTS = {
         jetfreq_msl_spolar(),
     ],
     'test': [
-        iwvt_axis(),
+        t850_perc(),
     ],
     'sfc': [
         cc(),

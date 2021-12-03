@@ -306,11 +306,6 @@ def plot_archetypes(msl_ci=2, msl_reduce=False):
 #            o('grey', t850p, ['yearly recurrence']), 
 #            o('white', t850p, ['new record']), ], 
 #        name='850 hPa Temperature anomalies'),
-#    plot('tcwv_perc', tcwva, [
-#            o('black', tcwvp, ['monthly recurrence']), 
-#            o('grey', tcwvp, ['yearly recurrence']), 
-#            o('white', tcwvp, ['new record']), ], 
-#        name='Total column water vapour anomalies'),
 #]
 
 def _select(plot_names, **kwargs):

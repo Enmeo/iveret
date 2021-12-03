@@ -76,8 +76,8 @@ slhff = variable(u'Surface latent heat flux', u'W/m²', u'')
 
 tcwvp = variable(u'Total column water vapour percentiles', u'', u'', u'based on ERA-Interim 1979-2017')
 tcwva = variable(u'Total column water vapour anomaly', u'kg/m²', u'', u'based on ERA-Interim 1979-2017')
-t850p = variable(u'Temperature percentiles', u'', u'850 hPa', u'based on ERA-Interim 1979-2017')
-t850a = variable(u'Temperature anomaly', u'K', u'850 hPa', u'based on ERA-Interim 1979-2017')
+t850p = variable(u'Temperature percentiles', u'', u'850 hPa', u'based on ERA5 for 1979-2020')
+t850a = variable(u'Temperature anomaly', u'K', u'850 hPa', u'based on ERA5 for 1979-2020')
 
 msl = variable(u'Sea level pressure', 'hPa', u'')
 mslc = variable(u'Ensemble ctrl sea level pressure', 'hPa', u'')
@@ -139,11 +139,11 @@ plotlist = [
             o('grey', t850p, ['yearly recurrence']), 
             o('white', t850p, ['new record']), ], 
         name='850 hPa Temperature anomalies'),
-    plot(u'tcwv_perc', tcwva, [
-            o('black', tcwvp, ['monthly recurrence']), 
-            o('grey', tcwvp, ['yearly recurrence']), 
-            o('white', tcwvp, ['new record']), ], 
-        name='Total column water vapour anomalies'),
+#    plot(u'tcwv_perc', tcwva, [
+#            o('black', tcwvp, ['monthly recurrence']), 
+#            o('grey', tcwvp, ['yearly recurrence']), 
+#            o('white', tcwvp, ['new record']), ], 
+#        name='Total column water vapour anomalies'),
 ]
 
 fclist = [date_base - td(0.5)*i for i in range(15)]
