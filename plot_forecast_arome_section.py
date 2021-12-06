@@ -200,9 +200,10 @@ class cc_pt(pt):
         if done:
             return True
         
+        cc_scale = [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99]
+
         self.cs = plt.contourf(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'cloud_area_fraction_ml'], 
-                [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99], extend='both', cmap='Blues')
-        self.cs_labels = (np.arange(-2,1.01,0.5), [0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0])
+                cc_scale, ticks=cc_scale, norm=mpl.colors.BoundaryNorm([-1,]+cc_scale+[2,], 256), extend='both', cmap='Blues')
 
         plt.contour(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'pt'], 
                 np.arange(250, 451, 5), colors='0.3', linewidths=0.7)

@@ -15,8 +15,8 @@ sections = {
 sfclevs = {'sfc': 0}
 
 qs = [
-#    'x_wind_ml', 'y_wind_ml', 'upward_air_velocity_ml',  
-#    'air_temperature_ml', 'specific_humidity_ml', 
+    'x_wind_ml', 'y_wind_ml', 'upward_air_velocity_ml',
+    'air_temperature_ml', 'specific_humidity_ml',
     'cloud_area_fraction_ml', 
 ]
 
