@@ -22,7 +22,7 @@ geometry="130x960+960+0"
 #geometry="112x927+825+0"
 
 # Extract the init date from the last changed file 
-last_img=`ls -tr $ipath/2021102906_* | tail -n 1`
+last_img=`ls -tr $ipath/* | tail -n 1`
 date=${last_img: -29:10}
 echo "Using forecast plots from $date to extract decorators."
 
