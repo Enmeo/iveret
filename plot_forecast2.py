@@ -24,6 +24,9 @@ q_map = {
     'Temperature': 't',
     'Specific humidity': 'q',
     'Sea-level pressure': 'msl',
+    'Convective precipitation': 'cp',
+    'Large-scale precipitation': 'lsp',
+    'Total column water vapour': 'tcwv',
     '10m Wind barbs': ('u10', 'v10'),
     'Wind barbs': ('u', 'v'),
     'Vertical wind': 'w',
@@ -102,6 +105,16 @@ def get_tp(fc_str, level, var):
 
     return _normalize_cumulates((lsp+cp)*1000*3600)
 
+def get_lsp(fc_str, level, var):
+    lsp = get_single(fc_str, 'sfc', 'lsp')
+
+    return _normalize_cumulates(lsp*1000*3600)
+
+def get_cp(fc_str, level, var):
+    cp = get_single(fc_str, 'sfc', 'cp')
+
+    return _normalize_cumulates(cp*1000*3600)
+
 def get_sthf(fc_str, level, var):
     sshf = get_single(fc_str, 'sfc', 'sshf')
     slhf = get_single(fc_str, 'sfc', 'slhf')
@@ -117,14 +130,35 @@ def get_rh2m(fc_str, level, var):
     
     return rh2m / 100
 
+# To be made obsolete by downloading the integrated fluxes directly
+def get_iwvt(fc_str, level, var):
+    IWVT_LEVELS = ['925', '850', '700', '500', '300']
+    IWVT_LEVEL_WEIGHTS = [0.140625, 0.140625, 0.21875, 0.25, 0.25]
+    
+    ivwtx = None
+    for plev, wgt in zip(IWVT_LEVELS, IWVT_LEVEL_WEIGHTS):
+        q = get_single(fc_str, plev, 'q')
+        u = get_single(fc_str, plev, 'u')
+        v = get_single(fc_str, plev, 'v')
+        if type(ivwtx) == type(None):
+            ivwtx = np.zeros(q.shape)
+            ivwty = np.zeros(q.shape)
+        ivwtx += wgt*u*q
+        ivwty += wgt*v*q
+
+    return ivwtx, ivwty
+
 
 get_special = {
     'Wind speed': get_ff,
     '10m Wind speed': get_ff10,
     '2m Relative humidity': get_rh2m,
     'Cold-air outbreak index': get_cao,
+    'Convective precipitation': get_cp,
+    'Large-scale precipitation': get_lsp,
     'Total precipitation': get_tp,
     'Surface total heat flux': get_sthf,
+    'Column integral water vapour transport': get_iwvt,
 }
 
 
@@ -142,6 +176,7 @@ if __name__ == '__main__':
     
     plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
             for domainname, plots_by_domain in plots['ec'].items() for plotname, plot in plots_by_domain.items()]
+    plots = []
     
     fc_str = forecast.strftime('%Y%m%d%H')
     conf.datapath.insert(1, '/share/base/ecmwf')
@@ -181,12 +216,14 @@ if __name__ == '__main__':
             plot.plot(data_inst, static, forecast, date)
             plt.close()
 
-    #print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
+    print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
 
-    #fclist = [forecast - td(0.5)*i for i in range(15)]
-    #leadlist = range(0,73,3)
-    #leadlist_link = range(0,73,6)
+    fclist = [forecast - td(0.5)*i for i in range(15)]
+    leadlist = list(range(0,72,3))
+    leadlist.extend(range(72,241,6))
+    leadlist_link = range(0,241,12)
     #render_webpage('scandes', 'ec', forecast, fclist, leadlist, leadlist_link)
-    #render_webpage('barents', 'ec', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('lehmkuhl', 'ec', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('tindpac', 'ec', forecast, fclist, leadlist, leadlist_link)
 
 # the end

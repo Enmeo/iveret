@@ -74,14 +74,25 @@ class overlay(object):
 datasources = ['no', 'ecmwf', 'noaa', 'no_kyst', ]
 
 # Defining domains
+
+# Parameterised plot domain following Statsraad Lehmkuhl
+def lehmkuhl_proj_factory(lat, lon):
+    # dynlib requires the map projection to be a callable returning the projection object. 
+    # With this construction the lat/lon variables are bound to the lambda statement at the 
+    # time of definition of this class and function, rather than at the time of execution 
+    # of the lambda construct (where they would otherwise no longer be available as local/
+    # global variables).
+    return lambda: proj.Basemap(projection='gnom', width=6000000, height=6000000,
+        lat_0=lat, lon_0=lon, resolution='l')
+
+llat, llon = 25.838067, -77.753913
 domains = {
-    'npolar': domain(
-        lambda: Basemap(projection='npstere',boundinglat=10,lon_0=-50,resolution='c', area_thresh=10000),
-        (6.4,6.4), (7.27273,6.4)
-    ),
-    'spolar': domain(proj.s_hemisphere, (6.4,6.4), (7.27273,6.4)),
-    'natl': domain(proj.N_Atlantic_forecast, (7.2,4.8), (8.18182,4.8)),
-    'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30, vector_space_numbers_xy=(30,40)),
+    'npolar': domain(proj.n_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
+    'spolar': domain(proj.s_hemisphere, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
+    'natl': domain(proj.N_Atlantic_forecast, (7.2,4.8), (8.18182,4.8), vector_space_numbers_xy=(45, 30)),
+    'lehmkuhl': domain(lehmkuhl_proj_factory(llat, llon), (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002, mark=(llon, llat), mark_kwargs=dict(markersize=20, markeredgewidth=1.5)),
+    'tindpac': domain(proj.Tropical_IndoPacific, (12.5,5.0), (14.2,5.0), vector_space_numbers_xy=(110, 44), quiver_width=0.001),
+    'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30, vector_space_numbers_xy=(30, 40)),
     'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
     'vestland': domain(proj.Vestland, (6.4,6.4), (7.27273,6.4), vector_space_interval=5),
     'barents': domain(proj.Barents_Sea, (5.0,6.375), (5.68182,6.375), vector_space_interval=30, vector_space_numbers_xy=(30,40)),
@@ -122,7 +133,7 @@ variables = {
     'mslc': variable('Ensemble ctrl sea level pressure', 'hPa', ''),
     'mslm': variable('Ensemble mean sea level pressure', 'hPa', ''),
     'cp': variable('Convective precipitation', 'mm/h', ''),
-    'lp': variable('Large-scale precipitation', 'mm/h', ''),
+    'lsp': variable('Large-scale precipitation', 'mm/h', ''),
     'tp': variable('Total precipitation', 'mm/h', ''),
     'sic': variable('Sea ice concentration', '', ''),
     'sst': variable('Sea-surface temperature', '°C', ''),
@@ -197,17 +208,30 @@ shf_scale = [-300,-200,-140,-100,-70,-50,-30,-20,-14,-10, 30,50,70,100,140,200,3
 shf_ticks = [-10000,]+shf_scale+[10000,]
 
 # Defining what is available per plot domain and data source
-def plot_archetypes(msl_ci=2, msl_reduce=False):
+def plot_archetypes(msl_ci=2, msl_reduce=False, tcwv_extratropic=False):
     if msl_reduce:
         selected_msl_kwargs = dict(alpha=0.8, linewidths=[0.5])
     else:
         selected_msl_kwargs = dict(contour_labels=True, contour_labels_format='%1.0f')
+
+    if tcwv_extratropic:
+        tcwv_scale = range(4,51,2)
+        tcwv_ticks = range(10,51,10)
+    else:
+        tcwv_scale = range(4,65,2)
+        tcwv_ticks = range(10,61,10)
 
     return {
     'z500_msl': plot(z500, scale=range(476,604,4), ticks=range(480,601,20), overlays=[
             o('white', z500, [552,], colors='white', linewidths=[2]), 
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
         ], name='500 hPa Geopotential and SLP'), 
+    'tcwv': plot(tcwv, scale=tcwv_scale, ticks=tcwv_ticks, overlays=[
+            o('black arrows', iwvt, None, otype='quiver', alpha=0.7), 
+            o('magenta', lsp, [1,3,10], colors='orchid'), 
+            o('cyan', cp, [1,3,10], colors='c'), 
+            o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
+        ], name='Total column water vapour, fluxes and precip.'),
     't2m_msl': plot(t2, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t2, [0,], linestyles='dashed'),
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
@@ -283,11 +307,8 @@ def plot_archetypes(msl_ci=2, msl_reduce=False):
 #    plot('slhf_winds', slhff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
 #        o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
 #        name='Latent heat fluxes, 10 m winds, SSTs and MIZ'),
-#    plot('tcwv', tcwv, [o('black arrows', iwvt, None), 
-#        o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
-#        name='Total column water vapour, fluxes and precip.'),
 #    plot('iwvt_axis', iwvt, [o('yellow', iwvtaxes, None), 
-#        o('magenta', lp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
+#        o('magenta', lsp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
 #        name='Water vapour transport, axes, and precipitation'),
 #    plot('cycfreq_msl', cycfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
 #        name='Ensemble cyclone detections'),
@@ -326,7 +347,9 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl'], msl_ci=5, msl_reduce=True),
+#        'natl': _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, tcwv_extratropic=True),
+        'lehmkuhl': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
+        'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
     }
 }
 
@@ -338,6 +361,8 @@ pages = {
     ('ec', 'natl'): ('ECMWF forecasts North Atlantic (restricted)', '/closed/vaerkart_ec.html'),
     ('ec', 'npolar'): ('ECMWF forecasts Northern Hemisphere (restricted)', '/closed/vaerkart_ec_npolar.html'),
     ('ec', 'spolar'): ('ECMWF forecasts Southern Hemisphere (restricted)', '/closed/vaerkart_ec_spolar.html'),
+    ('ec', 'tindpac'): ('ECMWF forecasts Tropical Indopacific (restricted)', '/closed/vaerkart_ec_tindpac.html'),
+    ('ec', 'lehmkuhl'): ('ECMWF forecasts Statsraad Lehmkuhl (restricted)', '/closed/vaerkart_ec_lehmkuhl.html'),
     ('ec', 'scandes'): ('ECMWF forecasts Scandinavia (restricted)', '/closed/vaerkart_ec_scandes.html'),
     ('ec', 'barents'): ('ECMWF forecasts Barents Sea (restricted)', '/closed/vaerkart_ec_barents.html'),
     ('ec', 'meteograms'): ('ECMWF forecast Meteograms (restricted)', '/closed/vaerkart_ec_meteograms.html'),
@@ -355,6 +380,8 @@ plots_per_page = {
     ('ec', 'natl'): [],
     ('ec', 'npolar'): [],
     ('ec', 'spolar'): [],
+    ('ec', 'lehmkuhl'): plots['ec']['lehmkuhl'],
+    ('ec', 'tindpac'): plots['ec']['tindpac'],
     ('ec', 'scandes'): plots['ec_local']['scandes'],
     ('ec', 'barents'): plots['ec_local']['barents'],
     ('ec', 'meteograms'): [],
@@ -448,6 +475,10 @@ class plotter(object):
             elif o.otype == 'barbs':
                 overlays.append(
                     fig.map_overlay_barbs(*data[plevq], static, **pconfl.merge(*plevq, **plotconf))
+                )
+            elif o.otype == 'quiver':
+                overlays.append(
+                    fig.map_overlay_quiver(*data[plevq], static, **pconfl.merge(*plevq, **plotconf))
                 )
             elif o.otype == 'shading':
                 overlays.append(

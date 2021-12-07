@@ -43,6 +43,9 @@ python3 $basepath/web/render_vaerkart_meteograms.py > $logpath/web_render_ec_met
 python3 $basepath/web/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoop_err.log
 python3 $basepath/web2/vue_page.py  > $logpath/vuepage_out.log 2> $logpath/vuepage_err.log
 
+# New plot script for new domains
+python3 $basepath/plot_forecast2.py> $logpath/web_plot_ec_ens_out2.log 2> $logpath/web_plot_ec_ens_err2.log &
+
 # Clean-up old plots
 python3 $basepath/cleanup.py
 
