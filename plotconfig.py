@@ -88,8 +88,8 @@ def lehmkuhl_proj_factory(lat, lon):
 llat, llon = 25.838067, -77.753913
 domains = {
     'npolar': domain(proj.n_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
-    'spolar': domain(proj.s_hemisphere, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
-    'natl': domain(proj.N_Atlantic_forecast, (7.2,4.8), (8.18182,4.8), vector_space_numbers_xy=(45, 30)),
+    'spolar': domain(proj.s_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
+    'natl': domain(proj.N_Atlantic_forecast, (7.2,4.8), (8.18182,4.8), vector_space_numbers_xy=(45, 30), quiver_width=0.002),
     'lehmkuhl': domain(lehmkuhl_proj_factory(llat, llon), (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002, mark=(llon, llat), mark_kwargs=dict(markersize=20, markeredgewidth=1.5)),
     'tindpac': domain(proj.Tropical_IndoPacific, (12.5,5.0), (14.2,5.0), vector_space_numbers_xy=(110, 44), quiver_width=0.001),
     'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30, vector_space_numbers_xy=(30, 40)),
@@ -347,7 +347,9 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
     },
     'ec': {
-#        'natl': _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, tcwv_extratropic=True),
+        'natl': _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, tcwv_extratropic=True),
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
         'lehmkuhl': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
         'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
     }

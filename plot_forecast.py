@@ -90,7 +90,7 @@ class npolar(plotter):
     domain = 'npolar'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = lambda: Basemap(projection='npstere',boundinglat=10,lon_0=-50,resolution='c', area_thresh=10000)
+    std_plotconf['m'] = proj.n_hemisphere_forecast
 
     figsize = (6.4,6.4)
     figsize_deco = (7.27273,6.4)
@@ -101,7 +101,7 @@ class spolar(plotter):
     domain = 'spolar'
 
     std_plotconf = copy.copy(plotter.std_plotconf)
-    std_plotconf['m'] = proj.s_hemisphere
+    std_plotconf['m'] = proj.s_hemisphere_forecast
 
     figsize = (6.4,6.4)
     figsize_deco = (7.27273,6.4)
@@ -1394,16 +1394,16 @@ print('Plotting the ECMWF %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 # Everything
 PLOTS = {
     'plev': [
-        z500_msl(), 
-        z500_msl_npolar(),
-        z500_msl_spolar(),
-        t850_msl(), 
-        t850_msl_npolar(),
-        t850_msl_spolar(),
+#        z500_msl(), 
+#        z500_msl_npolar(),
+#        z500_msl_spolar(),
+#        t850_msl(), 
+#        t850_msl_npolar(),
+#        t850_msl_spolar(),
         deform850_fronts(),
-        tcwv(),
-        tcwv_npolar(),
-        tcwv_spolar(),
+#        tcwv(),
+#        tcwv_npolar(),
+#        tcwv_spolar(),
         iwvt_axis(),
         t850_perc(),
 #        tcwv_perc(),

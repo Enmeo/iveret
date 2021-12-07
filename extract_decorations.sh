@@ -1,19 +1,23 @@
 #!/bin/bash
 
-plotdomain="snorway"
-plotname="clba_msl"
-ipath="/share/web/plots/$plotdomain/$plotname/no"
+fcsrc="ec"
+plotdomain="tindpac"
+plotname="tcwv"
+ipath="/share/web/plots/$plotdomain/$plotname/$fcsrc"
 #opath="/share/web/static/deco"
 opath="."
 
 # Aspect 2:1; for cross sections
 #geometry="103x460+921+0"
 
+# Aspect 2.5:1; for Tropical Indo-Pacific
+geometry="255x750+1875+0"
+
 # Aspect 3:2; for ec_for, no_kyst_lofotenbasin
 #geometry="147x720+1080+0"
 
 # Aspect 1:1; for ec_for_npolar, ec_for_spolar and no_for, no_kyst, no_kyst_vestland, no_kyst_bergen, no_kyst_lofoten
-geometry="130x960+960+0"
+#geometry="130x960+960+0"
 
 # Aspect about 5:4; for no_for_arctic
 #geometry="102x956+750+0"
@@ -24,9 +28,10 @@ geometry="130x960+960+0"
 # Extract the init date from the last changed file 
 last_img=`ls -tr $ipath/* | tail -n 1`
 date=${last_img: -29:10}
+last_img="$ipath/${date}_for_${date}.png"
 echo "Using forecast plots from $date to extract decorators."
 
 # Extract colorbars
-convert -crop ${geometry}\! $last_img $opath/cbar_${plotdomain}_${plotname}.png
+convert -crop ${geometry}\! $last_img $opath/cbar_${fcsrc}_for_${plotdomain}_${plotname}.png
 
 # the end

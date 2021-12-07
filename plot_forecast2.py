@@ -176,7 +176,6 @@ if __name__ == '__main__':
     
     plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
             for domainname, plots_by_domain in plots['ec'].items() for plotname, plot in plots_by_domain.items()]
-    plots = []
     
     fc_str = forecast.strftime('%Y%m%d%H')
     conf.datapath.insert(1, '/share/base/ecmwf')
