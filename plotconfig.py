@@ -10,6 +10,7 @@ from datetime import datetime as dt, timedelta as td
 from dynlib.shorthands import *
 from settings.common2 import pconf, pconfl, WEB_ROOT, VAERKART_ROOT
 
+from update_lehmkuhl_position import get_lehmkuhl_position
 
 #
 # Central plot configuration for (hopefully soon) all plots on iveret
@@ -85,7 +86,7 @@ def lehmkuhl_proj_factory(lat, lon):
     return lambda: proj.Basemap(projection='gnom', width=6000000, height=6000000,
         lat_0=lat, lon_0=lon, resolution='l')
 
-llat, llon = 25.838067, -77.753913
+llat, llon = get_lehmkuhl_position()
 domains = {
     'npolar': domain(proj.n_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
     'spolar': domain(proj.s_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
