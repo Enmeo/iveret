@@ -229,8 +229,8 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, tcwv_extratropic=False):
         ], name='500 hPa Geopotential and SLP'), 
     'tcwv': plot(tcwv, scale=tcwv_scale, ticks=tcwv_ticks, overlays=[
             o('black arrows', iwvt, None, otype='quiver', alpha=0.7), 
-            o('magenta', lsp, [1,3,10], colors='orchid'), 
-            o('cyan', cp, [1,3,10], colors='c'), 
+            o('magenta', lsp, [1,3,10], colors='orchid', linewidths=[1.65]),
+            o('cyan', cp, [1,3,10], colors='c', linewidths=[1.65]),
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
         ], name='Total column water vapour, fluxes and precip.'),
     't2m_msl': plot(t2, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
