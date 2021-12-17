@@ -27,8 +27,6 @@ q_map = {
     '10m Wind barbs': ('u10', 'v10'),
     'Wind barbs': ('u', 'v'),
     'Vertical wind': 'w',
-    'Sea-surface temperature': 'sst',
-    'Sea ice concentration': 'siconc',
 }
 
 
@@ -60,6 +58,13 @@ def get(fc_str, level, var):
             dat += (get_single(fc_str, plev, q_single), )
 
     return dat
+
+
+landmask = np.load(VAERKART_ROOT+'/settings/ecmwf_hrfc_sea_mask.npy')
+def mask_land(data):
+    data[:,landmask] = np.nan
+
+    return data
 
 
 def get_ff(fc_str, level, var):
@@ -107,6 +112,16 @@ def get_sthf(fc_str, level, var):
 
     return _normalize_cumulates(-sshf-slhf)
 
+def get_siconc(fc_str, level, var):
+    siconc = get_single(fc_str, 'sfc', 'siconc')
+
+    return mask_land(siconc)
+
+def get_sst(fc_str, level, var):
+    sst = get_single(fc_str, 'sfc', 'sst')
+
+    return mask_land(sst)
+
 def get_rh2m(fc_str, level, var):
     t2m = get_single(fc_str, 'sfc', 't2m')
     d2m = get_single(fc_str, 'sfc', 'd2m')
@@ -124,6 +139,8 @@ get_special = {
     'Cold-air outbreak index': get_cao,
     'Total precipitation': get_tp,
     'Surface total heat flux': get_sthf,
+    'Sea-surface temperature': get_sst,
+    'Sea ice concentration': get_siconc,
 }
 
 
