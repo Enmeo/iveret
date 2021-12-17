@@ -291,6 +291,7 @@ class percentiles(plotter):
             filename = 'ea.ans.%s.%s.%s' % (base_period, plev, qp)
             print('Using base data from %s' % filename)
             f, base_data = metopen(filename, q, no_static=True)
+            base_data = np.roll(base_data, base_data.shape[3]//2, axis=3) # GFS grid is from 0 to 360E, not -180 to 180E
             percs = f.variables['percentile'][:]
             f.close()
             
