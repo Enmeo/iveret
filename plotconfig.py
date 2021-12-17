@@ -209,7 +209,7 @@ shf_scale = [-300,-200,-140,-100,-70,-50,-30,-20,-14,-10, 30,50,70,100,140,200,3
 shf_ticks = [-10000,]+shf_scale+[10000,]
 
 # Defining what is available per plot domain and data source
-def plot_archetypes(msl_ci=2, msl_reduce=False, tcwv_extratropic=False):
+def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropic=False):
     if msl_reduce:
         selected_msl_kwargs = dict(alpha=0.8, linewidths=[0.5])
     else:
@@ -221,6 +221,11 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, tcwv_extratropic=False):
     else:
         tcwv_scale = range(4,65,2)
         tcwv_ticks = range(10,61,10)
+
+    if sst_reduce:
+        sst_scale = [-1,] + list(range(0,31,2))
+    else:
+        sst_scale = range(-1,21)
 
     return {
     'z500_msl': plot(z500, scale=range(476,604,4), ticks=range(480,601,20), overlays=[
@@ -289,12 +294,30 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, tcwv_extratropic=False):
     'shf_winds': plot(sthff, scale=shf_scale, cmap='BrBG', norm=mpl.colors.BoundaryNorm(shf_ticks, 256),
         cb_tickspacing='uniform', overlays=[
             o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
-            o('grey', sst, range(-1,21), linewidths=[0.7, 1.2,] + [0.7, 0.7, 0.7, 0.7, 1.2]*4, alpha=0.5),
+            o('grey', sst, sst_scale, linewidths=[0.7, 1.2,] + [0.7, 0.7, 0.7, 0.7, 1.2]*4, alpha=0.5),
             o('violet', sic, [0.2, 0.8], colors='blueviolet'),
             o('yellow', ff10, [17.2, ], colors='gold'),
             o('orange', ff10, [24.5, ], colors='coral'),
             o('red', ff10, [32.7, ], colors='crimson'),
-    ], name='Surface fluxes, 10m winds and SSTs'),
+    ], name='Surface fluxes, 10m winds, SSTs and MIZ'),
+    'sshf_winds': plot(sshff, scale=shf_scale, cmap='BrBG', norm=mpl.colors.BoundaryNorm(shf_ticks, 256),
+        cb_tickspacing='uniform', overlays=[
+            o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
+            o('grey', sst, sst_scale, linewidths=[0.7, 1.2,] + [0.7, 0.7, 0.7, 0.7, 1.2]*4, alpha=0.5),
+            o('violet', sic, [0.2, 0.8], colors='blueviolet'),
+            o('yellow', ff10, [17.2, ], colors='gold'),
+            o('orange', ff10, [24.5, ], colors='coral'),
+            o('red', ff10, [32.7, ], colors='crimson'),
+    ], name='Sensible heat flux, 10m winds, SSTs and MIZ'),
+    'slhf_winds': plot(slhff, scale=shf_scale, cmap='BrBG', norm=mpl.colors.BoundaryNorm(shf_ticks, 256),
+        cb_tickspacing='uniform', overlays=[
+            o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
+            o('grey', sst, sst_scale, linewidths=[0.7, 1.2,] + [0.7, 0.7, 0.7, 0.7, 1.2]*4, alpha=0.5),
+            o('violet', sic, [0.2, 0.8], colors='blueviolet'),
+            o('yellow', ff10, [17.2, ], colors='gold'),
+            o('orange', ff10, [24.5, ], colors='coral'),
+            o('red', ff10, [32.7, ], colors='crimson'),
+    ], name='Latent heat flux, 10m winds, SSTs and MIZ'),
 }
 
 ## Old ECMWF plot definitions
@@ -302,12 +325,6 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, tcwv_extratropic=False):
 #    plot('deform850_fronts', def850, [o('black double-arrows', defang850, None), o('dark cyan shading', frovo850, None), 
 #        o('dark cyan contour', tp, [1,5]), o('red, blue, purple', fronts850, None), o('dark red', t850, [-5,]), ],
 #        name='850 hPa Deformation, fronts and precipitation'),
-#    plot('sshf_winds', sshff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
-#        o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
-#        name='Sensible heat fluxes, 10 m winds, SSTs and MIZ'),
-#    plot('slhf_winds', slhff, [o('black', barbs10, None), o('grey', sst, 2), o('light blue', sic, [0.2, 0.8] ), 
-#        o('yellow, orange, red', ff10, [17.2, 24.5, 32.7] )], 
-#        name='Latent heat fluxes, 10 m winds, SSTs and MIZ'),
 #    plot('iwvt_axis', iwvt, [o('yellow', iwvtaxes, None), 
 #        o('magenta', lsp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
 #        name='Water vapour transport, axes, and precipitation'),
@@ -348,11 +365,12 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, tcwv_extratropic=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
-        'lehmkuhl': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
-        'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True),
+        'natl': _select(['z500_msl', 't850_msl', 'tcwv','sshf_winds', 'slhf_winds', ], msl_ci=5, msl_reduce=True,
+            tcwv_extratropic=True, sst_reduce=True),
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'lehmkuhl': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     }
 }
 

@@ -1434,8 +1434,8 @@ PLOTS = {
     ],
     'sfc': [
         cc(),
-        sshf_winds(),
-        slhf_winds(),
+#        sshf_winds(),
+#        slhf_winds(),
     ],
 }
 

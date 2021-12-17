@@ -31,8 +31,6 @@ q_map = {
     'Wind barbs': ('u', 'v'),
     'Vertical wind': 'w',
     'Geopotential': 'z',
-    'Sea-surface temperature': 'sst',
-    'Sea ice concentration': 'siconc',
 }
 
 
@@ -64,6 +62,13 @@ def get(fc_str, level, var):
             dat += (get_single(fc_str, plev, q_single), )
 
     return dat
+
+
+landmask = np.load(VAERKART_ROOT+'/settings/ecmwf_fc_sea_mask.npy')
+def mask_land(data):
+    data[:,landmask] = np.nan
+
+    return data
 
 
 def get_ff(fc_str, level, var):
@@ -115,11 +120,31 @@ def get_cp(fc_str, level, var):
 
     return _normalize_cumulates(cp*1000*3600)
 
+def get_sshf(fc_str, level, var):
+    sshf = get_single(fc_str, 'sfc', 'sshf')
+
+    return _normalize_cumulates(-sshf)
+
+def get_slhf(fc_str, level, var):
+    slhf = get_single(fc_str, 'sfc', 'slhf')
+
+    return _normalize_cumulates(-slhf)
+
 def get_sthf(fc_str, level, var):
     sshf = get_single(fc_str, 'sfc', 'sshf')
     slhf = get_single(fc_str, 'sfc', 'slhf')
 
     return _normalize_cumulates(-sshf-slhf)
+
+def get_siconc(fc_str, level, var):
+    siconc = get_single(fc_str, 'sfc', 'siconc')
+
+    return mask_land(siconc)
+
+def get_sst(fc_str, level, var):
+    sst = get_single(fc_str, 'sfc', 'sst')
+
+    return mask_land(sst)
 
 def get_rh2m(fc_str, level, var):
     t2m = get_single(fc_str, 'sfc', 't2m')
@@ -157,7 +182,11 @@ get_special = {
     'Convective precipitation': get_cp,
     'Large-scale precipitation': get_lsp,
     'Total precipitation': get_tp,
+    'Surface sensible heat flux': get_sshf,
+    'Surface latent heat flux': get_slhf,
     'Surface total heat flux': get_sthf,
+    'Sea-surface temperature': get_sst,
+    'Sea ice concentration': get_siconc,
     'Column integral water vapour transport': get_iwvt,
 }
 
