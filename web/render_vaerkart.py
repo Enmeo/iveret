@@ -176,7 +176,7 @@ c = {
     'display_details': False,
     'archive': {
         'start': dt(2017,9,22),
-        'plots': ['z500_msl', 't850_msl', 'tcwv'],
+        'plots': ['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'ptpv2_jets'],
         'step': 12,
     },
 }

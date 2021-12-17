@@ -130,6 +130,11 @@ c = {
     'date_init': date_fc,
     'plotdir': 'maps',
     'display_details': False,
+    'archive': {
+        'start': dt(2021,6,2), # tcwv is available back to 2018-04-17!
+        'plots': ['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets'],
+        'step': 12,
+    },
 }
 
 f = codecs.open(filepath, 'w', encoding='utf-8')
