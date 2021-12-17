@@ -6,16 +6,30 @@ logpath='/home/ubuntu/log'
 plotstat="$logpath/status"
 
 fc=`python3 $basepath/current_fc.py`
-lastfile="/share/base/ecmwf/$fc/ec.for-hr.$fc.700.t.nc"
+fcpath="/share/base/ecmwf/$fc"
+
+# Wait for all of these files to be present before starting the plotting
+lastfiles="$fcpath/ec.for-hr.$fc.700.t.nc $fcpath/ec.for.$fc.pt350.pv.nc $fcpath/ec.ensctrl.$fc.sfc.meteogram.nc"
 
 attempts=18
-while [ ! -f $lastfile ] && [ $attempts -gt 0 ]; do
-	echo "Incomplete download, sleeping 10 Minutes and trying again. $attempts attempts remain."
-	sleep 10m
-	attempts=$((attempts-1))
+somethingmissing=true
+while [ "$somethingmissing" = true ] && [ $attempts -gt 0 ]; do
+	somethingmissing=false
+	for lastfile in $lastfiles; do
+		echo "Checking for $lastfile"
+		if [ ! -f $lastfile ]; then
+			somethingmissing=true
+		fi
+	done
+
+	if [ "$somethingmissing" = true ]; then
+		echo "Incomplete download, sleeping 10 Minutes and trying again. $attempts attempts remain."
+		sleep 10m
+		attempts=$((attempts-1))
+	fi
 done
 
-if [ ! -f $lastfile ]; then
+if [ "$somethingmissing" = true ]; then
 	echo "Incomplete download after 3h, giving up."
 	exit -1
 fi
@@ -32,7 +46,7 @@ python3 $basepath/plot_forecast.py isentropic > $logpath/web_plot_ec_isentropic_
 python3 $basepath/plot_forecast.py pv2 sfc > $logpath/web_plot_ec_pv2sfc_out.log 2> $logpath/web_plot_ec_pv2sfc_err.log &
 python3 $basepath/plot_forecast.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log &
 python3 $basepath/plot_forecast.py plev > $logpath/web_plot_ec_plev_out.log 2> $logpath/web_plot_ec_plev_err.log &
-python3 $basepath/plot_forecast2.py > $logpath/web_plot_ec_ens_out2.log 2> $logpath/web_plot_ec_ens_err2.log &
+python3 $basepath/plot_forecast2.py > $logpath/web_plot_ec_plev_out2.log 2> $logpath/web_plot_ec_plev_err2.log &
 python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_out.log 2> $logpath/web_plot_ec_meteograms_err.log &
 
 # Mark the plotting as finished
