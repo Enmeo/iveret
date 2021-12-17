@@ -6,7 +6,7 @@ import numpy as np
 from .common import conf, pconf, pconfl, basepath, plotpath, cm, proj
 
 
-conf.datapath = '/share/base/noaa'
+conf.datapath = ['/share/base/noaa', ]
 
 pconf[None,'z','hook'] = lambda z: z/10.0
 pconfl[None,'z','hook'] = lambda z: z/10.0

@@ -281,17 +281,17 @@ class jets(ff):
 # Percentile plots
 class percentiles(plotter):
     BASE_PATH = '/home/ubuntu/data'
+    conf.datapath.insert(1, BASE_PATH)
 
     def cal_percentiles(self, data, info, static):
         q, plev, base_period = info
         qp = '%s_percs' % q
         qa = '%s_ano' % q
         if not (qp, plev) in data or not (qa,plev) in data:
-            filename = self.BASE_PATH + '/ei.ans.%s.%s.%s.npz' % (base_period, plev, qp)
+            filename = 'ea.ans.%s.%s.%s' % (base_period, plev, qp)
             print('Using base data from %s' % filename)
-            f = np.load(filename)
-            base_data = f['dat']
-            percs = f['percs']
+            f, base_data = metopen(filename, q, no_static=True)
+            percs = f.variables['percentile'][:]
             f.close()
             
             # Current month (index, starting with January as 0)
@@ -357,7 +357,7 @@ class t850_msl(t_msl):
 # Temperature@850hPa shading and MSLP contours
 class t850_perc(t_msl, percentiles):
     requires = [('t', '850'), ]
-    requires_diagnostic = [(percentiles.cal_percentiles, ['t', '850', '1979-2017', ]), ]
+    requires_diagnostic = [(percentiles.cal_percentiles, ['t', '850', '1979-2020', ]), ]
     plotname = 't850_perc'
 
     def plot(self, data, static, dateinit, datevalid):
@@ -723,39 +723,6 @@ class tcwv(iwvtrans):
 
 
 # Total column water vapour
-class tcwv_perc(percentiles):
-    requires = [('tcwv', 'sfc'), ]
-    requires_diagnostic = [(percentiles.cal_percentiles, ['tcwv', 'sfc', '1979-2017', ]), ]
-    plotname = 'tcwv_perc'
-
-    def plot(self, data, static, dateinit, datevalid):
-        done = plotter.plot(self, data, static, dateinit, datevalid)
-        if done:
-            return True
-
-        s = [-30,-25,-21,-18,-15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,18,21,25,30]
-
-        overlays = [
-            fig.map_overlay_contour(data['tcwv_percs', 'sfc'], static, plev=None, q='perc', 
-                colors='w', scale=[0.5, 18.5]),
-            fig.map_overlay_contour(data['tcwv_percs', 'sfc'], static, plev=None, q='perc', 
-                colors='0.3', scale=[1.5, 17.5]),
-            fig.map_overlay_contour(data['tcwv_percs', 'sfc'], static, plev=None, q='perc', 
-                scale=[3.5, 15.5]),
-        ]
-        plotconf = pconf.merge('sfc', 'tcwv_ano',
-                scale=s,
-                norm=mpl.colors.BoundaryNorm([-np.inf,]+s+[np.inf,], 256),
-                cb_tickspacing='uniform',
-                overlays=overlays,
-                **self.std_plotconf
-        )
-        fig.map(data['tcwv_ano', 'sfc'], static, **plotconf)
-
-        return True
-
-
-# Total column water vapour
 class tcwv_npolar(tcwv,npolar):
     requires = [('tcwv', 'sfc'), ('crr', 'sfc'), ('lsrr', 'sfc'), 
             ('u', '925'), ('v', '925'), ('rh', '925'), ('t', '925'),
@@ -1089,7 +1056,6 @@ PLOTS = {
         tcwv_npolar(),
         tcwv_spolar(),
         t850_perc(),
-        tcwv_perc(),
     ], 
     'pv2': [
         ptpv2_jets(),
@@ -1097,6 +1063,7 @@ PLOTS = {
         ptpv2_jets_spolar(),
     ],
     'test': [
+        t850_perc(),
     ],
     'sfc': [
         cc(),
@@ -1228,7 +1195,7 @@ def get_data_grib(f, plev, q):
 for lead in get_avail_leads():
     date = forecast + lead * td(0,3600)
     
-    fpath = conf.datapath + '/%(time)s/gfs.t%(hour)02dz.pgrb2.0p50.f%(lead)03d' % \
+    fpath = conf.datapath[0] + '/%(time)s/gfs.t%(hour)02dz.pgrb2.0p50.f%(lead)03d' % \
         {'time': forecast.strftime('%Y%m%d%H'), 'hour': forecast.hour, 'lead': lead}
     print(fpath)
     f = pygrib.open(fpath)

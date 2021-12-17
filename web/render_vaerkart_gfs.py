@@ -124,11 +124,6 @@ plotlist = [
             o('grey', t850p, ['yearly recurrence']), 
             o('white', t850p, ['new record']), ], 
         name='850 hPa Temperature anomalies'),
-    plot(u'tcwv_perc', tcwva, [
-            o('black', tcwvp, ['monthly recurrence']), 
-            o('grey', tcwvp, ['yearly recurrence']), 
-            o('white', tcwvp, ['new record']), ], 
-        name='Total column water vapour anomalies'),
 ]
 
 fclist = [date_base - td(0.25)*i for i in range(29)]
