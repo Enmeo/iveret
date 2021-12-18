@@ -125,10 +125,8 @@ variables = {
     'sshff': variable('Surface sensible heat flux', 'W/m²', ''),
     'slhff': variable('Surface latent heat flux', 'W/m²', ''),
 
-    'tcwvp': variable('Total column water vapour percentiles', '', '', 'based on ERA-Interim 1979-2017'),
-    'tcwva': variable('Total column water vapour anomaly', 'kg/m²', '', 'based on ERA-Interim 1979-2017'),
-    't850p': variable('Temperature percentiles', '', '850 hPa', 'based on ERA-Interim 1979-2017'),
-    't850a': variable('Temperature anomaly', 'K', '850 hPa', 'based on ERA-Interim 1979-2017'),
+    't850p': variable('Temperature percentiles', '', '850 hPa', 'based on ERA-5 1979-2020'),
+    't850a': variable('Temperature anomaly', 'K', '850 hPa', 'based on ERA-5 1979-2020'),
 
     'msl': variable('Sea-level pressure', 'hPa', ''),
     'mslc': variable('Ensemble ctrl sea level pressure', 'hPa', ''),
