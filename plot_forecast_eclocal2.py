@@ -29,15 +29,20 @@ q_map = {
     'Vertical wind': 'w',
 }
 
+qf = {
+    'clba': 'cbh',
+}
+
 
 def get_single(fc_str, plev, q):
     fname = f'{fc_str}/ec.for-hr.{fc_str}.{plev}.{q}'
     try:
-        f, dat, static = metopen(fname, q)
+        f, dat, static = metopen(fname, qf.get(q, q))
         dat = dat.squeeze()
         if plev in mask:
             dat[mask[plev]] = np.nan
-    except:
+    except Exception as e:
+        print(type(e), e)
         dat = None
 
     return dat
