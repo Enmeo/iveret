@@ -31,17 +31,24 @@ q_map = {
     'Wind barbs': ('u', 'v'),
     'Vertical wind': 'w',
     'Geopotential': 'z',
+    'Column integral water vapour transport': ('viewvt', 'vinwvt'),
+}
+
+qf = {
+    'viewvt': 'viwve',
+    'vinwvt': 'viwvn',
 }
 
 
 def get_single(fc_str, plev, q):
     fname = f'{fc_str}/ec.for.{fc_str}.{plev}.{q}'
     try:
-        f, dat, static = metopen(fname, q)
+        f, dat, static = metopen(fname, qf.get(q, q))
         dat = dat.squeeze()
         if plev in mask:
             dat[mask[plev]] = np.nan
-    except:
+    except Exception as e:
+        print(type(e), e)
         dat = None
 
     return dat
@@ -155,24 +162,6 @@ def get_rh2m(fc_str, level, var):
     
     return rh2m / 100
 
-# To be made obsolete by downloading the integrated fluxes directly
-def get_iwvt(fc_str, level, var):
-    IWVT_LEVELS = ['925', '850', '700', '500', '300']
-    IWVT_LEVEL_WEIGHTS = [0.140625, 0.140625, 0.21875, 0.25, 0.25]
-    
-    ivwtx = None
-    for plev, wgt in zip(IWVT_LEVELS, IWVT_LEVEL_WEIGHTS):
-        q = get_single(fc_str, plev, 'q')
-        u = get_single(fc_str, plev, 'u')
-        v = get_single(fc_str, plev, 'v')
-        if type(ivwtx) == type(None):
-            ivwtx = np.zeros(q.shape)
-            ivwty = np.zeros(q.shape)
-        ivwtx += wgt*u*q
-        ivwty += wgt*v*q
-
-    return ivwtx, ivwty
-
 
 get_special = {
     'Wind speed': get_ff,
@@ -187,7 +176,6 @@ get_special = {
     'Surface total heat flux': get_sthf,
     'Sea-surface temperature': get_sst,
     'Sea ice concentration': get_siconc,
-    'Column integral water vapour transport': get_iwvt,
 }
 
 
