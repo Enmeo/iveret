@@ -37,7 +37,7 @@ pconf[None,'Equivalent potential temperature','cmap'] = cm.RdYlCyBu2
 
 pconf[None,'Specific humidity','cmap'] = cm.WYlBuKPi
 pconf[None,'Total column water vapour','cmap'] = cm.WYlBuKPi
-pconf[None,'Total column water vapour anomaly','cmap'] = cm.RdYlCyBu2
+pconf[None,'Column integral water vapour transport','cmap'] = cm.WYlBuKPi
 pconf[None,'Total precipitation','cmap'] = cm.WBuPi2
 
 pconf[None,'Low cloud cover','cmap'] = cm.KBu

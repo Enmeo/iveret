@@ -12,6 +12,7 @@ from settings.common2 import *
 import dynlib.diag
 import dynlib.detect
 import dynlib.thermodyn
+import dynlib.sphere
 import dynlib.utils
 
 from current_fc import get_current_fc
@@ -31,7 +32,7 @@ q_map = {
     'Wind barbs': ('u', 'v'),
     'Vertical wind': 'w',
     'Geopotential': 'z',
-    'Column integral water vapour transport': ('viewvt', 'vinwvt'),
+    'Column integral water vapour transport vector': ('viewvt', 'vinwvt'),
 }
 
 qf = {
@@ -163,6 +164,41 @@ def get_rh2m(fc_str, level, var):
     return rh2m / 100
 
 
+def get_absiwvt(fc_str, level, var):
+    u = get_single(fc_str, 'sfc', 'viewvt')
+    v = get_single(fc_str, 'sfc', 'vinwvt')
+
+    ff = np.sqrt(u**2 + v**2)
+
+    return ff
+
+
+def get_iwvt_axis(fc_str, level, var):
+    u = get_single(fc_str, 'sfc', 'viewvt')
+    v = get_single(fc_str, 'sfc', 'vinwvt')
+
+    dynfor.config.nsmooth = 0
+    dynfor.config.minlen = 2.0e6
+    dynfor.config.jetint_thres = 5.0e-7
+    dynfor.config.searchrad = 1.5
+
+    # Interpolation to T84 resolution
+    u, conv = dynlib.utils.fill_nan(u)
+    v, conv = dynlib.utils.fill_nan(v)
+    br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
+    dynlib.sphere.trunc_triangular(br, bi, 84)
+    dynlib.sphere.trunc_triangular(cr, ci, 84)
+    u, v = dynlib.sphere.sh_synthesis_vector(u.shape[2], br,bi,cr,ci)
+    #iwvtxs *= self.scalefac
+    #iwvtys *= self.scalefac
+
+    # Integrated water vapour transport axis detections
+    iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
+    iwvtoff = iwvtoff.astype('i4')
+
+    return iwvta, iwvtoff
+
+
 get_special = {
     'Wind speed': get_ff,
     '10m Wind speed': get_ff10,
@@ -176,6 +212,8 @@ get_special = {
     'Surface total heat flux': get_sthf,
     'Sea-surface temperature': get_sst,
     'Sea ice concentration': get_siconc,
+    'Column integral water vapour transport': get_absiwvt,
+    'Water vapour transport axes': get_iwvt_axis,
 }
 
 

@@ -151,7 +151,8 @@ variables = {
     'irbarbspt330': variable('Irrot. wind barbs', 'm/s', '330 K'),
     'ffpv2': variable('Wind speed', 'm/s', 'PV 2'),
     'defang850': variable('Axes of dilatation', '', '850 hPa'),
-    'iwvt': variable('Column integral water vapour transport', 'kg m/s', ''),
+    'iwvt': variable('Column integral water vapour transport vector', 'kg m/s', ''),
+    'absiwvt': variable('Column integral water vapour transport', 'kg m/s', ''),
     'iwvtaxes': variable('Water vapour transport axes', '', ''),
     'jetaxespv2': variable('Jet axes', '', 'PV 2'),
 }
@@ -236,6 +237,12 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('cyan', cp, [1,3,10], colors='c', linewidths=[1.65]),
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
         ], name='Total column water vapour, fluxes and precip.'),
+    'iwvt_axis': plot(absiwvt, scale=np.arange(50,951,50), ticks=np.arange(200,951,200), overlays=[
+            o('yellow', iwvtaxes, None, otype='lines', linewidths=(4,2), linecolors=('w','gold')),
+            o('magenta', lsp, [1,3,10], colors='orchid', linewidths=[1.65]),
+            o('cyan', cp, [1,3,10], colors='c', linewidths=[1.65]),
+            o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
+        ], name='Water vapour transport, axes, and precipitation'),
     't2m_msl': plot(t2, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t2, [0,], linestyles='dashed'),
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
@@ -323,9 +330,6 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
 #    plot('deform850_fronts', def850, [o('black double-arrows', defang850, None), o('dark cyan shading', frovo850, None), 
 #        o('dark cyan contour', tp, [1,5]), o('red, blue, purple', fronts850, None), o('dark red', t850, [-5,]), ],
 #        name='850 hPa Deformation, fronts and precipitation'),
-#    plot('iwvt_axis', iwvt, [o('yellow', iwvtaxes, None), 
-#        o('magenta', lsp, [1,3,10]), o('cyan', cp, [1,3,10]), o('dark red', t850, [-5,]), ],
-#        name='Water vapour transport, axes, and precipitation'),
 #    plot('cycfreq_msl', cycfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
 #        name='Ensemble cyclone detections'),
 #    plot('jetfreq_msl', jetfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
@@ -363,7 +367,7 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 'tcwv','sshf_winds', 'slhf_winds', ], msl_ci=5, msl_reduce=True,
+        'natl': _select(['z500_msl', 't850_msl', 'tcwv','sshf_winds', 'slhf_winds', 'iwvt_axis', ], msl_ci=5, msl_reduce=True,
             tcwv_extratropic=True, sst_reduce=True),
         'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
@@ -503,6 +507,9 @@ class plotter(object):
                 overlays.append(
                     fig.map_overlay_shading(data[plevq], static, **pconf.merge(*plevq, scale=o.contours, **plotconf))
                 )
+            elif o.otype == 'lines':
+                for linewidth, linecolor in zip(plotconf['linewidths'], plotconf['linecolors']):
+                    overlays.append(fig.map_overlay_lines(*data[plevq], static, linewidth=linewidth, linecolor=linecolor) )
             else:
                 raise ValueError(f'Unknown overlay type `{o.otype}`.')
 
