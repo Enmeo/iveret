@@ -380,7 +380,7 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'tcwv','sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
+        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'tcwv', 'sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
             'ptpv2_jets', ], msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
         'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ], msl_ci=5, msl_reduce=True, sst_reduce=True),

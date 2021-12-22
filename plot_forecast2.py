@@ -320,6 +320,8 @@ get_special = {
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
+    import sys
+
     # Most recent available data
     forecast = get_current_fc()
     
@@ -328,9 +330,33 @@ if __name__ == '__main__':
     plot_only_init = False
     
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
+
+    PLOT_SETS = {
+        'plev': ['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 't850_perc', ],
+        'isentropic': [],
+        'pv2': ['ptpv2_jets', ],
+        'ens': [],
+        'test': [],
+        'sfc': ['tcc', 'sshf_winds', 'slhf_winds', ],
+    }
     
-    plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
+    if len(sys.argv) > 1:
+        for arg in sys.argv[1:]:
+            if arg in PLOT_SETS:
+                plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
+                    for domainname, plots_by_domain in plots['ec'].items() for plotname, plot in plots_by_domain.items()
+                    if plotname in PLOT_SETS[arg]
+                ]
+                print('Plotting plot set "%s".' % arg)
+            else:
+                raise ValueError('Unknown plot set "%s".' % arg)
+    else:
+        plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
             for domainname, plots_by_domain in plots['ec'].items() for plotname, plot in plots_by_domain.items()]
+
+        print('No plot set specified, plotting all plot sets.')
+
+    print(len(plots))
     
     fc_str = forecast.strftime('%Y%m%d%H')
     conf.datapath.insert(1, '/share/base/ecmwf')
