@@ -1405,7 +1405,7 @@ PLOTS = {
 #        tcwv_npolar(),
 #        tcwv_spolar(),
 #        iwvt_axis(),
-        t850_perc(),
+#        t850_perc(),
 #        tcwv_perc(),
     ], 
     'isentropic': [
@@ -1417,9 +1417,9 @@ PLOTS = {
         pvpt330_wind_spolar(),
     ],
     'pv2': [
-        ptpv2_jets(),
-        ptpv2_jets_npolar(),
-        ptpv2_jets_spolar(),
+#        ptpv2_jets(),
+#        ptpv2_jets_npolar(),
+#        ptpv2_jets_spolar(),
     ],
     'ens': [
         cycfreq_msl(),
@@ -1430,10 +1430,10 @@ PLOTS = {
         jetfreq_msl_spolar(),
     ],
     'test': [
-        t850_perc(),
+#        t850_perc(),
     ],
     'sfc': [
-        cc(),
+#        cc(),
 #        sshf_winds(),
 #        slhf_winds(),
     ],

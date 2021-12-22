@@ -62,7 +62,9 @@ class overlay(object):
         self.contours = contours
         self.otype = otype
         
-        if type(contours) == list:
+        if 'scale_label' in plotconf:
+            self.contour_label = plotconf['scale_label']
+        elif type(contours) in (list, np.ndarray):
             self.contour_label = 'contours at ' + ', '.join(map(str, contours))
         elif type(contours) == range:
             self.contour_label = f'contour interval = {contours.step}'
@@ -149,7 +151,7 @@ variables = {
     'caoidx': variable('Cold-air outbreak index', 'K', ''),
     'irbarbspt315': variable('Irrot. wind barbs', 'm/s', '315 K'),
     'irbarbspt330': variable('Irrot. wind barbs', 'm/s', '330 K'),
-    'ffpv2': variable('Wind speed', 'm/s', 'PV 2'),
+    'ffpv2': variable('Wind speed filtered to T84', 'm/s', 'PV 2'),
     'defang850': variable('Axes of dilatation', '', '850 hPa'),
     'iwvt': variable('Column integral water vapour transport vector', 'kg m/s', ''),
     'absiwvt': variable('Column integral water vapour transport', 'kg m/s', ''),
@@ -207,6 +209,13 @@ clba_ticks = [0, 200, 500, 1000, 1500, 3000, 5000, 8000]
 shf_scale = [-300,-200,-140,-100,-70,-50,-30,-20,-14,-10, 30,50,70,100,140,200,300,500,700,1000]
 shf_ticks = [-10000,]+shf_scale+[10000,]
 
+cc_scale = np.array([0,] + list(np.arange(0.0625,0.95,0.125)) + [1,])
+cc_ticks = (cc_scale[1:]+cc_scale[:-1])/2.0
+cc_ticklabels = ["0/8","1/8", "2/8", "3/8", "4/8", "5/8", "6/8", "7/8", "8/8"]
+
+t_ano_scale = [-30,-25,-21,-18,-15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,18,21,25,30] 
+
+
 # Defining what is available per plot domain and data source
 def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropic=False):
     if msl_reduce:
@@ -243,6 +252,14 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('cyan', cp, [1,3,10], colors='c', linewidths=[1.65]),
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
         ], name='Water vapour transport, axes, and precipitation'),
+    'tcc': plot(lcc, scale=cc_scale, ticks=cc_ticks, ticklabels=cc_ticklabels, extend='neither', coastcolor='0.7', overlays=[
+            o('orange shading', mcc, cc_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, alpha=0.5),
+            o('white shading', hcc, cc_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, alpha=0.4),
+        ], name='Cloud cover'),
+    'ptpv2_jets': plot(ptpv2, scale=np.arange(270,396,5), ticks=[270,285,300,315,330,350,370,395], overlays=[
+            o('black', ffpv2, [30, 45, 60, 75, 90], linewidths=[2,]),
+            o('white', jetaxespv2, None, otype='lines', linewidths=(6,4), linecolors=('k','w')),
+        ], name='PV2 Pot. temperature, jets and wind speed'),
     't2m_msl': plot(t2, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t2, [0,], linestyles='dashed'),
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
@@ -257,6 +274,11 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('black', msl, range(900,1070,msl_ci), **selected_msl_kwargs),
             o('black', barbs850, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
         ], name='850 hPa Temperature, SLP and wind barbs'),
+    't850_perc': plot(t850a, scale=t_ano_scale, norm=mpl.colors.BoundaryNorm([-np.inf,]+t_ano_scale+[np.inf,], 256), cb_tickspacing='uniform', overlays=[
+            o('black', t850p, [3.5, 15.5], scale_label='contours at monthly recurrence'),
+            o('grey', t850p, [1.5, 17.5], scale_label='contours at yearly recurrence', colors='0.3'),
+            o('white', t850p, [0.5, 18.5], scale_label='contours where new record', colors='w'),
+        ], name='850 hPa Temperature anomalies'),
     'q925_msl': plot(q925, scale=np.arange(1,12.1,0.5), ticks=np.arange(2,12.1,2), overlays=[
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
@@ -334,19 +356,10 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
 #        name='Ensemble cyclone detections'),
 #    plot('jetfreq_msl', jetfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
 #        name='Ensemble jet detections'),
-#    plot('tcc', lcc, [o('orange shading', mcc, None), o('white shading', hcc, None)],
-#        name='Cloud cover'),
 #    plot('pvpt315_irot_wind', pvpt315, [o('black', irbarbspt315, None), ],
 #        name='315 K Pot. Vorticity and irrot. winds'),
 #    plot('pvpt330_irot_wind', pvpt330, [o('black', irbarbspt330, None), ],
 #        name='330 K Pot. Vorticity and irrot. winds'),
-#    plot('ptpv2_jets', ptpv2, [o('black', ffpv2, [30, 45, 60, 75, 90]), o('white', jetaxespv2, None)],
-#        name='PV2 Pot. temperature, jets and wind speed'),
-#    plot('t850_perc', t850a, [
-#            o('black', t850p, ['monthly recurrence']), 
-#            o('grey', t850p, ['yearly recurrence']), 
-#            o('white', t850p, ['new record']), ], 
-#        name='850 hPa Temperature anomalies'),
 #]
 
 def _select(plot_names, **kwargs):
@@ -367,10 +380,10 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 'tcwv','sshf_winds', 'slhf_winds', 'iwvt_axis', ], msl_ci=5, msl_reduce=True,
-            tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'tcwv','sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
+            'ptpv2_jets', ], msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'lehmkuhl': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     }
@@ -514,7 +527,8 @@ class plotter(object):
                 raise ValueError(f'Unknown overlay type `{o.otype}`.')
 
         plevq = (self.plotdef.shading.level, self.plotdef.shading.name)
-        plotconf = pconf.merge(*plevq, overlays=overlays, **self.plotdef.plotconf, **self.std_plotconf)
+        plotconf = pconf.merge(*plevq, overlays=overlays, **self.std_plotconf)
+        plotconf.update(self.plotdef.plotconf) # plotdef.plotconf takes precedence over stuff defined in pconf, self.std_plotconf
         fig.map(data[plevq], static, **plotconf)
 
         return

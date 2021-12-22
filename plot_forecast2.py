@@ -23,6 +23,7 @@ q_map = {
     '2m Temperature': 't2m',
     'Cloud base altitude': 'clba',
     'Temperature': 't',
+    'Potential temperature': 'pt',
     'Specific humidity': 'q',
     'Sea-level pressure': 'msl',
     'Convective precipitation': 'cp',
@@ -33,12 +34,19 @@ q_map = {
     'Vertical wind': 'w',
     'Geopotential': 'z',
     'Column integral water vapour transport vector': ('viewvt', 'vinwvt'),
+    'Low cloud cover': 'lcc',
+    'Mid-level cloud cover': 'mcc',
+    'High cloud cover': 'hcc',
 }
 
 qf = {
     'viewvt': 'viwve',
     'vinwvt': 'viwvn',
 }
+
+
+# Save expensive intermediate steps to avoid recalculation
+CACHE = {}
 
 
 def get_single(fc_str, plev, q):
@@ -199,6 +207,94 @@ def get_iwvt_axis(fc_str, level, var):
     return iwvta, iwvtoff
 
 
+PERC_PATH = '/home/ubuntu/data'
+PERC_PERIOD = '1979-2020'
+conf.datapath.insert(1, PERC_PATH)
+def get_t_ano(fc_str, level, var):
+    plev = level2plev(level)
+    t = get_single(fc_str, plev, 't')
+
+    filename = 'ea.ans.%s.%s.t_percs' % (PERC_PERIOD, plev)
+    print('Using base data from %s' % filename)
+    f, perc_data = metopen(filename, 't', no_static=True)
+    percs = f.variables['percentile'][:]
+    f.close()
+    
+    # Current month (index, starting with January as 0)
+    mon = static.t_parsed[0].month - 1
+    
+    # Calculate anomalies compared to median
+    idx = np.argwhere(percs == 0.5)[0,0]
+    return t - perc_data[np.newaxis,mon,idx]
+
+
+def get_t_perc(fc_str, level, var):
+    plev = level2plev(level)
+    t = get_single(fc_str, plev, 't')
+
+    filename = 'ea.ans.%s.%s.t_percs' % (PERC_PERIOD, plev)
+    print('Using base data from %s' % filename)
+    f, perc_data = metopen(filename, 't', no_static=True)
+    percs = f.variables['percentile'][:]
+    f.close()
+    
+    # Current month (index, starting with January as 0)
+    mon = static.t_parsed[0].month - 1
+    
+    # Find percentiles
+    t_perc = np.empty(t.shape, dtype='i1') * np.nan
+    mask = t < perc_data[mon,0][np.newaxis,:,:]
+    t_perc[mask] = 0
+    for i in range(1, perc_data.shape[1]):
+        dmin = perc_data[mon,i-1][np.newaxis,:,:]
+        dmax = perc_data[mon,i][np.newaxis,:,:]
+        mask = np.logical_and(t >= dmin, t < dmax)
+        t_perc[mask] = i
+    i += 1
+    mask = t >= perc_data[mon,-1][np.newaxis,:,:]
+    t_perc[mask] = i
+
+    return t_perc
+
+
+def get_T84_ff(fc_str, level, var):
+    if (level, 'u_smooth') in CACHE:
+        return np.sqrt(CACHE[level,'u_smooth']**2 + CACHE[level,'v_smooth']**2)
+
+    plev = level2plev(level)
+    u = get_single(fc_str, plev, 'u')
+    v = get_single(fc_str, plev, 'v')
+
+    # Filtering to T84 resolution
+    u, conv = dynlib.utils.fill_nan(u)
+    v, conv = dynlib.utils.fill_nan(v)
+    br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
+    dynlib.sphere.trunc_triangular(br, bi, 84)
+    dynlib.sphere.trunc_triangular(cr, ci, 84)
+    u, v = dynlib.sphere.sh_synthesis_vector(u.shape[2], br,bi,cr,ci)
+
+    CACHE[level,'u_smooth'] = u
+    CACHE[level,'v_smooth'] = v
+
+    return np.sqrt(u**2 + v**2)
+
+
+def get_jetaxis(fc_str, level, var):
+    dynfor.config.nsmooth = 0
+    dynfor.config.minlen = 2.0e6
+    dynfor.config.jetint_thres = 0.55e-8
+    dynfor.config.searchrad = 1.5
+    
+    if not (level,'u_smooth') in CACHE:
+        get_T84_ff(fc_str, level, var)
+    
+    # Jet axis detections
+    ja, jaoff = dynlib.detect.jetaxis(10000, 10000, CACHE[level,'u_smooth'], CACHE[level,'v_smooth'], static.dx, static.dy)
+    jaoff = jaoff.astype('i4')
+
+    return ja, jaoff
+
+
 get_special = {
     'Wind speed': get_ff,
     '10m Wind speed': get_ff10,
@@ -214,6 +310,10 @@ get_special = {
     'Sea ice concentration': get_siconc,
     'Column integral water vapour transport': get_absiwvt,
     'Water vapour transport axes': get_iwvt_axis,
+    'Temperature anomaly': get_t_ano,
+    'Temperature percentiles': get_t_perc,
+    'Jet axes': get_jetaxis,
+    'Wind speed filtered to T84': get_T84_ff,
 }
 
 
