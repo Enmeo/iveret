@@ -45,7 +45,7 @@ python3 $basepath/plot_forecast_eclocal2.py > $logpath/web_plot_ec_local_out.log
 python3 $basepath/plot_forecast2.py isentropic > $logpath/web_plot_ec_isentropic_out.log 2> $logpath/web_plot_ec_isentropic_err.log &
 python3 $basepath/plot_forecast2.py pv2 > $logpath/web_plot_ec_pv2_out.log 2> $logpath/web_plot_ec_pv2_err.log &
 python3 $basepath/plot_forecast2.py sfc > $logpath/web_plot_ec_sfc_out.log 2> $logpath/web_plot_ec_sfc_err.log &
-python3 $basepath/plot_forecast.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log &
+python3 $basepath/plot_forecast2.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log &
 python3 $basepath/plot_forecast2.py plev > $logpath/web_plot_ec_plev_out2.log 2> $logpath/web_plot_ec_plev_err2.log &
 python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_out.log 2> $logpath/web_plot_ec_meteograms_err.log &
 
@@ -53,9 +53,6 @@ python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_
 echo $fc > $plotstat/ecmwf
 
 # Then render the fitting website
-python3 $basepath/web/render_vaerkart.py > $logpath/web_render_ec_out.log 2> $logpath/web_render_ec_err.log
-python3 $basepath/web/render_vaerkart_npolar.py > $logpath/web_render_ec_npolar_out.log 2> $logpath/web_render_ec_npolar_err.log
-python3 $basepath/web/render_vaerkart_spolar.py > $logpath/web_render_ec_spolar_out.log 2> $logpath/web_render_ec_spolar_err.log
 python3 $basepath/web/render_vaerkart_natl.py > $logpath/web_render_ec_natl_out.log 2> $logpath/web_render_ec_natl_err.log
 python3 $basepath/web/render_vaerkart_meteograms.py > $logpath/web_render_ec_meteograms_out.log 2> $logpath/web_render_ec_meteograms_err.log
 python3 $basepath/web/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoop_err.log

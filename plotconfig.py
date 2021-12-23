@@ -139,7 +139,7 @@ variables = {
     'sic': variable('Sea ice concentration', '', ''),
     'sst': variable('Sea-surface temperature', '°C', ''),
     'cycfreq': variable('Cyclone occurrence', '%', ''),
-    'jetfreq': variable('Jet occurrence within 300 km', '%', ''),
+    'jetfreq': variable('Jet occurrence within 300 km', '%', 'PV 2'),
     'frovo850': variable('Frontal volumes', '', '850 hPa'),
     'fronts850': variable('Front lines', '', '850 hPa'),
     'barbs10': variable('10m Wind barbs', 'm/s', ''),
@@ -217,6 +217,10 @@ t_ano_scale = [-30,-25,-21,-18,-15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,18,
 
 pv_scale = np.arange(1.0,9.1,1.0)
 
+freq_scale = np.arange(0,1.01,0.05)
+freq_ticks = np.arange(0,1.01,0.2)
+freq_ticklabels = range(0,101,20)
+
 # Defining what is available per plot domain and data source
 def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropic=False, sh=False):
     if msl_reduce:
@@ -262,6 +266,14 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('orange shading', mcc, cc_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, alpha=0.5),
             o('white shading', hcc, cc_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, alpha=0.4),
         ], name='Cloud cover'),
+    'cycfreq_msl': plot(cycfreq, scale=freq_scale, ticks=freq_ticks, ticklabels=freq_ticklabels, overlays=[
+            o('black', mslc, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.4),
+            o('orange', mslm, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.7, colors='tab:orange'),
+        ], name='Ensemble cyclone detections'),
+    'jetfreq_msl': plot(jetfreq, scale=freq_scale, ticks=freq_ticks, ticklabels=freq_ticklabels, overlays=[
+            o('black', mslc, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.4),
+            o('orange', mslm, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.7, colors='tab:orange'),
+        ], name='Ensemble jet detections'),
     'ptpv2_jets': plot(ptpv2, scale=np.arange(270,396,5), ticks=[270,285,300,315,330,350,370,395], overlays=[
             o('black', ffpv2, [30, 45, 60, 75, 90], linewidths=[2,]),
             o('white', jetaxespv2, None, otype='lines', linewidths=(6,4), linecolors=('k','w')),
@@ -366,10 +378,6 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
 #    plot('deform850_fronts', def850, [o('black double-arrows', defang850, None), o('dark cyan shading', frovo850, None), 
 #        o('dark cyan contour', tp, [1,5]), o('red, blue, purple', fronts850, None), o('dark red', t850, [-5,]), ],
 #        name='850 hPa Deformation, fronts and precipitation'),
-#    plot('cycfreq_msl', cycfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
-#        name='Ensemble cyclone detections'),
-#    plot('jetfreq_msl', jetfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
-#        name='Ensemble jet detections'),
 #]
 
 def _select(plot_names, **kwargs):
@@ -391,11 +399,11 @@ plots = {
     },
     'ec': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'tcwv', 'sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
-                'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
+                'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
         'lehmkuhl': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),

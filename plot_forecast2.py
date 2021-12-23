@@ -64,6 +64,34 @@ def get_single(fc_str, plev, q):
     return dat
 
 
+def get_single_ens(fc_str, plev, q):
+    fname = f'{fc_str}/ec.ens.{fc_str}.{plev}.{q}'
+    try:
+        f, dat, static = metopen(fname, qf.get(q, q))
+        dat = dat.squeeze()
+        if plev in mask:
+            dat[mask[plev]] = np.nan
+    except Exception as e:
+        print(type(e), e)
+        dat = None
+
+    return dat
+
+
+def get_single_ensctrl(fc_str, plev, q):
+    fname = f'{fc_str}/ec.ensctrl.{fc_str}.{plev}.{q}'
+    try:
+        f, dat, static = metopen(fname, qf.get(q, q))
+        dat = dat.squeeze()
+        if plev in mask:
+            dat[mask[plev]] = np.nan
+    except Exception as e:
+        print(type(e), e)
+        dat = None
+
+    return dat
+
+
 def get(fc_str, level, var):
     plev = level2plev(level)
     if var in q_map:
@@ -311,6 +339,83 @@ def get_irot_wind(fc_str, level, var):
     return uir, vir
 
 
+def get_cycfreq(fc_str, level, var):
+    mslens = get_single_ens(fc_str, 'sfc', 'msl')
+    mslctrl = get_single_ensctrl(fc_str, 'sfc', 'msl')
+
+    dynfor.config.cyc_minsize = 0.5e6       # in km^2
+    dynfor.config.cyc_maxsize = 4.5e6       # in km^2
+    dynfor.config.cyc_maxoro = 1500         # in m
+    dynfor.config.cyc_mindist = 750         # in km
+    dynfor.config.cyc_minprominence = 200   # in Pa
+    
+    s = mslens.shape
+    cycfreq = np.empty(s[0:1]+s[2:])
+    indat = np.empty((s[1]+1,)+s[2:])
+    for tidx in range(s[0]):
+        print(f'{tidx}/{s[0]}')
+        indat[0,:,:] = mslctrl[tidx,:,:]
+        indat[1:,:,:] = mslens[tidx,:,:,:]
+        cycmask, meta = dynlib.detect.cyclone_by_contour(indat, static)
+        cycmask[cycmask > 0.5] = 1
+        cycfreq[tidx,:,:] = cycmask.mean(axis=0)
+
+    return cycfreq
+
+
+def get_jetfreq(fc_str, level, var):
+    plev = level2plev(level)
+    uens = get_single_ens(fc_str, plev, 'u')
+    uctrl = get_single_ensctrl(fc_str, plev, 'u')
+    vens = get_single_ens(fc_str, plev, 'v')
+    vctrl = get_single_ensctrl(fc_str, plev, 'v')
+
+    f, staticl = metopen(f'{fc_str}/ec.ensctrl.{fc_str}.pv2000.u')
+    f.close()
+
+    dynfor.config.nsmooth = 0
+    dynfor.config.minlen = 2.0e6
+    dynfor.config.jetint_thres = 0.55e-8
+    dynfor.config.searchrad = 1.5
+    
+    # Precalculate distances between points on a lat/lon grid
+    green = dynlib.utils.dist_green_latlon(static.x[0,:], static.y[:,0])
+
+    jetfreq = np.empty(uens.shape[0:1] + static.x.shape)
+    for tidx in range(uens.shape[0]):
+        uin = np.concatenate((uens[tidx,:,:,:], uctrl[tidx:tidx+1,:,:]), axis=0)
+        vin = np.concatenate((vens[tidx,:,:,:], vctrl[tidx:tidx+1,:,:]), axis=0)
+
+        # Jet axis detections
+        ja, jaoff = dynlib.detect.jetaxis(10000, 100, uin, vin, staticl.dx, staticl.dy)
+        jaoff = jaoff.astype('i4')
+        ja[:,:,:2] = (ja[:,:,:2] -1)*3 +1 # Convert Fortran grid point indices from 1.5 to 0.5 deg grid
+        jamask = dynlib.utils.mask_lines(static.x.shape[1], static.x.shape[0], ja, jaoff)
+        
+        # Find everything within 300 km of a jet axis and save
+        mindists = dynlib.utils.dist_from_mask_latlon(jamask, green, static.x.shape[1]//2)
+        jetfreq[tidx,:,:] = (mindists < 300.0e3).mean(axis=0)
+    
+    return jetfreq
+
+
+def get_ensctrl_factory(level, var):
+    def get_ensctrl(fc_str, level_, var_):
+        return get_single_ensctrl(fc_str, level, var)
+
+    return get_ensctrl
+
+
+def get_ensmean_factory(level, var):
+    def get_ensmean(fc_str, level_, var_):
+        ens = get_single_ens(fc_str, level, var)
+        ctrl = get_single_ensctrl(fc_str, level, var)
+
+        return (ens.sum(axis=1) + ctrl)/(ens.shape[1]+1)
+
+    return get_ensmean
+
+
 get_special = {
     'Wind speed': get_ff,
     '10m Wind speed': get_ff10,
@@ -331,6 +436,10 @@ get_special = {
     'Jet axes': get_jetaxis,
     'Wind speed filtered to T84': get_T84_ff,
     'Irrot. wind barbs': get_irot_wind,
+    'Cyclone occurrence': get_cycfreq,
+    'Jet occurrence within 300 km': get_jetfreq,
+    'Ensemble mean sea level pressure': get_ensmean_factory(level='sfc', var='msl'),
+    'Ensemble ctrl sea level pressure': get_ensctrl_factory(level='sfc', var='msl'),
 }
 
 
@@ -352,7 +461,7 @@ if __name__ == '__main__':
         'plev': ['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
-        'ens': [],
+        'ens': ['cycfreq_msl', 'jetfreq_msl', ],
         'test': [],
         'sfc': ['tcc', 'sshf_winds', 'slhf_winds', ],
     }
@@ -419,7 +528,10 @@ if __name__ == '__main__':
     leadlist = list(range(0,72,3))
     leadlist.extend(range(72,241,6))
     leadlist_link = range(0,241,12)
-    #render_webpage('scandes', 'ec', forecast, fclist, leadlist, leadlist_link)
+
+    render_webpage('natl', 'ec', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('npolar', 'ec', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('spolar', 'ec', forecast, fclist, leadlist, leadlist_link)
     render_webpage('lehmkuhl', 'ec', forecast, fclist, leadlist, leadlist_link)
     render_webpage('tindpac', 'ec', forecast, fclist, leadlist, leadlist_link)
 

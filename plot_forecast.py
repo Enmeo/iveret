@@ -1422,12 +1422,12 @@ PLOTS = {
 #        ptpv2_jets_spolar(),
     ],
     'ens': [
-        cycfreq_msl(),
-        cycfreq_msl_npolar(),
-        cycfreq_msl_spolar(),
-        jetfreq_msl(),
-        jetfreq_msl_npolar(),
-        jetfreq_msl_spolar(),
+#        cycfreq_msl(),
+#        cycfreq_msl_npolar(),
+#        cycfreq_msl_spolar(),
+#        jetfreq_msl(),
+#        jetfreq_msl_npolar(),
+#        jetfreq_msl_spolar(),
     ],
     'test': [
 #        t850_perc(),
