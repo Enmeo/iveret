@@ -215,9 +215,10 @@ cc_ticklabels = ["0/8","1/8", "2/8", "3/8", "4/8", "5/8", "6/8", "7/8", "8/8"]
 
 t_ano_scale = [-30,-25,-21,-18,-15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,18,21,25,30] 
 
+pv_scale = np.arange(1.0,9.1,1.0)
 
 # Defining what is available per plot domain and data source
-def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropic=False):
+def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropic=False, sh=False):
     if msl_reduce:
         selected_msl_kwargs = dict(alpha=0.8, linewidths=[0.5])
     else:
@@ -234,6 +235,11 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
         sst_scale = [-1,] + list(range(0,31,2))
     else:
         sst_scale = range(-1,21)
+
+    if sh:
+        pv_ticklabels = np.arange(-1.0,-9.1,-1.0)
+    else:
+        pv_ticklabels = np.arange(1.0,9.1,1.0)
 
     return {
     'z500_msl': plot(z500, scale=range(476,604,4), ticks=range(480,601,20), overlays=[
@@ -260,6 +266,14 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('black', ffpv2, [30, 45, 60, 75, 90], linewidths=[2,]),
             o('white', jetaxespv2, None, otype='lines', linewidths=(6,4), linecolors=('k','w')),
         ], name='PV2 Pot. temperature, jets and wind speed'),
+    'pvpt315_irot_wind': plot(pvpt315, scale=pv_scale, ticks=pv_scale, ticklabels=pv_ticklabels, overlays=[
+            o('black', pvpt315, [2, ], linewidths=[1.5,]),
+            o('black', irbarbspt315, None, otype='quiver'),
+        ], name='315 K Pot. Vorticity and irrot. winds'),
+    'pvpt330_irot_wind': plot(pvpt330, scale=pv_scale, ticks=pv_scale, ticklabels=pv_ticklabels, overlays=[
+            o('black', pvpt330, [2, ], linewidths=[1.5,]),
+            o('black', irbarbspt330, None, otype='quiver'),
+        ], name='330 K Pot. Vorticity and irrot. winds'),
     't2m_msl': plot(t2, scale=range(-34,36,2), ticks=range(-30,31,10), overlays=[
             o('black dashes', t2, [0,], linestyles='dashed'),
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
@@ -356,10 +370,6 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
 #        name='Ensemble cyclone detections'),
 #    plot('jetfreq_msl', jetfreq, [o('orange', mslm, 5), o('black', mslc, 5), ],
 #        name='Ensemble jet detections'),
-#    plot('pvpt315_irot_wind', pvpt315, [o('black', irbarbspt315, None), ],
-#        name='315 K Pot. Vorticity and irrot. winds'),
-#    plot('pvpt330_irot_wind', pvpt330, [o('black', irbarbspt330, None), ],
-#        name='330 K Pot. Vorticity and irrot. winds'),
 #]
 
 def _select(plot_names, **kwargs):
@@ -381,9 +391,12 @@ plots = {
     },
     'ec': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'tcwv', 'sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
-            'ptpv2_jets', ], msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+                'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
+            msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
+            msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
+            msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
         'lehmkuhl': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     }

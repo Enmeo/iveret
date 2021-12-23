@@ -1409,12 +1409,12 @@ PLOTS = {
 #        tcwv_perc(),
     ], 
     'isentropic': [
-        pvpt315_wind(),
-        pvpt330_wind(),
-        pvpt315_wind_npolar(),
-        pvpt330_wind_npolar(),
-        pvpt315_wind_spolar(),
-        pvpt330_wind_spolar(),
+#        pvpt315_wind(),
+#        pvpt330_wind(),
+#        pvpt315_wind_npolar(),
+#        pvpt330_wind_npolar(),
+#        pvpt315_wind_spolar(),
+#        pvpt330_wind_spolar(),
     ],
     'pv2': [
 #        ptpv2_jets(),

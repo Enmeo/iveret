@@ -33,6 +33,7 @@ q_map = {
     'Wind barbs': ('u', 'v'),
     'Vertical wind': 'w',
     'Geopotential': 'z',
+    'Potential vorticity': 'pv',
     'Column integral water vapour transport vector': ('viewvt', 'vinwvt'),
     'Low cloud cover': 'lcc',
     'Mid-level cloud cover': 'mcc',
@@ -295,6 +296,21 @@ def get_jetaxis(fc_str, level, var):
     return ja, jaoff
 
 
+def get_irot_wind(fc_str, level, var):
+    plev = level2plev(level)
+    u = get_single(fc_str, plev, 'u')
+    v = get_single(fc_str, plev, 'v')
+
+    uir, vir = dynlib.sphere.irot_wind(u, v)
+
+    # Mask areas with ff_irot < 3.0 m/s
+    ffir = np.sqrt(uir**2 + vir**2)
+    uir[ffir < 3.0] = np.nan
+    vir[ffir < 3.0] = np.nan
+
+    return uir, vir
+
+
 get_special = {
     'Wind speed': get_ff,
     '10m Wind speed': get_ff10,
@@ -314,6 +330,7 @@ get_special = {
     'Temperature percentiles': get_t_perc,
     'Jet axes': get_jetaxis,
     'Wind speed filtered to T84': get_T84_ff,
+    'Irrot. wind barbs': get_irot_wind,
 }
 
 
@@ -333,7 +350,7 @@ if __name__ == '__main__':
 
     PLOT_SETS = {
         'plev': ['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 't850_perc', ],
-        'isentropic': [],
+        'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
         'ens': [],
         'test': [],
