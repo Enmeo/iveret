@@ -434,9 +434,9 @@ plots_per_page = {
     ('noaa', 'natl'): [],
     ('noaa', 'npolar'): [],
     ('noaa', 'spolar'): [],
-    ('ec', 'natl'): [],
-    ('ec', 'npolar'): [],
-    ('ec', 'spolar'): [],
+    ('ec', 'natl'): plots['ec']['natl'],
+    ('ec', 'npolar'): plots['ec']['npolar'],
+    ('ec', 'spolar'): plots['ec']['spolar'],
     ('ec', 'lehmkuhl'): plots['ec']['lehmkuhl'],
     ('ec', 'tindpac'): plots['ec']['tindpac'],
     ('ec', 'scandes'): plots['ec_local']['scandes'],
@@ -599,12 +599,19 @@ def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link):
         'plotdir': 'maps',
         'display_details': False,
     }
-    if fcsrc == 'ec' and domain == 'natl':
-        c['archive'] = {
-            'start': dt(2017,9,22),
-            'plots': ['z500_msl', 't850_msl', 'tcwv'],
-            'step': 12,
-        }
+    if fcsrc == 'ec':
+        if domain == 'natl':
+            c['archive'] = {
+                'start': dt(2017,9,22),
+                'plots': ['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'ptpv2_jets', ],
+                'step': 12,
+            }
+        elif domain == 'npolar':
+            c['archive'] = {
+                'start': dt(2021,6,2),
+                'plots': ['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
+                'step': 12,
+            }
 
 
     f = codecs.open(saveto, mode='w', encoding='utf-8')
