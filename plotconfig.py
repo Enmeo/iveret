@@ -405,8 +405,8 @@ plots = {
             msl_ci=5, msl_reduce=True, sst_reduce=True),
         'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
-        'lehmkuhl': _select(['t850_msl', 'tcwv', 'ff10_caos', 'tcc', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'lehmkuhl': _select(['t850_msl', 'tcwv', 'ff10_caos', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'tindpac': _select(['t850_msl', 'tcwv', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     }
 }
 

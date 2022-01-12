@@ -1,8 +1,8 @@
 #!/bin/bash
 
 fcsrc="ec"
-plotdomain="tindpac"
-plotname="tcwv"
+plotdomain="lehmkuhl"
+plotname="rh2m_tp"
 ipath="/share/web/plots/$plotdomain/$plotname/$fcsrc"
 #opath="/share/web/static/deco"
 opath="."
@@ -11,13 +11,13 @@ opath="."
 #geometry="103x460+921+0"
 
 # Aspect 2.5:1; for Tropical Indo-Pacific
-geometry="255x750+1875+0"
+#geometry="255x750+1875+0"
 
 # Aspect 3:2; for ec_for, no_kyst_lofotenbasin
 #geometry="147x720+1080+0"
 
-# Aspect 1:1; for ec_for_npolar, ec_for_spolar and no_for, no_kyst, no_kyst_vestland, no_kyst_bergen, no_kyst_lofoten
-#geometry="130x960+960+0"
+# Aspect 1:1; for ec_for_npolar, ec_for_spolar, ec_for_lehmkuhl and no_for, no_kyst, no_kyst_vestland, no_kyst_bergen, no_kyst_lofoten
+geometry="130x960+960+0"
 
 # Aspect about 5:4; for no_for_arctic
 #geometry="102x956+750+0"

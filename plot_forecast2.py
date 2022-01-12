@@ -463,7 +463,7 @@ if __name__ == '__main__':
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
         'test': [],
-        'sfc': ['tcc', 'ff10_caos', 'sshf_winds', 'slhf_winds', ],
+        'sfc': ['tcc', 'ff10_caos', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
     }
     
     if len(sys.argv) > 1:
