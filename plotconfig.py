@@ -262,7 +262,7 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('cyan', cp, [1,3,10], colors='c', linewidths=[1.65]),
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
         ], name='Water vapour transport, axes, and precipitation'),
-    'tcc': plot(lcc, scale=cc_scale, ticks=cc_ticks, ticklabels=cc_ticklabels, extend='neither', coastcolor='0.7', overlays=[
+    'tcc': plot(lcc, scale=cc_scale, ticks=cc_ticks, ticklabels=cc_ticklabels, extend='neither', coastcolor='0.7', markercolor='0.7', overlays=[
             o('orange shading', mcc, cc_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, alpha=0.5),
             o('white shading', hcc, cc_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, alpha=0.4),
         ], name='Cloud cover'),
@@ -405,7 +405,7 @@ plots = {
             msl_ci=5, msl_reduce=True, sst_reduce=True),
         'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
-        'lehmkuhl': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'lehmkuhl': _select(['t850_msl', 'tcwv', 'ff10_caos', 'tcc', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'tcwv', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     }
 }
