@@ -112,6 +112,7 @@ variables = {
     't2': variable('2m Temperature', '°C', ''),
     'rh2': variable('2m Relative humidity', '%', ''),
     'ff10': variable('10m Wind speed', 'm/s', ''),
+    'fg10': variable('10m Wind gusts', 'm/s', ''),
     'tcwv': variable('Total column water vapour', 'kg/m²', ''),
     'lcc': variable('Low cloud cover', '', ''),
     'mcc': variable('Mid-level cloud cover', '', ''),
@@ -330,10 +331,16 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
         cb_tickspacing='uniform', cmap='RdGy_r', overlays=[
             o('black', barbs700, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='700 hPa Vertical wind and wind barbs'),
-    'ff10_caos': plot(ff10, scale=np.arange(5.0,32.6,2.5), overlays=[
-            o('blue', caoidx, [2, 4, 8, 12,], linewidths=[0.9, 1.5, 1.2, 1.2, ], colors='darkblue'),
+    #'ff10_caos': plot(ff10, scale=np.arange(5.0,32.6,2.5), overlays=[
+    #        o('blue', caoidx, [2, 4, 8, 12,], linewidths=[0.9, 1.5, 1.2, 1.2, ], colors='darkblue'),
+    #        o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
+    #], name='10m wind speed, barbs and CAO index'),
+    'ff10_gusts': plot(ff10, scale=np.arange(5.0,32.6,2.5), overlays=[
+            o('dark blue', fg10, [17.2, ], linewidths=[0.7, ], colors='darkblue'),
+            o('orange', fg10, [24.5, ], colors='coral'),
+            o('red', fg10, [32.7, ], colors='crimson'),
             o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
-    ], name='10m wind speed, barbs and CAO index'),
+    ], name='10m wind speed, barbs and gusts'),
     'rh2m_tp': plot(rh2, scale=rh_scale, cmap='Greys_r', ticks=rh_ticks, norm=mpl.colors.BoundaryNorm(rh_ticks, 256), overlays=[
             o('blue shading', tp, tp_scale, otype='shading', alpha=0.5, ticks=tp_ticks, extend='max', ticklabels=tp_labels,
                 cb_tickspacing='uniform', norm=mpl.colors.BoundaryNorm(tp_ticks, 256)),
@@ -386,16 +393,16 @@ def _select(plot_names, **kwargs):
 
 plots = {
     'no': {
-        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
-        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
-        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
+        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','shf_winds']),
+        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','shf_winds']),
+        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','shf_winds']),
     },
     'no_arctic': {
-        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_caos','rh2m_tp','clba_msl','shf_winds']),
+        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','shf_winds']),
     },
     'ec_local': {
-        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
-        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_caos','rh2m_tp','shf_winds']),
+        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','shf_winds']),
+        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','shf_winds']),
     },
     'ec': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'tcwv', 'sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
@@ -405,7 +412,7 @@ plots = {
             msl_ci=5, msl_reduce=True, sst_reduce=True),
         'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
-        'lehmkuhl': _select(['t850_msl', 'tcwv', 'ff10_caos', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'lehmkuhl': _select(['t850_msl', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'tcwv', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     }
 }

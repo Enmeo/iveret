@@ -26,6 +26,7 @@ q_map = {
     'Specific humidity': 'specific_humidity_pl',
     'Sea-level pressure': 'air_pressure_at_sea_level',
     '10m Wind barbs': ('x_wind_10m', 'y_wind_10m'),
+    '10m Wind gusts': 'wind_speed_of_gust',
     'Wind barbs': ('x_wind_pl', 'y_wind_pl'),
     'Vertical wind': 'upward_air_velocity_pl',
     'Sea-surface temperature': 'SFX_SST',
@@ -128,6 +129,9 @@ if __name__ == '__main__':
     
     plots = [plotter(domainname, domains[domainname], 'no', plotname, plot)
             for domainname, plots_by_domain in plots['no'].items() for plotname, plot in plots_by_domain.items()]
+    #plots = [plotter(domainname, domains[domainname], 'no', plotname, plot)
+    #        for domainname, plots_by_domain in plots['no'].items() for plotname, plot in plots_by_domain.items()
+    #        if plotname == 'ff10_gusts']
     
     fc_str = forecast.strftime('%Y%m%dT%HZ')
     conf.datapath.insert(1, '/share/base/metno')

@@ -21,6 +21,7 @@ qs = {
     'precipitation_amount_acc': sfclevs.keys(),
     'x_wind_10m': sfclevs.keys(),
     'y_wind_10m': sfclevs.keys(),
+    'wind_speed_of_gust': sfclevs.keys(),
     'air_temperature_2m': sfclevs.keys(),
     'air_pressure_at_sea_level': sfclevs.keys(),
     'surface_air_pressure': sfclevs.keys(),

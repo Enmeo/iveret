@@ -30,6 +30,7 @@ q_map = {
     'Large-scale precipitation': 'lsp',
     'Total column water vapour': 'tcwv',
     '10m Wind barbs': ('u10', 'v10'),
+    '10m Wind gusts': 'fg10',
     'Wind barbs': ('u', 'v'),
     'Vertical wind': 'w',
     'Geopotential': 'z',
@@ -463,7 +464,7 @@ if __name__ == '__main__':
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
         'test': [],
-        'sfc': ['tcc', 'ff10_caos', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
+        'sfc': ['tcc', 'ff10_gusts', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
     }
     
     if len(sys.argv) > 1:

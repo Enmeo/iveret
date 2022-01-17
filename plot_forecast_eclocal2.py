@@ -25,6 +25,7 @@ q_map = {
     'Specific humidity': 'q',
     'Sea-level pressure': 'msl',
     '10m Wind barbs': ('u10', 'v10'),
+    '10m Wind gusts': 'fg10',
     'Wind barbs': ('u', 'v'),
     'Vertical wind': 'w',
 }
@@ -163,6 +164,9 @@ if __name__ == '__main__':
     
     plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
             for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()]
+    #plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
+    #        for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()
+    #        if plotname == 'ff10_gusts']
     
     fc_str = forecast.strftime('%Y%m%d%H')
     conf.datapath.insert(1, '/share/base/ecmwf')
