@@ -108,6 +108,7 @@ variables = {
     't925': variable('Temperature', '°C', '925 hPa'),
     'q850': variable('Specific humidity', 'g/kg', '850 hPa'),
     'q925': variable('Specific humidity', 'g/kg', '925 hPa'),
+    'eqpt850': variable('Equivalent potential temperature', 'K', '850 hPa'),
     'def850': variable('Deformation', '10⁻⁵/s', '850 hPa'),
     't2': variable('2m Temperature', '°C', ''),
     'rh2': variable('2m Relative humidity', '%', ''),
@@ -136,6 +137,7 @@ variables = {
     'mslm': variable('Ensemble mean sea level pressure', 'hPa', ''),
     'cp': variable('Convective precipitation', 'mm/h', ''),
     'lsp': variable('Large-scale precipitation', 'mm/h', ''),
+    'cape': variable('Convective available potential energy', 'J/kg', ''),
     'tp': variable('Total precipitation', 'mm/h', ''),
     'sic': variable('Sea ice concentration', '', ''),
     'sst': variable('Sea-surface temperature', '°C', ''),
@@ -316,6 +318,14 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
             o('black', barbs850, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='850 hPa Specific humidity, SLP and wind barbs'),
+    'eqpt850_cape': plot(eqpt850, scale=range(250,351,4), ticks=range(260,341,20), overlays=[
+            o('blue shading', frovo850, [0.5, 2], otype='shading', cmap=None, colors=['cornflowerblue',], extend='neither', antialiased=True, cb_disable=True, alpha=0.7),
+            o('light green', cape, [250, ], linewidths=[0.7, ], colors='palegreen', alpha=0.7),
+            o('yellow', cape, [500, ], linewidths=[0.7, ], colors='gold'),
+            o('orange', cape, [1000, ], linewidths=[0.7, ], colors='coral'),
+            o('red', cape, [2000, ], linewidths=[0.7, ], colors='crimson'),
+            o('black', msl, range(900,1070,msl_ci), **selected_msl_kwargs),
+        ], name='850 hPa EQPT, CAPE and fronts'),
     'w850_ff': plot(ff925, scale=range(5,51,5), cmap='Blues', overlays=[
             o('grey-red shading', w850, wl_scale, otype='shading',
                 hook=mask_between_factory(-0.1, 0.1), ticks=wl_ticks, norm=mpl.colors.BoundaryNorm(wl_ticks, 256),
@@ -405,15 +415,15 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'tcwv', 'sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
+        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
                 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
         'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),
         'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
-        'lehmkuhl': _select(['t850_msl', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'tindpac': _select(['t850_msl', 'tcwv', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'lehmkuhl': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     }
 }
 

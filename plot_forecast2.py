@@ -28,6 +28,7 @@ q_map = {
     'Sea-level pressure': 'msl',
     'Convective precipitation': 'cp',
     'Large-scale precipitation': 'lsp',
+    'Convective available potential energy': 'cape',
     'Total column water vapour': 'tcwv',
     '10m Wind barbs': ('u10', 'v10'),
     '10m Wind gusts': 'fg10',
@@ -115,6 +116,15 @@ def mask_land(data):
     data[:,landmask] = np.nan
 
     return data
+
+
+def get_eqpt(fc_str, level, var):
+    plev = level2plev(level)
+    t = get_single(fc_str, plev, 't')
+    q = get_single(fc_str, plev, 'q')
+    p = np.ones(t.shape) * int(plev)*100
+
+    return dynlib.thermodyn.thetae_from_q(q, t, p)
 
 
 def get_ff(fc_str, level, var):
@@ -287,6 +297,29 @@ def get_t_perc(fc_str, level, var):
     return t_perc
 
 
+def get_frovo(fc_str, level, var):
+    LEVELS = ['700 hPa', '850 hPa', '925 hPa', ]
+    
+    eqpt_ = get_eqpt(fc_str, LEVELS[0], var)
+    s = eqpt_.shape
+    s = s[:1] + (len(LEVELS), ) + s[1:]
+    eqpt = np.empty(s)
+    eqpt[:,0,:,:] = eqpt_
+    for pidx, level in zip(range(1,len(LEVELS)), LEVELS[1:]):
+        eqpt[:,pidx,:,:] = get_eqpt(fc_str, level, var)
+
+    dynfor.config.nsmooth = 10
+    dynfor.config.tfp_mingrad_largescale = 3.75e-5
+    dynfor.config.tfp_mingrad_smallscale = 5.25e-5
+    dynfor.config.minsize = 75000.0e6
+
+    frovo = dynlib.detect.frontalvolume_smallscale(eqpt, static.dx, static.dy)
+    frovo = frovo[:,1,:,:]
+    frovo[frovo > 0.5] = 1.0
+
+    return frovo
+
+
 def get_T84_ff(fc_str, level, var):
     if (level, 'u_smooth') in CACHE:
         return np.sqrt(CACHE[level,'u_smooth']**2 + CACHE[level,'v_smooth']**2)
@@ -418,6 +451,7 @@ def get_ensmean_factory(level, var):
 
 
 get_special = {
+    'Equivalent potential temperature': get_eqpt,
     'Wind speed': get_ff,
     '10m Wind speed': get_ff10,
     '2m Relative humidity': get_rh2m,
@@ -434,6 +468,7 @@ get_special = {
     'Water vapour transport axes': get_iwvt_axis,
     'Temperature anomaly': get_t_ano,
     'Temperature percentiles': get_t_perc,
+    'Frontal volumes': get_frovo,
     'Jet axes': get_jetaxis,
     'Wind speed filtered to T84': get_T84_ff,
     'Irrot. wind barbs': get_irot_wind,
@@ -459,7 +494,7 @@ if __name__ == '__main__':
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
     PLOT_SETS = {
-        'plev': ['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 't850_perc', ],
+        'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],

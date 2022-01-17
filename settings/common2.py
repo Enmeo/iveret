@@ -33,7 +33,7 @@ pconf[None,'2m Temperature','cmap'] = cm.RdYlCyBu2
 pconf[None,'Sea surface temperature','cmap'] = cm.RdYlCyBu2
 pconf[None,'Temperature anomaly','cmap'] = cm.RdYlCyBu2
 pconf[None,'Potential temperature','cmap'] = cm.RdYlCyBu2
-pconf[None,'Equivalent potential temperature','cmap'] = cm.RdYlCyBu2
+pconf[None,'Equivalent potential temperature','cmap'] = cm.Greys
 
 pconf[None,'Specific humidity','cmap'] = cm.WYlBuKPi
 pconf[None,'Total column water vapour','cmap'] = cm.WYlBuKPi
