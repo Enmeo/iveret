@@ -91,8 +91,9 @@ def get_cao(fc_str, level, var):
     msl = get_single(fc_str, 'sfc', 'msl')
     sst = get_single(fc_str, 'sfc', 'sst')
     siconc = get_single(fc_str, 'sfc', 'siconc')
+    landsea = np.load('settings/ecmwf_hrfc_sea_mask.npy')
 
-    CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, siconc, np.isnan(sst))
+    CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, siconc, landsea)
     CAOi[np.isnan(CAOi)] = 0.0
 
     return CAOi
@@ -162,11 +163,11 @@ if __name__ == '__main__':
     
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
     
-    plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
-            for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()]
     #plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
-    #        for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()
-    #        if plotname == 'ff10_gusts']
+    #        for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()]
+    plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
+            for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()
+            if plotname == 'cao_winds']
     
     fc_str = forecast.strftime('%Y%m%d%H')
     conf.datapath.insert(1, '/share/base/ecmwf')

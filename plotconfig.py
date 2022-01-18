@@ -361,6 +361,11 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
         cb_tickspacing='uniform', extend='max', overlays=[
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
     ], name='Cloud base altitude and SLP'),
+    'cao_winds': plot(caoidx, scale=range(1,16), ticks=range(4,16,4), cmap='afmhot_r', overlays=[
+            o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
+            o('grey', sst, sst_scale, linewidths=[0.7, 1.2,] + [0.7, 0.7, 0.7, 0.7, 1.2]*4, alpha=0.5),
+            o('violet', sic, [0.2, 0.8], colors='blueviolet'),
+    ], name='Cold-air outbreak index, 10m winds, SSTs and MIZ'),
     'shf_winds': plot(sthff, scale=shf_scale, cmap='BrBG', norm=mpl.colors.BoundaryNorm(shf_ticks, 256),
         cb_tickspacing='uniform', overlays=[
             o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
@@ -403,19 +408,19 @@ def _select(plot_names, **kwargs):
 
 plots = {
     'no': {
-        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','shf_winds']),
-        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','shf_winds']),
-        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','shf_winds']),
+        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
     },
     'no_arctic': {
-        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','shf_winds']),
+        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
     },
     'ec_local': {
-        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','shf_winds']),
-        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','shf_winds']),
+        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','cao_winds','shf_winds']),
+        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','cao_winds','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'sshf_winds', 'slhf_winds', 'iwvt_axis', 'tcc',
+        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'tcc', 'sshf_winds', 'slhf_winds', 'cao_winds',
                 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
         'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],

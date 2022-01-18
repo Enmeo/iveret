@@ -145,8 +145,9 @@ def get_cao(fc_str, level, var):
     msl = get_single(fc_str, 'sfc', 'msl')
     sst = get_single(fc_str, 'sfc', 'sst')
     siconc = get_single(fc_str, 'sfc', 'siconc')
+    landsea = np.load('settings/ecmwf_fc_sea_mask.npy')
 
-    CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, siconc, np.isnan(sst))
+    CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, siconc, landsea)
     CAOi[np.isnan(CAOi)] = 0.0
 
     return CAOi
@@ -499,7 +500,7 @@ if __name__ == '__main__':
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
         'test': [],
-        'sfc': ['tcc', 'ff10_gusts', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
+        'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
     }
     
     if len(sys.argv) > 1:
