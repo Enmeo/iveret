@@ -145,9 +145,8 @@ def get_cao(fc_str, level, var):
     msl = get_single(fc_str, 'sfc', 'msl')
     sst = get_single(fc_str, 'sfc', 'sst')
     siconc = get_single(fc_str, 'sfc', 'siconc')
-    landsea = np.load('settings/ecmwf_fc_sea_mask.npy')
 
-    CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, siconc, landsea)
+    CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, siconc, landmask)
     CAOi[np.isnan(CAOi)] = 0.0
 
     return CAOi
