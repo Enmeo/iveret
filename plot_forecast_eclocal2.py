@@ -67,6 +67,7 @@ def get(fc_str, level, var):
 
 
 landmask = np.load(VAERKART_ROOT+'/settings/ecmwf_hrfc_sea_mask.npy')
+landmask = np.logical_not(landmask)
 def mask_land(data):
     data[:,landmask] = np.nan
 
@@ -162,11 +163,11 @@ if __name__ == '__main__':
     
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
     
-    #plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
-    #        for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()]
     plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
-            for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()
-            if plotname == 'cao_winds']
+            for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()]
+    #plots = [plotter(domainname, domains[domainname], 'ec', plotname, plot)
+    #        for domainname, plots_by_domain in plots['ec_local'].items() for plotname, plot in plots_by_domain.items()
+    #        if plotname == 'cao_winds']
     
     fc_str = forecast.strftime('%Y%m%d%H')
     conf.datapath.insert(1, '/share/base/ecmwf')
