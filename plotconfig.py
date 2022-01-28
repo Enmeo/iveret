@@ -461,9 +461,9 @@ pages = {
 }
 
 plots_per_page = {
-    ('noaa', 'natl'): [],
-    ('noaa', 'npolar'): [],
-    ('noaa', 'spolar'): [],
+    ('noaa', 'natl'): plots['noaa']['natl'],
+    ('noaa', 'npolar'): plots['noaa']['npolar'],
+    ('noaa', 'spolar'): plots['noaa']['spolar'],
     ('ec', 'natl'): plots['ec']['natl'],
     ('ec', 'npolar'): plots['ec']['npolar'],
     ('ec', 'spolar'): plots['ec']['spolar'],
