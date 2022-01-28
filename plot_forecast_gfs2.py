@@ -207,11 +207,11 @@ def cache_iwvt_components(f):
         q = get_single(f, plev, 'Specific humidity')
         u = get_single(f, plev, 'U component of wind')
         v = get_single(f, plev, 'V component of wind')
-        CACHE['viewvt'] = q*u*wgt
-        CACHE['vinwvt'] = q*v*wgt
+        CACHE['viewvt'] += q*u*wgt
+        CACHE['vinwvt'] += q*v*wgt
 
-    CACHE['viewvt'] /= sum(wgts)
-    CACHE['vinwvt'] /= sum(wgts)
+    CACHE['viewvt'] *= 100/9.81
+    CACHE['vinwvt'] *= 100/9.81
 
     return
 
