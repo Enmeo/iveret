@@ -429,7 +429,15 @@ plots = {
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
         'lehmkuhl': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-    }
+    },
+    'noaa': {
+        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'tcc', 'sshf_winds', 'slhf_winds', 'cao_winds', 'ptpv2_jets', ],
+            msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
+            msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
+            msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
+    },
 }
 
 # (How) Can this be derived from the plot defintions above?
