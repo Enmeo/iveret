@@ -31,7 +31,7 @@ if __name__ == '__main__':
     import requests as req
     import re
 
-    lat_pattern = re.compile('lat: ([0-9.]+),')
+    lat_pattern = re.compile('lat: ([0-9.-]+),')
     lon_pattern = re.compile('lng: ([0-9.-]+) ')
 
     resp = req.get(URL)
