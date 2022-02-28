@@ -474,7 +474,7 @@ if __name__ == '__main__':
 
     print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
 
-    fclist = [forecast - td(0.5)*i for i in range(15)]
+    fclist = [forecast - td(0.25)*i for i in range(31)]
     render_webpage('natl', 'noaa', forecast, fclist, leadlist, leadlist_link)
     render_webpage('npolar', 'noaa', forecast, fclist, leadlist, leadlist_link)
     render_webpage('spolar', 'noaa', forecast, fclist, leadlist, leadlist_link)
