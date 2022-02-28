@@ -3,9 +3,9 @@
 dest='/share/base/ecmwf'
 cd $dest
 
-# Clean-up old forecasts: Older than 46 hours = 2760 minutes
+# Clean-up old forecasts: Older than 34 hours = 2040 minutes
 if [[ `pwd` = *"share"* ]]; then 
-	sudo --user=ecmwf find . -mmin +2760 -delete
+	sudo --user=ecmwf find . -mmin +2040 -delete
 else
 	echo "Skipping cleaning, wrong working directory!"
 fi
