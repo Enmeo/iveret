@@ -326,6 +326,22 @@ def get_frovo(f, level, var):
     return frovo
 
 
+def get_frontogenesis(f, level, var):
+    plev = level2plev(level)
+    u = get_single(f, plev, 'U component of wind')[np.newaxis,np.newaxis,:,:]
+    v = get_single(f, plev, 'V component of wind')[np.newaxis,np.newaxis,:,:]
+    eqpt = get_eqpt(f, level, var)
+    eqpt = dynlib.utils.smooth_xy(eqpt[np.newaxis,:,:], 3)[:,np.newaxis,:,:]
+
+    w = np.zeros(u.shape)
+    heat = np.zeros(u.shape)
+    dz = np.ones(u.shape)
+
+    frdef, frdiv, frtilt, frheat = dynlib.diag.frontogenesis_contributors(u, v, w, eqpt, heat, static.dx, static.dy, dz)
+
+    return (frdef + frdiv).squeeze() * 1.0e5 # Convert to K/(100 km)/s
+
+
 def get_T84_ff(f, level, var):
     if (level, 'u_smooth') in CACHE:
         return np.sqrt(CACHE[level,'u_smooth']**2 + CACHE[level,'v_smooth']**2)[0,:,:]
@@ -392,6 +408,7 @@ get_special = {
     'Temperature anomaly': get_t_ano,
     'Temperature percentiles': get_t_perc,
     'Frontal volumes': get_frovo,
+    'Frontogenesis': get_frontogenesis,
     'Jet axes': get_jetaxis,
     'Wind speed filtered to T84': get_T84_ff,
     '2m Relative humidity': get_rh2m,

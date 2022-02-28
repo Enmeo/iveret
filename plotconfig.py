@@ -145,6 +145,7 @@ variables = {
     'jetfreq': variable('Jet occurrence within 300 km', '%', 'PV 2'),
     'frovo850': variable('Frontal volumes', '', '850 hPa'),
     'fronts850': variable('Front lines', '', '850 hPa'),
+    'frontogenesis850': variable('Frontogenesis', 'K/(100 km)/s', '850 hPa'),
     'barbs10': variable('10m Wind barbs', 'm/s', ''),
     'barbs500': variable('Wind barbs', 'm/s', '500 hPa'),
     'barbs700': variable('Wind barbs', 'm/s', '700 hPa'),
@@ -320,6 +321,8 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
     ], name='850 hPa Specific humidity, SLP and wind barbs'),
     'eqpt850_cape': plot(eqpt850, scale=range(250,351,4), ticks=range(260,341,20), overlays=[
             o('blue shading', frovo850, [0.5, 2], otype='shading', cmap=None, colors=['cornflowerblue',], extend='neither', antialiased=True, cb_disable=True, alpha=0.7),
+            o('dark blue', frontogenesis850, [2.0e-4, ], colors='navy'),
+            o('dark red', frontogenesis850, [-2.0e-4, ], colors='brown', linestyles='solid'),
             o('light green', cape, [250, ], linewidths=[0.7, ], colors='palegreen', alpha=0.7),
             o('yellow', cape, [500, ], linewidths=[0.7, ], colors='gold'),
             o('orange', cape, [1000, ], linewidths=[0.7, ], colors='coral'),
