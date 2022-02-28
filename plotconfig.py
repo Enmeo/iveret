@@ -420,7 +420,8 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','cao_winds','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'tcc', 'sshf_winds', 'slhf_winds', 'cao_winds',
+        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
+                'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds',
                 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
         'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
@@ -431,7 +432,8 @@ plots = {
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     },
     'noaa': {
-        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'tcc', 'sshf_winds', 'slhf_winds', 'cao_winds', 'ptpv2_jets', ],
+        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
+            'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
         'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),

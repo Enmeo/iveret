@@ -27,11 +27,10 @@ q_map = {
     'Sea-level pressure': 'MSLP (Eta model reduction)',
     'Wind barbs': ('U component of wind', 'V component of wind'),
     '10m Wind barbs': ('10 metre U wind component', '10 metre V wind component'),
-#    '10m Wind gusts': 'Wind speed (gust)',
+    '10m Wind gusts': 'Wind speed (gust)',
     'Convective precipitation': 'Convective precipitation rate',
     'Large-scale precipitation': 'Precipitation rate',
     'Total column water vapour': 'Precipitable water',
-#    '2m Relative humidity': '2 metre relative humidity',
     'Surface sensible heat flux': 'Sensible heat net flux',
     'Surface latent heat flux': 'Latent heat net flux',
 }
@@ -160,7 +159,7 @@ def get_tp(f, level, var):
     lsp = get_single(f, 'sfc', 'Precipitation rate')
     cp = get_single(f, 'sfc', 'Convective precipitation rate')
 
-    return lsp+cp
+    return (lsp+cp) * 3600 # Homogenise units with the other fc sources to mm/h
 
 def get_siconc(f, level, var):
     msgs = f.select(name='Sea ice area fraction', typeOfLevel='surface')
@@ -366,6 +365,11 @@ def get_jetaxis(f, level, var):
     return ja, jaoff
 
 
+def get_rh2m(f, level, var):
+    rh2m = get_single(f, 'sfc', '2 metre relative humidity')
+
+    return rh2m / 100.0 # Convert from percent to 1
+
 get_special = {
     'Potential temperature': get_pt,
     'Equivalent potential temperature': get_eqpt,
@@ -390,6 +394,7 @@ get_special = {
     'Frontal volumes': get_frovo,
     'Jet axes': get_jetaxis,
     'Wind speed filtered to T84': get_T84_ff,
+    '2m Relative humidity': get_rh2m,
 }
 
 
@@ -411,7 +416,7 @@ if __name__ == '__main__':
         'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'pv2': ['ptpv2_jets', ],
         'test': [],
-        'sfc': ['tcc', 'cao_winds', 'sshf_winds', 'slhf_winds', ],
+        'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
     }
     
     if len(sys.argv) > 1:
