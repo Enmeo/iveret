@@ -207,27 +207,8 @@ ul.overlay li:before {
 	content: '+ ';
 }
 
-.black {
-	color: black;
-}
 .white {
-	background-color: black;
-	color: white;
-}
-.blue {
-	color: blue;
-}
-.cyan {
-	color: #00CCCC;
-}
-.magenta {
-	color: #CC00CC;
-}
-.red {
-	color: #CC0000;
-}
-.orange {
-	color: #DD9900;
+	background-color: grey;
 }
 
 div.panel_right {

@@ -1,0 +1,248 @@
+/* Vaerkart css */
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: Palatino, Utopia, Times, serif;
+  height: 100%;
+}
+
+div.header {
+  background-color: #221111;
+  color: #ffffff;
+  width: 94%;
+  margin: 0;
+  padding: 0 3% 0 3%;
+}
+div.header select {
+  display: inline-block;
+}
+div.header p {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+div.header p span.link {
+  cursor: pointer;
+}
+div.header p.right {
+  display: inline-block;
+  float: right;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+div.header h1 {
+  font-size: 1.4em;
+  font-weight: normal;
+  padding: 7px 0 3px 0;
+  margin: 0;
+}
+div.header h2 {
+  font-size: 1.1em;
+  font-weight: normal;
+  padding: 2px 0 5px 0;
+  margin: 0;
+}
+
+div.content {
+  margin: 0;
+  width: 94%;
+  padding: 5px 3% 0 3%;
+  height: 90%; /* Fallback for old browsers */
+  height: calc(100% - 40px);
+}
+div.content h1 {
+  font-size: 1.4em;
+  font-weight: normal;
+  margin: 0px 0 5px 0;
+  display: inline-block;
+}
+div.content h2 {
+  font-size: 1.0em;
+  font-weight: normal;
+  margin: -5px 0 5px 0;
+}
+sup.details_toggle a {
+  margin-left: 0.5em;
+  padding: 0 0.2em 0 0.2em;
+  font-size: 1.3em;
+  color: #999999;
+  text-decoration: none;
+}
+
+div #legend_controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0.2em 0.2em 0 0;
+  padding: 0;
+  text-align: right;
+  opacity: 0.8;
+  border-radius: 1em;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+div #legend_controls a {
+  padding: 0.1em 0.7em 0.1em 0.7em;
+  margin: 0;
+  text-decoration: none;
+  color: black;
+  font-size: 1.2em;
+}
+
+ul.ui-menu li.ui-state-disabled {
+  opacity: 0.2;
+}
+
+div.plot {
+  height: 80%; /* Fallback for old browsers */
+  height: calc(100% - 90px);
+}
+
+div.map {
+  position: relative;
+  width: 88%;
+  height: 100%;
+  float: left;
+  z-index: 100;
+}
+div.map img {
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+  display: block;
+}
+
+div.cbar_container {
+  width: 12%;
+  height: 100%;
+  float: left;
+  position: relative;
+}
+img.cbar {
+  max-width: 100%;
+  max-height: 100%;
+  margin: auto;
+}
+div.cbar_units {
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.plot_details {
+  color: #999999;
+  margin: 0 0 20px 0;
+}
+.plot_details span.plotname {
+  color: #333333;
+  font-weight: bold;
+}
+.plot_details p.shading {
+  font-size: 1.1em;
+  margin: 0.3em 0 0.1em 0;
+}
+ul.overlay {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 0.5em;
+  text-indent: 0.5em;
+}
+ul.overlay li:before {
+  content: '+ ';
+}
+
+.black {
+  color: black;
+}
+.white {
+  background-color: black;
+  color: white;
+}
+.blue {
+  color: blue;
+}
+.cyan {
+  color: #00CCCC;
+}
+.magenta {
+  color: #CC00CC;
+}
+.red {
+  color: #CC0000;
+}
+.orange {
+  color: #DD9900;
+}
+
+div.panel_right {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+span.ui-button {
+  margin-left: -0.85em;
+  padding-left: 0;
+}
+span.ui-selectmenu-text:before {
+  content: '▾ ';
+}
+div.ui-selectmenu-open ul {
+  background-color: #221111;
+  color: #ffffff;
+}
+div.ui-selectmenu-open ul#plotselect-menu {
+  background-color: #ffffff;
+  color: #221111;
+  border: 1px solid #221111;
+}
+
+div.ui-dialog {
+  background-color: #ffffff;
+  color: #221111;
+  border: 1px solid #211111;
+  border-radius: 3px;
+}
+div.ui-dialog-titlebar {
+  background-color: #dddddd;
+  color: #221111;
+  border: 1px solid #221111;
+  border-radius: 3px;
+}
+button.ui-dialog-titlebar-close {
+  display: none;
+}
+
+.publoop_chapters {
+  width: 94%;
+  height: 1.2em;
+  margin: 0;
+  padding: 0 3% 0 3%;
+  background-color: #ccaaaa;
+}
+.publoop_chapters div {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  text-align: center;
+}
+.publoop_chapters div.active {
+  background-color: #221111;
+  color: #ffffff;
+}
+
+.progress_bar {
+  height: 5px;
+  background-color: #ccaaaa;
+  width: 94%;
+  margin: 0;
+  padding: 0 3% 0 3%;
+}
+.progress_bar_indicator {
+  background-color: #221111;
+  height: 100%;
+}
+

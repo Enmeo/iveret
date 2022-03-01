@@ -39,7 +39,7 @@ function get_varname_by_prefix(prefix) {
 	var sel = document.getElementById('varselect1');
 	var opts = sel.childNodes;
 
-	for (i=0; i <= opts.length; i++) {
+	for (i=0; i < opts.length; i++) {
 		if (opts[i].value == prefix) {
 			return opts[i].childNodes[0].data;
 		}
@@ -65,12 +65,17 @@ function momentfmt(date) {
 
 // Create a new time / forecast title from date_vis and date_fc
 function get_timtitle() {
-	return 'Forecast from '+humanize(date_fc)+' for '+humanize(date_vis)+' [+'+lead_vis+'h]';
+	if ( lead_vis == 0 ) {
+		return 'Analysis for '+humanize(date_fc);
+	}
+	else {
+		return 'Forecast from '+humanize(date_fc)+' for '+humanize(date_vis)+' [+'+lead_vis+'h]';
+	}
 }
 
 // Create filename based on current state
 function get_current_filename(i) {
-	return plotdir+'/'+plot_prefix+'_'+prefix[i]+'_from_'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
+	return '/'+plotdir+'/'+domain+'/'+prefix[i]+'/'+fcsrc+'/'+filename(date_fc)+'_for_'+filename(date_vis)+'.png';
 }
 
 
@@ -81,7 +86,7 @@ function chlead(newlead) {
 	date_vis = moment(date_fc);
 	date_vis.add(newlead, 'hours');
 	
-	document.cookie="date_vis="+momentfmt(date_vis);
+	document.cookie="lead_vis="+lead_vis;
 
 	// Update map, heading
 	for (i = 1; i <= 4; i++) {
@@ -92,19 +97,13 @@ function chlead(newlead) {
 
 // Change the lead time for untrusted input
 function chtim(newlead) {
-	// Find closest available valid time using the new fc data
-	if (_shifted || date_vis < avail_fcs[0]) {
-		leads = avail_leads;
-	}
-	else {
-		leads = cur_leads;
-	}
 	diff = 9999;
-	for (i = 0; i <= leads.length; i++) {
-		diff_ = Math.abs(newlead - leads[i]);
+	lead_vis = 0; // By default show analysis
+	for (i = 0; i <= cur_leads.length; i++) {
+		diff_ = Math.abs(newlead - cur_leads[i]);
 		if ( diff_ < diff ) {
 			diff = diff_;
-			lead_vis = leads[i];
+			lead_vis = cur_leads[i];
 		}
 	}
 	chlead(lead_vis);
@@ -151,7 +150,8 @@ function chfc(fcidx) {
 		leads = cur_leads;
 	}
 	diff = 9999;
-	for (i = 0; i <= leads.length; i++) {
+	lead_vis = 0; // by default, show analysis
+	for (i = 0; i < leads.length; i++) {
 		date = moment(date_fc).add(leads[i], 'hours');
 		diff_ = Math.abs(date_vis.diff(date, 'hours'));
 		if ( diff_ < diff ) {
@@ -161,7 +161,7 @@ function chfc(fcidx) {
 	}
 	chlead(lead_vis);
 
-	// Update map, heading and drop-down box; remove focus from drop down box
+	// Update map, heading and drop-down box
 	for (i = 1; i <= 4; i++) {
 		$('#map'+i).attr('src',get_current_filename(i));
 	}
@@ -212,15 +212,20 @@ function chvar(i, newvar) {
 
 	// Update map, colorbar and heading
 	$('#map'+i).attr('src', get_current_filename(i));
-	$('#cbar'+i).attr('src', './static/deco/cbar_'+plot_prefix+'_'+prefix[i]+'.png');
+	if ( domain == 'natl' || domain == 'snorway') { 
+		$('#cbar'+i).attr('src', '/static/deco/cbar_'+fcsrc+'_for_'+prefix[i]+'.png');
+	}
+	else if ( domain == 'scandes' && fcsrc != 'ec' ) {
+		$('#cbar'+i).attr('src', '/static/deco/cbar_'+fcsrc+'_for_full_'+prefix[i]+'.png');
+	}
+	else {
+		$('#cbar'+i).attr('src', '/static/deco/cbar_'+fcsrc+'_for_'+domain+'_'+prefix[i]+'.png');
+	}
 	if ( units[prefix[i]].length > 0 ) 
 		$('#cbar_units'+i).text('['+units[prefix[i]]+']');
 	else 
 		$('#cbar_units'+i).text('');
 	//$('#vartitle').text(get_varname_by_prefix(newvar));
-
-	// Remove focus from drop down to avoid changes due to arrow key strokes
-	$('#varselect'+i).blur();
 }
 
 function toggle_details() {
@@ -275,6 +280,7 @@ function nexttim() {
 
 		var idx = leads.indexOf(lead_vis);
 		idx = Math.min(idx+1, leads.length-1);
+		idx = Math.max(0,idx); 	// If cur_leads empty, display analysis
 		chlead(leads[idx]);
 	}
 }
@@ -454,6 +460,7 @@ $( document ).ready(function() {
 	$( '#fcselect' ).selectmenu({
 		change: function( event, ui ) {
 			chfc(ui.item.value);
+			$('#fcselect-button').blur();
 		}
 	}).selectmenu( "option", "width", 300 );
 	
@@ -471,6 +478,7 @@ $( document ).ready(function() {
 			change: function( event, ui ) {
 				id = parseInt(event.target.id.slice(-1));
 				chvar(id, ui.item.value);
+				$('#varselect'+id+'-button').blur();
 			}
 		}).selectmenu( "option", "width", 550 );
 	}
@@ -481,8 +489,9 @@ $( document ).ready(function() {
 
 	$( '#panelselect' ).selectmenu({
 		change: function( event, ui ) {
-			chpanel(ui.item.value);
-		}
+			chpanel(ui.item.value); 
+			$('#panelselect-button').blur();
+		},
 	}).selectmenu( "option", "width", 80 );
 
 
@@ -499,7 +508,7 @@ $( document ).ready(function() {
 		}
 	}
 	_date_fc = moment.utc(get_cookie('date_fc'));
-	_date_vis = moment.utc(get_cookie('date_vis'));
+	_lead_vis = get_cookie('lead_vis');
 	_panels = get_cookie('panels');
 	if (_panels != null) {
 		chpanel(_panels);
@@ -508,10 +517,13 @@ $( document ).ready(function() {
 	if (_date_fc != null) {
 		idx = date_array_contains(_date_fc, avail_fcs);
 		if (idx > -1) {
-			if (_date_vis != null) {
-				date_vis = _date_vis;
-			}
 			chfc(idx);
+			if (_lead_vis != null) {
+				chtim(_lead_vis); // Treat(s) _lead_vis as untrusted input
+			}
+			else {
+				chlead(0);
+			}
 		}
 	}
 	else {
