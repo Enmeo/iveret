@@ -8,8 +8,11 @@ plotstat="$logpath/status"
 fc=`python3 $basepath/current_fc.py`
 fcpath="/share/base/ecmwf/$fc"
 
+# Clean up old forecasts
+$basepath/cleanup_ec.sh
+
 # Wait for all of these files to be present before starting the plotting
-lastfiles="$fcpath/ec.for-hr.$fc.700.t.nc $fcpath/ec.for.$fc.pt350.pv.nc"
+lastfiles="$fcpath/ec.for-hr.$fc.700.t.nc $fcpath/ec.for.$fc.pt330.pv.nc"
 
 attempts=18
 somethingmissing=true
@@ -33,9 +36,6 @@ if [ "$somethingmissing" = true ]; then
 	echo "Incomplete download after 3h, giving up."
 	exit -1
 fi
-
-# Clean up old forecasts
-$basepath/cleanup_ec.sh
 
 # Update the position of Lehmkuhl if possible
 python3 $basepath/update_lehmkuhl_position.py > $logpath/web_update_lehmkuhl_out.log 2> $logpath/web_update_lehmkuhl_err.log
