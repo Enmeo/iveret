@@ -331,7 +331,7 @@ def get_frontogenesis(fc_str, level, var):
     heat = np.zeros(u.shape)
     dz = np.ones(u.shape)
 
-    frdef, frdiv, frtilt, frheat = dynlib.diag.frontogenesis_contributors(u, v, w, eqpt, heat, static.dx, static.dy, dz)
+    frdiv, frdef, frtilt, frheat = dynlib.diag.frontogenesis_contributors(u, v, w, eqpt, heat, static.dx, static.dy, dz)
 
     return (frdef + frdiv).squeeze() * 1.0e5 # Convert to K/(100 km)/s
 
