@@ -36,12 +36,12 @@ qs = {
 
 source_urls = {
     'arome': 'https://thredds.met.no/thredds/dodsC/mepslatest/meps_det_2_5km_%s.ncml',
-    'arome_arctic': 'https://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_%s.nc',
+    'arome_arctic': 'https://thredds.met.no/thredds/dodsC/aromearcticlatest/latest/arome_arctic_det_2_5km_%s.ncml',
 }
 
 exclude = {
     'arome': [],
-    'arome_arctic': ['SFX_SST', 'SFX_SIC', 'cloud_base_altitude', ],
+    'arome_arctic': [],
 }
 
 xdims = {'arome': 948, 'arome_arctic': 738}

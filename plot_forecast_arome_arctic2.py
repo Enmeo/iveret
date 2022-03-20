@@ -29,8 +29,8 @@ q_map = {
     '10m Wind gusts': 'wind_speed_of_gust',
     'Wind barbs': ('x_wind_pl', 'y_wind_pl'),
     'Vertical wind': 'upward_air_velocity_pl',
-    'Sea-surface temperature': 'SST',
-    'Sea ice concentration': 'SIC',
+    'Sea-surface temperature': 'SFX_SST',
+    'Sea ice concentration': 'SFX_SIC',
 }
 
 
@@ -81,7 +81,7 @@ def get_ff10(fc_str, level, var):
 def get_cao(fc_str, level, var):
     t = get_single(fc_str, '850', 'air_temperature_pl')
     msl = get_single(fc_str, 'sfc', 'air_pressure_at_sea_level')
-    sst = get_single(fc_str, 'sfc', 'SST')
+    sst = get_single(fc_str, 'sfc', 'SFX_SST')
 
     CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, sst < 272.16, np.isnan(sst))
     CAOi[np.isnan(CAOi)] = 0.0
