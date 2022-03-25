@@ -222,23 +222,65 @@ def get_absiwvt(fc_str, level, var):
 
 
 def get_iwvt_axis(fc_str, level, var):
-    u = get_single(fc_str, 'sfc', 'viewvt')
-    v = get_single(fc_str, 'sfc', 'vinwvt')
+    if ('sfc', 'viewvt_smooth') in CACHE:
+        u = CACHE['sfc','viewvt_smooth']
+        v = CACHE['sfc','vinwvt_smooth']
+
+    else:
+        u = get_single(fc_str, 'sfc', 'viewvt')
+        v = get_single(fc_str, 'sfc', 'vinwvt')
+
+        # Interpolation to T84 resolution
+        u, conv = dynlib.utils.fill_nan(u)
+        v, conv = dynlib.utils.fill_nan(v)
+        br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
+        dynlib.sphere.trunc_triangular(br, bi, 84)
+        dynlib.sphere.trunc_triangular(cr, ci, 84)
+        u, v = dynlib.sphere.sh_synthesis_vector(u.shape[2], br,bi,cr,ci)
+        CACHE['sfc','viewvt_smooth'] = u
+        CACHE['sfc','vinwvt_smooth'] = v
 
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 2.0e6
     dynfor.config.jetint_thres = 5.0e-7
     dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
 
-    # Interpolation to T84 resolution
-    u, conv = dynlib.utils.fill_nan(u)
-    v, conv = dynlib.utils.fill_nan(v)
-    br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
-    dynlib.sphere.trunc_triangular(br, bi, 84)
-    dynlib.sphere.trunc_triangular(cr, ci, 84)
-    u, v = dynlib.sphere.sh_synthesis_vector(u.shape[2], br,bi,cr,ci)
-    #iwvtxs *= self.scalefac
-    #iwvtys *= self.scalefac
+    # Integrated water vapour transport axis detections
+    iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
+    iwvtoff = iwvtoff.astype('i4')
+
+    return iwvta, iwvtoff
+
+
+__, tcwv_clim = metopen('settings/ea.ans.1979-2020.sfc.tcwv.zonaltimeavg', 'tcwv', no_static=True)
+def get_iwvta_axis(fc_str, level, var):
+    if ('sfc', 'viewvt_smooth') in CACHE:
+        u = CACHE['sfc','viewvt_smooth'].copy()
+        v = CACHE['sfc','vinwvt_smooth'].copy()
+
+    else:
+        u = get_single(fc_str, 'sfc', 'viewvt')
+        v = get_single(fc_str, 'sfc', 'vinwvt')
+
+        # Interpolation to T84 resolution
+        u, conv = dynlib.utils.fill_nan(u)
+        v, conv = dynlib.utils.fill_nan(v)
+        br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
+        dynlib.sphere.trunc_triangular(br, bi, 84)
+        dynlib.sphere.trunc_triangular(cr, ci, 84)
+        u, v = dynlib.sphere.sh_synthesis_vector(u.shape[2], br,bi,cr,ci)
+        CACHE['sfc','viewvt_smooth'] = u.copy()
+        CACHE['sfc','vinwvt_smooth'] = v.copy()
+
+    u /= tcwv_clim[np.newaxis,:,np.newaxis]
+    v /= tcwv_clim[np.newaxis,:,np.newaxis]
+
+    dynfor.config.nsmooth = 0
+    dynfor.config.minlen = 1.5e6
+    dynfor.config.jetint_thres = 5.0e-7 / 15.0**2 # climatological TCWV at around 45 degN/S
+    dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
 
     # Integrated water vapour transport axis detections
     iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
@@ -482,6 +524,7 @@ get_special = {
     'Sea ice concentration': get_siconc,
     'Column integral water vapour transport': get_absiwvt,
     'Water vapour transport axes': get_iwvt_axis,
+    'Water vapour anomalous transport axes': get_iwvta_axis,
     'Temperature anomaly': get_t_ano,
     'Temperature percentiles': get_t_perc,
     'Frontal volumes': get_frovo,
@@ -515,7 +558,7 @@ if __name__ == '__main__':
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
-        'test': [],
+        'test': ['iwvt_axis', ],
         'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
     }
     

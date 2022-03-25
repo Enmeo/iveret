@@ -212,6 +212,16 @@ def cache_iwvt_components(f):
     CACHE['viewvt'] *= 100/9.81
     CACHE['vinwvt'] *= 100/9.81
 
+    # Interpolation to T84 resolution
+    u, conv = dynlib.utils.fill_nan(CACHE['viewvt'][np.newaxis,:,:])
+    v, conv = dynlib.utils.fill_nan(CACHE['vinwvt'][np.newaxis,:,:])
+    br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
+    dynlib.sphere.trunc_triangular(br, bi, 84)
+    dynlib.sphere.trunc_triangular(cr, ci, 84)
+    u, v = dynlib.sphere.sh_synthesis_vector(u.shape[2], br,bi,cr,ci)
+
+    CACHE['viewvt_smooth'], CACHE['vinwvt_smooth'] = u[0,:,:], v[0,:,:]
+
     return
 
 def get_iwvt_vector(f, level, var):
@@ -227,21 +237,37 @@ def get_absiwvt(f, level, var):
     return np.sqrt(CACHE['viewvt']**2 + CACHE['vinwvt']**2)
 
 def get_iwvt_axis(f, level, var):
-    if not 'viewvt' in CACHE:
+    if not 'viewvt_smooth' in CACHE:
         cache_iwvt_components(f)
 
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 2.0e6
     dynfor.config.jetint_thres = 5.0e-7
     dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
 
-    # Interpolation to T84 resolution
-    u, conv = dynlib.utils.fill_nan(CACHE['viewvt'][np.newaxis,:,:])
-    v, conv = dynlib.utils.fill_nan(CACHE['vinwvt'][np.newaxis,:,:])
-    br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
-    dynlib.sphere.trunc_triangular(br, bi, 84)
-    dynlib.sphere.trunc_triangular(cr, ci, 84)
-    u, v = dynlib.sphere.sh_synthesis_vector(u.shape[2], br,bi,cr,ci)
+    # Integrated water vapour transport axis detections
+    u, v = CACHE['viewvt_smooth'][np.newaxis,:,:], CACHE['vinwvt_smooth'][np.newaxis,:,:]
+    iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
+    iwvta = iwvta[0,:,:]
+    iwvtoff = iwvtoff[0,:].astype('i4')
+
+    return iwvta, iwvtoff
+
+__, tcwv_clim = metopen('settings/ea.ans.1979-2020.sfc.tcwv.zonaltimeavg', 'tcwv', no_static=True)
+def get_iwvta_axis(f, level, var):
+    if not 'viewvt_smooth' in CACHE:
+        cache_iwvt_components(f)
+
+    dynfor.config.nsmooth = 0
+    dynfor.config.minlen = 1.5e6
+    dynfor.config.jetint_thres = 5.0e-7 / 15**2
+    dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
+
+    u, v = CACHE['viewvt_smooth'].copy()[np.newaxis,:,:], CACHE['vinwvt_smooth'].copy()[np.newaxis,:,:]
+    u /= tcwv_clim[np.newaxis,:,np.newaxis]
+    v /= tcwv_clim[np.newaxis,:,np.newaxis]
 
     # Integrated water vapour transport axis detections
     iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
@@ -405,6 +431,7 @@ get_special = {
     'Column integral water vapour transport vector': get_iwvt_vector,
     'Column integral water vapour transport': get_absiwvt,
     'Water vapour transport axes': get_iwvt_axis,
+    'Water vapour anomalous transport axes': get_iwvta_axis,
     'Temperature anomaly': get_t_ano,
     'Temperature percentiles': get_t_perc,
     'Frontal volumes': get_frovo,
@@ -432,7 +459,7 @@ if __name__ == '__main__':
     PLOT_SETS = {
         'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'pv2': ['ptpv2_jets', ],
-        'test': [],
+        'test': ['iwvt_axis',],
         'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
     }
     

@@ -160,6 +160,7 @@ variables = {
     'iwvt': variable('Column integral water vapour transport vector', 'kg m/s', ''),
     'absiwvt': variable('Column integral water vapour transport', 'kg m/s', ''),
     'iwvtaxes': variable('Water vapour transport axes', '', ''),
+    'iwvtaaxes': variable('Water vapour anomalous transport axes', '', ''),
     'jetaxespv2': variable('Jet axes', '', 'PV 2'),
 }
 # Make variables available as local variables as well
@@ -261,7 +262,8 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
         ], name='Total column water vapour, fluxes and precip.'),
     'iwvt_axis': plot(absiwvt, scale=np.arange(50,951,50), ticks=np.arange(200,951,200), overlays=[
-            o('yellow', iwvtaxes, None, otype='lines', linewidths=(4,2), linecolors=('w','gold')),
+            o('yellow', iwvtaxes, None, otype='lines', linewidths=(5,3.5), linecolors=('w','gold')),
+            o('orange', iwvtaaxes, None, otype='lines', linewidths=(2,1,), linecolors=('darkorange', 'darkorange')),
             o('magenta', lsp, [1,3,10], colors='orchid', linewidths=[1.65]),
             o('cyan', cp, [1,3,10], colors='c', linewidths=[1.65]),
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),

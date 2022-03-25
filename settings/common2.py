@@ -9,6 +9,7 @@ from dynlib.plotsettings.default import pconf, pconfl
 
 # Set the default output location (e.g. for plots)
 VAERKART_ROOT = '/home/ubuntu/sw/vaerkart'
+conf.datapath.append(VAERKART_ROOT)
 
 WEB_ROOT = '/share/web'
 plotpath = f'{WEB_ROOT}/plots'
