@@ -242,7 +242,7 @@ def get_iwvt_axis(f, level, var):
         cache_iwvt_components(f)
 
     dynfor.config.nsmooth = 0
-    dynfor.config.minlen = 2.0e6
+    dynfor.config.minlen = 1.5e6
     dynfor.config.jetint_thres = 5.0e-7
     dynfor.config.searchrad = 1.5
     dynfor.config.grid_cyclic_ew = True
@@ -256,13 +256,14 @@ def get_iwvt_axis(f, level, var):
     return iwvta, iwvtoff
 
 __, tcwv_clim = metopen('settings/ea.ans.1979-2020.sfc.tcwv.zonaltimeavg', 'tcwv', no_static=True)
+tcwv_clim = np.maximum(tcwv_clim, 5)
 def get_iwvta_axis(f, level, var):
     if not 'viewvt_smooth' in CACHE:
         cache_iwvt_components(f)
 
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 1.5e6
-    dynfor.config.jetint_thres = 5.0e-7 / 15**2
+    dynfor.config.jetint_thres = 3.5e-7 / 15**2
     dynfor.config.searchrad = 1.5
     dynfor.config.grid_cyclic_ew = True
 
@@ -483,7 +484,7 @@ if __name__ == '__main__':
     PLOT_SETS = {
         'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'pv2': ['ptpv2_jets', ],
-        'test': ['iwvt_axis',],
+        'test': [],
         'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
     }
     

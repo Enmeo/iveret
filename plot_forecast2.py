@@ -242,7 +242,7 @@ def get_iwvt_axis(fc_str, level, var):
         CACHE['sfc','vinwvt_smooth'] = v
 
     dynfor.config.nsmooth = 0
-    dynfor.config.minlen = 2.0e6
+    dynfor.config.minlen = 1.5e6
     dynfor.config.jetint_thres = 5.0e-7
     dynfor.config.searchrad = 1.5
     dynfor.config.grid_cyclic_ew = True
@@ -255,6 +255,7 @@ def get_iwvt_axis(fc_str, level, var):
 
 
 __, tcwv_clim = metopen('settings/ea.ans.1979-2020.sfc.tcwv.zonaltimeavg', 'tcwv', no_static=True)
+tcwv_clim = np.maximum(tcwv_clim, 5)
 def get_iwvta_axis(fc_str, level, var):
     if ('sfc', 'viewvt_smooth') in CACHE:
         u = CACHE['sfc','viewvt_smooth'].copy()
@@ -279,7 +280,7 @@ def get_iwvta_axis(fc_str, level, var):
 
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 1.5e6
-    dynfor.config.jetint_thres = 5.0e-7 / 15.0**2 # climatological TCWV at around 45 degN/S
+    dynfor.config.jetint_thres = 3.5e-7 / 15.0**2 # climatological TCWV at around 45 degN/S
     dynfor.config.searchrad = 1.5
     dynfor.config.grid_cyclic_ew = True
 
@@ -583,7 +584,7 @@ if __name__ == '__main__':
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
-        'test': ['iwvt_axis', ],
+        'test': [],
         'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
     }
     
