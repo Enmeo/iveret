@@ -282,7 +282,8 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
         ], name='Ensemble jet detections'),
     'ptpv2_jets': plot(ptpv2, scale=np.arange(270,396,5), ticks=[270,285,300,315,330,350,370,395], overlays=[
             o('black', ffpv2, [30, 45, 60, 75, 90], linewidths=[2,]),
-            o('white', jetaxespv2, None, otype='lines', linewidths=(6,4), linecolors=('k','w')),
+            o('white, red/blue', jetaxespv2, None, otype='lines', linewidths=(6,3), linecolors=('w', None), alpha=1.0,
+                scale=(330, 340), cmap='bwr'),
         ], name='PV2 Pot. temperature, jets and wind speed'),
     'pvpt315_irot_wind': plot(pvpt315, scale=pv_scale, ticks=pv_scale, ticklabels=pv_ticklabels, overlays=[
             o('black', pvpt315, [2, ], linewidths=[1.5,]),
@@ -580,7 +581,12 @@ class plotter(object):
                 )
             elif o.otype == 'lines':
                 for linewidth, linecolor in zip(plotconf['linewidths'], plotconf['linecolors']):
-                    overlays.append(fig.map_overlay_lines(*data[plevq], static, linewidth=linewidth, linecolor=linecolor) )
+                    if type(linecolor) == type(None):
+                        ja, jaoff = data[plevq]
+                        overlays.append(fig.map_overlay_clines(ja, ja[...,-1], jaoff, static, scale=plotconf['scale'], 
+                            cmap=plotconf['cmap'], alpha=plotconf['alpha'], linewidth=linewidth, cb_disable=True))
+                    else:
+                        overlays.append(fig.map_overlay_lines(*data[plevq], static, linewidth=linewidth, linecolor=linecolor) )
             else:
                 raise ValueError(f'Unknown overlay type `{o.otype}`.')
 

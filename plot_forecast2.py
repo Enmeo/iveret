@@ -5,6 +5,7 @@ import copy
 
 import matplotlib as mpl
 mpl.use('Agg')
+import scipy.interpolate as interp
 
 from plotconfig import *
 from settings.common2 import *
@@ -399,6 +400,23 @@ def get_T84_ff(fc_str, level, var):
 
     return np.sqrt(u**2 + v**2)
 
+# Helpers for get_jetaxis
+def _interpolate_location(dat, lat, lon, grid):
+    ''' Interpolate dat to the jet locations (using the coordinates of its points) '''
+
+    dati = np.empty(lat.shape[:2])
+    for tidx in range(dat.shape[0]):
+        func = interp.RectBivariateSpline(grid.y[::-1,0], grid.x[0,:], dat[tidx,::-1,:], kx=1, ky=1)
+        dati[tidx,:] = func(lat[tidx,:], lon[tidx,:], grid=False)
+
+    return dati
+
+# For ERAi and ERA5 and global forecasts
+def _idx2latlon(jetaxis):
+    lon = (jetaxis[:,:,0]-1) * 0.5 - 180
+    lat = 90.0 - (jetaxis[:,:,1]-1) * 0.5
+
+    return lat, lon
 
 def get_jetaxis(fc_str, level, var):
     dynfor.config.nsmooth = 0
@@ -412,6 +430,13 @@ def get_jetaxis(fc_str, level, var):
     # Jet axis detections
     ja, jaoff = dynlib.detect.jetaxis(10000, 10000, CACHE[level,'u_smooth'], CACHE[level,'v_smooth'], static.dx, static.dy)
     jaoff = jaoff.astype('i4')
+
+    # Interpolate potential temperature to jet positions
+    plev = level2plev(level)
+    pt = get_single(fc_str, plev, 'pt')
+    lat, lon = _idx2latlon(ja)
+    pti = _interpolate_location(pt, lat, lon, static)
+    ja = np.concatenate((ja, pti[:,:,np.newaxis]), axis=2)
 
     return ja, jaoff
 
