@@ -242,7 +242,7 @@ def get_iwvt_axis(f, level, var):
         cache_iwvt_components(f)
 
     dynfor.config.nsmooth = 0
-    dynfor.config.minlen = 1.5e6
+    dynfor.config.minlen = 2.0e6
     dynfor.config.jetint_thres = 5.0e-7
     dynfor.config.searchrad = 1.5
     dynfor.config.grid_cyclic_ew = True
@@ -256,20 +256,44 @@ def get_iwvt_axis(f, level, var):
     return iwvta, iwvtoff
 
 __, tcwv_clim = metopen('settings/ea.ans.1979-2020.sfc.tcwv.zonaltimeavg', 'tcwv', no_static=True)
-tcwv_clim = np.maximum(tcwv_clim, 5)
+tcwv_clim = np.maximum(tcwv_clim, 8)
 def get_iwvta_axis(f, level, var):
     if not 'viewvt_smooth' in CACHE:
         cache_iwvt_components(f)
 
     dynfor.config.nsmooth = 0
-    dynfor.config.minlen = 1.5e6
-    dynfor.config.jetint_thres = 3.5e-7 / 15**2
+    dynfor.config.minlen = 2.0e6
+    dynfor.config.jetint_thres = 5.0e-7 / 18**2
     dynfor.config.searchrad = 1.5
     dynfor.config.grid_cyclic_ew = True
 
     u, v = CACHE['viewvt_smooth'].copy()[np.newaxis,:,:], CACHE['vinwvt_smooth'].copy()[np.newaxis,:,:]
     u /= tcwv_clim[np.newaxis,:,np.newaxis]
     v /= tcwv_clim[np.newaxis,:,np.newaxis]
+
+    # Integrated water vapour transport axis detections
+    iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
+    iwvta = iwvta[0,:,:]
+    iwvtoff = iwvtoff[0,:].astype('i4')
+
+    return iwvta, iwvtoff
+
+
+__, tcwv_climi = metopen('settings/ea.ans.1979-2020.sfc.tcwv.timeavg', 'tcwv', no_static=True)
+tcwv_climi = np.maximum(tcwv_climi, 8)
+def get_iwvtai_axis(f, level, var):
+    if not 'viewvt_smooth' in CACHE:
+        cache_iwvt_components(f)
+
+    dynfor.config.nsmooth = 0
+    dynfor.config.minlen = 2.0e6
+    dynfor.config.jetint_thres = 5.0e-7 / 18**2
+    dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
+
+    u, v = CACHE['viewvt_smooth'].copy()[np.newaxis,:,:], CACHE['vinwvt_smooth'].copy()[np.newaxis,:,:]
+    u /= tcwv_climi[np.newaxis,:,:]
+    v /= tcwv_climi[np.newaxis,:,:]
 
     # Integrated water vapour transport axis detections
     iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
@@ -457,6 +481,7 @@ get_special = {
     'Column integral water vapour transport': get_absiwvt,
     'Water vapour transport axes': get_iwvt_axis,
     'Water vapour anomalous transport axes': get_iwvta_axis,
+    'Water vapour anomalous transport axes (2)': get_iwvtai_axis,
     'Temperature anomaly': get_t_ano,
     'Temperature percentiles': get_t_perc,
     'Frontal volumes': get_frovo,
