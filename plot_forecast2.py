@@ -327,6 +327,47 @@ def get_iwvtai_axis(fc_str, level, var):
     return iwvta, iwvtoff
 
 
+f = metopen('settings/ea.ans.1979-2020.seasons_composites', no_static=True)
+tcwv_climis = dynlib.utils.scale(f.groups['sfc'].variables['tcwv'])
+tcwv_climis = np.maximum(tcwv_climis, 8)
+seas_idxs = {'12': 0, '01': 0, '02': 0, '03': 1, '04': 1, '05': 1, '06': 2, '07': 2, '08': 2, '09': 3, '10': 3, '11': 3,  }
+def get_iwvtais_axis(fc_str, level, var):
+    if ('sfc', 'viewvt_smooth') in CACHE:
+        u = CACHE['sfc','viewvt_smooth'].copy()
+        v = CACHE['sfc','vinwvt_smooth'].copy()
+
+    else:
+        u = get_single(fc_str, 'sfc', 'viewvt')
+        v = get_single(fc_str, 'sfc', 'vinwvt')
+
+        # Interpolation to T84 resolution
+        u, conv = dynlib.utils.fill_nan(u)
+        v, conv = dynlib.utils.fill_nan(v)
+        br, bi, cr, ci = dynlib.sphere.sh_analysis_vector(u, v)
+        dynlib.sphere.trunc_triangular(br, bi, 84)
+        dynlib.sphere.trunc_triangular(cr, ci, 84)
+        u, v = dynlib.sphere.sh_synthesis_vector(u.shape[2], br,bi,cr,ci)
+        CACHE['sfc','viewvt_smooth'] = u.copy()
+        CACHE['sfc','vinwvt_smooth'] = v.copy()
+    
+    mon = fc_str[4:6]
+    seas_idx = seas_idxs[mon]
+    u /= tcwv_climis[seas_idx,np.newaxis,:,:]
+    v /= tcwv_climis[seas_idx,np.newaxis,:,:]
+
+    dynfor.config.nsmooth = 0
+    dynfor.config.minlen = 2.0e6
+    dynfor.config.jetint_thres = 5.0e-7 / 18.0**2   # Make detections equal where climatological TCWV is 20 kg/m2
+    dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
+
+    # Integrated water vapour transport axis detections
+    iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
+    iwvtoff = iwvtoff.astype('i4')
+
+    return iwvta, iwvtoff
+
+
 PERC_PATH = '/home/ubuntu/data'
 PERC_PERIOD = '1979-2020'
 conf.datapath.insert(1, PERC_PATH)
@@ -585,9 +626,10 @@ get_special = {
     'Sea-surface temperature': get_sst,
     'Sea ice concentration': get_siconc,
     'Column integral water vapour transport': get_absiwvt,
-    'Water vapour transport axes': get_iwvt_axis,
-    'Water vapour anomalous transport axes': get_iwvta_axis,
-    'Water vapour anomalous transport axes (2)': get_iwvtai_axis,
+    'Moisture pathways': get_iwvt_axis,
+    'Anomalous moisture pathways': get_iwvta_axis,
+    'Anomalous moisture pathways (2)': get_iwvtai_axis,
+    'Anomalous moisture pathways (3)': get_iwvtais_axis,
     'Temperature anomaly': get_t_ano,
     'Temperature percentiles': get_t_perc,
     'Frontal volumes': get_frovo,
