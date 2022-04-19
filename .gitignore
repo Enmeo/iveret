@@ -7,6 +7,7 @@ plots_npolar
 plots_extra
 *_extra.py
 vaer*.html
+*.pickle
 
 mpl_config
 .DS_Store
