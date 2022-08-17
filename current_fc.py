@@ -10,11 +10,11 @@ STATFILE = '/home/ubuntu/log/status/ecmwf'
 def get_current_fc():
 	now = dt.now()
 
-	if now.hour in range(8,20):
+	if now.hour in range(7,19):
 		forecast = dt(now.year,now.month,now.day,0)
 	else:
 		forecast = dt(now.year,now.month,now.day,12)
-		if now.hour < 8:
+		if now.hour < 7:
 			forecast -= td(1,0)
 	
 	# Override

@@ -14,7 +14,8 @@ $basepath/cleanup_ec.sh
 # Wait for all of these files to be present before starting the plotting
 lastfiles="$fcpath/ec.for-hr.$fc.700.t.nc $fcpath/ec.for.$fc.pt330.pv.nc $fcpath/ec.ens.$fc.sfc.msl.nc"
 
-attempts=18
+# Attempt for 2 hours in intervals of 5 mins
+attempts=24
 somethingmissing=true
 while [ "$somethingmissing" = true ] && [ $attempts -gt 0 ]; do
 	somethingmissing=false
@@ -27,7 +28,7 @@ while [ "$somethingmissing" = true ] && [ $attempts -gt 0 ]; do
 
 	if [ "$somethingmissing" = true ]; then
 		echo "Incomplete download, sleeping 10 Minutes and trying again. $attempts attempts remain."
-		sleep 10m
+		sleep 5m
 		attempts=$((attempts-1))
 	fi
 done
