@@ -50,6 +50,9 @@ python3 $basepath/plot_forecast2.py pv2 > $logpath/web_plot_ec_pv2_out.log 2> $l
 python3 $basepath/plot_forecast2.py sfc > $logpath/web_plot_ec_sfc_out.log 2> $logpath/web_plot_ec_sfc_err.log &
 python3 $basepath/plot_forecast2.py plev > $logpath/web_plot_ec_plev_out.log 2> $logpath/web_plot_ec_plev_err.log
 
+# Mark the plotting as finished (required for rendering the correct websites)
+echo $fc > $plotstat/ecmwf
+
 # Then render the fitting website
 python3 $basepath/web/render_vaerkart_natl.py > $logpath/web_render_ec_natl_out.log 2> $logpath/web_render_ec_natl_err.log
 python3 $basepath/web/render_vaerkart_meteograms.py > $logpath/web_render_ec_meteograms_out.log 2> $logpath/web_render_ec_meteograms_err.log
@@ -120,9 +123,6 @@ fi
 
 python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_out.log 2> $logpath/web_plot_ec_meteograms_err.log &
 
-
-# Mark the plotting as finished
-echo $fc > $plotstat/ecmwf
 
 # Clean-up old plots
 echo "Cleaning up old plots."
