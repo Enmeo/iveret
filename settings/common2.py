@@ -64,6 +64,8 @@ pconfl[None,'Specific humidity','hook'] = lambda q: q*1.0e3
 
 pconf [None,'Sea-level pressure','hook'] = lambda msl: msl/1.0e2
 pconfl[None,'Sea-level pressure','hook'] = lambda msl: msl/1.0e2
+pconf [None,'Change in sea-level pressure since previous forecast','hook'] = lambda msl: msl/1.0e2
+pconfl[None,'Change in sea-level pressure since previous forecast','hook'] = lambda msl: msl/1.0e2
 pconf [None,'Ensemble ctrl sea level pressure','hook'] = lambda msl: msl/1.0e2
 pconfl[None,'Ensemble ctrl sea level pressure','hook'] = lambda msl: msl/1.0e2
 pconf [None,'Ensemble mean sea level pressure','hook'] = lambda msl: msl/1.0e2

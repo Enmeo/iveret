@@ -133,6 +133,7 @@ variables = {
     't850a': variable('Temperature anomaly', 'K', '850 hPa', 'based on ERA-5 1979-2020'),
 
     'msl': variable('Sea-level pressure', 'hPa', ''),
+    'msl_error': variable('Change in sea-level pressure since previous forecast', 'hPa', ''),
     'mslc': variable('Ensemble ctrl sea level pressure', 'hPa', ''),
     'mslm': variable('Ensemble mean sea level pressure', 'hPa', ''),
     'cp': variable('Convective precipitation', 'mm/h', ''),
@@ -220,6 +221,8 @@ cc_ticklabels = ["0/8","1/8", "2/8", "3/8", "4/8", "5/8", "6/8", "7/8", "8/8"]
 t_ano_scale = [-30,-25,-21,-18,-15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,18,21,25,30] 
 
 pv_scale = np.arange(1.0,9.1,1.0)
+
+msl_error_scale = [-20,-16,-12,-8,-6,-4,-3,-2,-1,-0.5,-0.25, 0.25, 0.5, 1, 2, 3, 4, 6, 8, 12, 16, 20]
 
 freq_scale = np.arange(0,1.01,0.05)
 freq_ticks = np.arange(0,1.01,0.2)
@@ -397,6 +400,10 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('orange', ff10, [24.5, ], colors='coral'),
             o('red', ff10, [32.7, ], colors='crimson'),
     ], name='Latent heat flux, 10m winds, SSTs and MIZ'),
+    'sfc_fcerror': plot(msl_error, scale=msl_error_scale, cmap='PiYG', norm=mpl.colors.BoundaryNorm(msl_error_scale, 256),
+        cb_tickspacing='uniform', overlays=[
+            o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
+    ], name='Sea-level pressure forecast error'),
 }
 
 ## Old ECMWF plot definitions
@@ -425,10 +432,10 @@ plots = {
     },
     'ec': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
-                'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds',
+                'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'sfc_fcerror',
                 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),
         'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),

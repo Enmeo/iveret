@@ -53,7 +53,7 @@ qf = {
 CACHE = {}
 
 
-def get_single(fc_str, plev, q):
+def get_single(fc_str, fc_str_prev, plev, q):
     fname = f'{fc_str}/ec.for.{fc_str}.{plev}.{q}'
     try:
         f, dat, static = metopen(fname, qf.get(q, q))
@@ -67,7 +67,34 @@ def get_single(fc_str, plev, q):
     return dat
 
 
-def get_single_ens(fc_str, plev, q):
+def get_single_error_factory(plev, q):
+    def get_single_error(fc_str, fc_str_prev, plev_, q_):
+        fname = f'{fc_str}/ec.for.{fc_str}.{plev}.{q}'
+        fname_prev = f'{fc_str_prev}/ec.for.{fc_str_prev}.{plev}.{q}'
+        try:
+            f, dat, static = metopen(fname, qf.get(q, q))
+            f, prev, static_prev = metopen(fname_prev, qf.get(q, q))
+            dat = dat.squeeze()
+            prev = prev.squeeze()
+            if plev in mask:
+                dat[mask[plev]] = np.nan
+        except Exception as e:
+            print(type(e), e)
+            dat = None
+
+        for tidx, date in enumerate(static.t_parsed):
+            tidx_prev = np.argwhere(static_prev.t_parsed == date)
+            if tidx_prev.size == 0:
+                dat[tidx,...] = np.nan
+            else:
+                dat[tidx,...] -= prev[tidx_prev[0,0],...]
+
+        return dat
+    
+    return get_single_error
+
+
+def get_single_ens(fc_str, fc_str_prev, plev, q):
     fname = f'{fc_str}/ec.ens.{fc_str}.{plev}.{q}'
     try:
         f, dat, static = metopen(fname, qf.get(q, q))
@@ -81,7 +108,7 @@ def get_single_ens(fc_str, plev, q):
     return dat
 
 
-def get_single_ensctrl(fc_str, plev, q):
+def get_single_ensctrl(fc_str, fc_str_prev, plev, q):
     fname = f'{fc_str}/ec.ensctrl.{fc_str}.{plev}.{q}'
     try:
         f, dat, static = metopen(fname, qf.get(q, q))
@@ -95,7 +122,7 @@ def get_single_ensctrl(fc_str, plev, q):
     return dat
 
 
-def get(fc_str, level, var):
+def get(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     if var in q_map:
         q = q_map[var]
@@ -103,11 +130,11 @@ def get(fc_str, level, var):
         raise ValueError(f'Unknown variable `{var}`.')
     
     if type(q) == str:
-        dat = get_single(fc_str, plev, q)
+        dat = get_single(fc_str, fc_str_prev, plev, q)
     else:
         dat = tuple([])
         for q_single in q:
-            dat += (get_single(fc_str, plev, q_single), )
+            dat += (get_single(fc_str, fc_str_prev, plev, q_single), )
 
     return dat
 
@@ -121,8 +148,8 @@ def mask_land(data):
 
 def get_eqpt(fc_str, level, var):
     plev = level2plev(level)
-    t = get_single(fc_str, plev, 't')
-    q = get_single(fc_str, plev, 'q')
+    t = get_single(fc_str, fc_str_prev, plev, 't')
+    q = get_single(fc_str, fc_str_prev, plev, 'q')
     p = np.ones(t.shape) * int(plev)*100
 
     return dynlib.thermodyn.thetae_from_q(q, t, p)
@@ -130,8 +157,8 @@ def get_eqpt(fc_str, level, var):
 
 def get_ff(fc_str, level, var):
     plev = level2plev(level)
-    u = get_single(fc_str, plev, 'u')
-    v = get_single(fc_str, plev, 'v')
+    u = get_single(fc_str, fc_str_prev, plev, 'u')
+    v = get_single(fc_str, fc_str_prev, plev, 'v')
 
     return np.sqrt(u**2 + v**2)
 
@@ -373,7 +400,7 @@ PERC_PERIOD = '1979-2020'
 conf.datapath.insert(1, PERC_PATH)
 def get_t_ano(fc_str, level, var):
     plev = level2plev(level)
-    t = get_single(fc_str, plev, 't')
+    t = get_single(fc_str, fc_str_prev, plev, 't')
 
     filename = 'ea.ans.%s.%s.t_percs' % (PERC_PERIOD, plev)
     print('Using base data from %s' % filename)
@@ -391,7 +418,7 @@ def get_t_ano(fc_str, level, var):
 
 def get_t_perc(fc_str, level, var):
     plev = level2plev(level)
-    t = get_single(fc_str, plev, 't')
+    t = get_single(fc_str, fc_str_prev, plev, 't')
 
     filename = 'ea.ans.%s.%s.t_percs' % (PERC_PERIOD, plev)
     print('Using base data from %s' % filename)
@@ -443,8 +470,8 @@ def get_frovo(fc_str, level, var):
 
 def get_frontogenesis(fc_str, level, var):
     plev = level2plev(level)
-    u = get_single(fc_str, plev, 'u')[:,np.newaxis,:,:]
-    v = get_single(fc_str, plev, 'v')[:,np.newaxis,:,:]
+    u = get_single(fc_str, fc_str_prev, plev, 'u')[:,np.newaxis,:,:]
+    v = get_single(fc_str, fc_str_prev, plev, 'v')[:,np.newaxis,:,:]
     eqpt = get_eqpt(fc_str, level, var)
     eqpt = dynlib.utils.smooth_xy(eqpt, 3)[:,np.newaxis,:,:]
 
@@ -462,8 +489,8 @@ def get_T84_ff(fc_str, level, var):
         return np.sqrt(CACHE[level,'u_smooth']**2 + CACHE[level,'v_smooth']**2)
 
     plev = level2plev(level)
-    u = get_single(fc_str, plev, 'u')
-    v = get_single(fc_str, plev, 'v')
+    u = get_single(fc_str, fc_str_prev, plev, 'u')
+    v = get_single(fc_str, fc_str_prev, plev, 'v')
 
     # Filtering to T84 resolution
     u, conv = dynlib.utils.fill_nan(u)
@@ -511,7 +538,7 @@ def get_jetaxis(fc_str, level, var):
 
     # Interpolate potential temperature to jet positions
     plev = level2plev(level)
-    pt = get_single(fc_str, plev, 'pt')
+    pt = get_single(fc_str, fc_str_prev, plev, 'pt')
     lat, lon = _idx2latlon(ja)
     pti = _interpolate_location(pt, lat, lon, static)
     ja = np.concatenate((ja, pti[:,:,np.newaxis]), axis=2)
@@ -521,8 +548,8 @@ def get_jetaxis(fc_str, level, var):
 
 def get_irot_wind(fc_str, level, var):
     plev = level2plev(level)
-    u = get_single(fc_str, plev, 'u')
-    v = get_single(fc_str, plev, 'v')
+    u = get_single(fc_str, fc_str_prev, plev, 'u')
+    v = get_single(fc_str, fc_str_prev, plev, 'v')
 
     uir, vir = dynlib.sphere.irot_wind(u, v)
 
@@ -560,10 +587,10 @@ def get_cycfreq(fc_str, level, var):
 
 def get_jetfreq(fc_str, level, var):
     plev = level2plev(level)
-    uens = get_single_ens(fc_str, plev, 'u')
-    uctrl = get_single_ensctrl(fc_str, plev, 'u')
-    vens = get_single_ens(fc_str, plev, 'v')
-    vctrl = get_single_ensctrl(fc_str, plev, 'v')
+    uens = get_single_ens(fc_str, fc_str_prev, plev, 'u')
+    uctrl = get_single_ensctrl(fc_str, fc_str_prev, plev, 'u')
+    vens = get_single_ens(fc_str, fc_str_prev, plev, 'v')
+    vctrl = get_single_ensctrl(fc_str, fc_str_prev, plev, 'v')
 
     f, staticl = metopen(f'{fc_str}/ec.ensctrl.{fc_str}.pv2000.u')
     f.close()
@@ -641,6 +668,7 @@ get_special = {
     'Jet occurrence within 300 km': get_jetfreq,
     'Ensemble mean sea level pressure': get_ensmean_factory(level='sfc', var='msl'),
     'Ensemble ctrl sea level pressure': get_ensctrl_factory(level='sfc', var='msl'),
+    'Change in sea-level pressure since previous forecast': get_single_error_factory(plev='sfc', q='msl'),
 }
 
 
@@ -664,7 +692,7 @@ if __name__ == '__main__':
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
         'test': [],
-        'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', ],
+        'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', 'sfc_fcerror', ],
     }
     
     if len(sys.argv) > 1:
@@ -686,6 +714,7 @@ if __name__ == '__main__':
     print(len(plots))
     
     fc_str = forecast.strftime('%Y%m%d%H')
+    fc_str_prev = (forecast-td(0.5)).strftime('%Y%m%d%H')
     conf.datapath.insert(1, '/share/base/ecmwf')
     
     # Load surface pressure to be able to mask areas under ground
@@ -703,9 +732,9 @@ if __name__ == '__main__':
                 continue
 
             if q in get_special:
-                data[plev,q] = get_special[q](fc_str, plev, q)
+                data[plev,q] = get_special[q](fc_str, fc_str_prev, plev, q)
             else:
-                data[plev,q] = get(fc_str, plev, q)
+                data[plev,q] = get(fc_str, fc_str_prev, plev, q)
     
     for tidx, date in zip(range(len(static.t)), static.t_parsed):
         # Plot only initial time step
