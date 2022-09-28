@@ -403,7 +403,7 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
     'sfc_fcerror': plot(msl_error, scale=msl_error_scale, cmap='PiYG', norm=mpl.colors.BoundaryNorm(msl_error_scale, 256),
         cb_tickspacing='uniform', overlays=[
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
-    ], name='Sea-level pressure forecast error'),
+    ], name='Sea-level pressure forecast increment'),
 }
 
 ## Old ECMWF plot definitions
