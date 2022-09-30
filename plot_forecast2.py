@@ -146,7 +146,7 @@ def mask_land(data):
     return data
 
 
-def get_eqpt(fc_str, level, var):
+def get_eqpt(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     t = get_single(fc_str, fc_str_prev, plev, 't')
     q = get_single(fc_str, fc_str_prev, plev, 'q')
@@ -155,24 +155,24 @@ def get_eqpt(fc_str, level, var):
     return dynlib.thermodyn.thetae_from_q(q, t, p)
 
 
-def get_ff(fc_str, level, var):
+def get_ff(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     u = get_single(fc_str, fc_str_prev, plev, 'u')
     v = get_single(fc_str, fc_str_prev, plev, 'v')
 
     return np.sqrt(u**2 + v**2)
 
-def get_ff10(fc_str, level, var):
-    u10 = get_single(fc_str, 'sfc', 'u10')
-    v10 = get_single(fc_str, 'sfc', 'v10')
+def get_ff10(fc_str, fc_str_prev, level, var):
+    u10 = get_single(fc_str, fc_str_prev, 'sfc', 'u10')
+    v10 = get_single(fc_str, fc_str_prev, 'sfc', 'v10')
 
     return np.sqrt(u10**2 + v10**2)
 
-def get_cao(fc_str, level, var):
-    t = get_single(fc_str, '850', 't')
-    msl = get_single(fc_str, 'sfc', 'msl')
-    sst = get_single(fc_str, 'sfc', 'sst')
-    siconc = get_single(fc_str, 'sfc', 'siconc')
+def get_cao(fc_str, fc_str_prev, level, var):
+    t = get_single(fc_str, fc_str_prev, '850', 't')
+    msl = get_single(fc_str, fc_str_prev, 'sfc', 'msl')
+    sst = get_single(fc_str, fc_str_prev, 'sfc', 'sst')
+    siconc = get_single(fc_str, fc_str_prev, 'sfc', 'siconc')
 
     CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, siconc, landmask)
     CAOi[np.isnan(CAOi)] = 0.0
@@ -188,51 +188,51 @@ def _normalize_cumulates(cumdat):
 
     return dat
 
-def get_tp(fc_str, level, var):
-    lsp = get_single(fc_str, 'sfc', 'lsp')
-    cp = get_single(fc_str, 'sfc', 'cp')
+def get_tp(fc_str, fc_str_prev, level, var):
+    lsp = get_single(fc_str, fc_str_prev, 'sfc', 'lsp')
+    cp = get_single(fc_str, fc_str_prev, 'sfc', 'cp')
 
     return _normalize_cumulates((lsp+cp)*1000*3600)
 
-def get_lsp(fc_str, level, var):
-    lsp = get_single(fc_str, 'sfc', 'lsp')
+def get_lsp(fc_str, fc_str_prev, level, var):
+    lsp = get_single(fc_str, fc_str_prev, 'sfc', 'lsp')
 
     return _normalize_cumulates(lsp*1000*3600)
 
-def get_cp(fc_str, level, var):
-    cp = get_single(fc_str, 'sfc', 'cp')
+def get_cp(fc_str, fc_str_prev, level, var):
+    cp = get_single(fc_str, fc_str_prev, 'sfc', 'cp')
 
     return _normalize_cumulates(cp*1000*3600)
 
-def get_sshf(fc_str, level, var):
-    sshf = get_single(fc_str, 'sfc', 'sshf')
+def get_sshf(fc_str, fc_str_prev, level, var):
+    sshf = get_single(fc_str, fc_str_prev, 'sfc', 'sshf')
 
     return _normalize_cumulates(-sshf)
 
-def get_slhf(fc_str, level, var):
-    slhf = get_single(fc_str, 'sfc', 'slhf')
+def get_slhf(fc_str, fc_str_prev, level, var):
+    slhf = get_single(fc_str, fc_str_prev, 'sfc', 'slhf')
 
     return _normalize_cumulates(-slhf)
 
-def get_sthf(fc_str, level, var):
-    sshf = get_single(fc_str, 'sfc', 'sshf')
-    slhf = get_single(fc_str, 'sfc', 'slhf')
+def get_sthf(fc_str, fc_str_prev, level, var):
+    sshf = get_single(fc_str, fc_str_prev, 'sfc', 'sshf')
+    slhf = get_single(fc_str, fc_str_prev, 'sfc', 'slhf')
 
     return _normalize_cumulates(-sshf-slhf)
 
-def get_siconc(fc_str, level, var):
-    siconc = get_single(fc_str, 'sfc', 'siconc')
+def get_siconc(fc_str, fc_str_prev, level, var):
+    siconc = get_single(fc_str, fc_str_prev, 'sfc', 'siconc')
 
     return mask_land(siconc)
 
-def get_sst(fc_str, level, var):
-    sst = get_single(fc_str, 'sfc', 'sst')
+def get_sst(fc_str, fc_str_prev, level, var):
+    sst = get_single(fc_str, fc_str_prev, 'sfc', 'sst')
 
     return mask_land(sst)
 
-def get_rh2m(fc_str, level, var):
-    t2m = get_single(fc_str, 'sfc', 't2m')
-    d2m = get_single(fc_str, 'sfc', 'd2m')
+def get_rh2m(fc_str, fc_str_prev, level, var):
+    t2m = get_single(fc_str, fc_str_prev, 'sfc', 't2m')
+    d2m = get_single(fc_str, fc_str_prev, 'sfc', 'd2m')
 
     e = dynlib.thermodyn.e_sat_liq(d2m)
     rh2m = dynlib.thermodyn.rh_from_e(e, t2m)
@@ -240,23 +240,23 @@ def get_rh2m(fc_str, level, var):
     return rh2m / 100
 
 
-def get_absiwvt(fc_str, level, var):
-    u = get_single(fc_str, 'sfc', 'viewvt')
-    v = get_single(fc_str, 'sfc', 'vinwvt')
+def get_absiwvt(fc_str, fc_str_prev, level, var):
+    u = get_single(fc_str, fc_str_prev, 'sfc', 'viewvt')
+    v = get_single(fc_str, fc_str_prev, 'sfc', 'vinwvt')
 
     ff = np.sqrt(u**2 + v**2)
 
     return ff
 
 
-def get_iwvt_axis(fc_str, level, var):
+def get_iwvt_axis(fc_str, fc_str_prev, level, var):
     if ('sfc', 'viewvt_smooth') in CACHE:
         u = CACHE['sfc','viewvt_smooth']
         v = CACHE['sfc','vinwvt_smooth']
 
     else:
-        u = get_single(fc_str, 'sfc', 'viewvt')
-        v = get_single(fc_str, 'sfc', 'vinwvt')
+        u = get_single(fc_str, fc_str_prev, 'sfc', 'viewvt')
+        v = get_single(fc_str, fc_str_prev, 'sfc', 'vinwvt')
 
         # Interpolation to T84 resolution
         u, conv = dynlib.utils.fill_nan(u)
@@ -283,14 +283,14 @@ def get_iwvt_axis(fc_str, level, var):
 
 __, tcwv_clim = metopen('settings/ea.ans.1979-2020.sfc.tcwv.zonaltimeavg', 'tcwv', no_static=True)
 tcwv_clim = np.maximum(tcwv_clim, 8)
-def get_iwvta_axis(fc_str, level, var):
+def get_iwvta_axis(fc_str, fc_str_prev, level, var):
     if ('sfc', 'viewvt_smooth') in CACHE:
         u = CACHE['sfc','viewvt_smooth'].copy()
         v = CACHE['sfc','vinwvt_smooth'].copy()
 
     else:
-        u = get_single(fc_str, 'sfc', 'viewvt')
-        v = get_single(fc_str, 'sfc', 'vinwvt')
+        u = get_single(fc_str, fc_str_prev, 'sfc', 'viewvt')
+        v = get_single(fc_str, fc_str_prev, 'sfc', 'vinwvt')
 
         # Interpolation to T84 resolution
         u, conv = dynlib.utils.fill_nan(u)
@@ -319,14 +319,14 @@ def get_iwvta_axis(fc_str, level, var):
 
 __, tcwv_climi = metopen('settings/ea.ans.1979-2020.sfc.tcwv.timeavg', 'tcwv', no_static=True)
 tcwv_climi = np.maximum(tcwv_climi, 8)
-def get_iwvtai_axis(fc_str, level, var):
+def get_iwvtai_axis(fc_str, fc_str_prev, level, var):
     if ('sfc', 'viewvt_smooth') in CACHE:
         u = CACHE['sfc','viewvt_smooth'].copy()
         v = CACHE['sfc','vinwvt_smooth'].copy()
 
     else:
-        u = get_single(fc_str, 'sfc', 'viewvt')
-        v = get_single(fc_str, 'sfc', 'vinwvt')
+        u = get_single(fc_str, fc_str_prev, 'sfc', 'viewvt')
+        v = get_single(fc_str, fc_str_prev, 'sfc', 'vinwvt')
 
         # Interpolation to T84 resolution
         u, conv = dynlib.utils.fill_nan(u)
@@ -358,14 +358,14 @@ f = metopen('settings/ea.ans.1979-2020.seasons_composites', no_static=True)
 tcwv_climis = dynlib.utils.scale(f.groups['sfc'].variables['tcwv'])
 tcwv_climis = np.maximum(tcwv_climis, 8)
 seas_idxs = {'12': 0, '01': 0, '02': 0, '03': 1, '04': 1, '05': 1, '06': 2, '07': 2, '08': 2, '09': 3, '10': 3, '11': 3,  }
-def get_iwvtais_axis(fc_str, level, var):
+def get_iwvtais_axis(fc_str, fc_str_prev, level, var):
     if ('sfc', 'viewvt_smooth') in CACHE:
         u = CACHE['sfc','viewvt_smooth'].copy()
         v = CACHE['sfc','vinwvt_smooth'].copy()
 
     else:
-        u = get_single(fc_str, 'sfc', 'viewvt')
-        v = get_single(fc_str, 'sfc', 'vinwvt')
+        u = get_single(fc_str, fc_str_prev, 'sfc', 'viewvt')
+        v = get_single(fc_str, fc_str_prev, 'sfc', 'vinwvt')
 
         # Interpolation to T84 resolution
         u, conv = dynlib.utils.fill_nan(u)
@@ -398,7 +398,7 @@ def get_iwvtais_axis(fc_str, level, var):
 PERC_PATH = '/home/ubuntu/data'
 PERC_PERIOD = '1979-2020'
 conf.datapath.insert(1, PERC_PATH)
-def get_t_ano(fc_str, level, var):
+def get_t_ano(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     t = get_single(fc_str, fc_str_prev, plev, 't')
 
@@ -416,7 +416,7 @@ def get_t_ano(fc_str, level, var):
     return t - perc_data[np.newaxis,mon,idx]
 
 
-def get_t_perc(fc_str, level, var):
+def get_t_perc(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     t = get_single(fc_str, fc_str_prev, plev, 't')
 
@@ -445,16 +445,16 @@ def get_t_perc(fc_str, level, var):
     return t_perc
 
 
-def get_frovo(fc_str, level, var):
+def get_frovo(fc_str, fc_str_prev, level, var):
     LEVELS = ['700 hPa', '850 hPa', '925 hPa', ]
     
-    eqpt_ = get_eqpt(fc_str, LEVELS[0], var)
+    eqpt_ = get_eqpt(fc_str, fc_str_prev, LEVELS[0], var)
     s = eqpt_.shape
     s = s[:1] + (len(LEVELS), ) + s[1:]
     eqpt = np.empty(s)
     eqpt[:,0,:,:] = eqpt_
     for pidx, level in zip(range(1,len(LEVELS)), LEVELS[1:]):
-        eqpt[:,pidx,:,:] = get_eqpt(fc_str, level, var)
+        eqpt[:,pidx,:,:] = get_eqpt(fc_str, fc_str_prev, level, var)
 
     dynfor.config.nsmooth = 10
     dynfor.config.tfp_mingrad_largescale = 3.75e-5
@@ -468,11 +468,11 @@ def get_frovo(fc_str, level, var):
     return frovo
 
 
-def get_frontogenesis(fc_str, level, var):
+def get_frontogenesis(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     u = get_single(fc_str, fc_str_prev, plev, 'u')[:,np.newaxis,:,:]
     v = get_single(fc_str, fc_str_prev, plev, 'v')[:,np.newaxis,:,:]
-    eqpt = get_eqpt(fc_str, level, var)
+    eqpt = get_eqpt(fc_str, fc_str_prev, level, var)
     eqpt = dynlib.utils.smooth_xy(eqpt, 3)[:,np.newaxis,:,:]
 
     w = np.zeros(u.shape)
@@ -484,7 +484,7 @@ def get_frontogenesis(fc_str, level, var):
     return (frdef + frdiv).squeeze() * 1.0e5 # Convert to K/(100 km)/s
 
 
-def get_T84_ff(fc_str, level, var):
+def get_T84_ff(fc_str, fc_str_prev, level, var):
     if (level, 'u_smooth') in CACHE:
         return np.sqrt(CACHE[level,'u_smooth']**2 + CACHE[level,'v_smooth']**2)
 
@@ -523,14 +523,14 @@ def _idx2latlon(jetaxis):
 
     return lat, lon
 
-def get_jetaxis(fc_str, level, var):
+def get_jetaxis(fc_str, fc_str_prev, level, var):
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 2.0e6
     dynfor.config.jetint_thres = 0.55e-8
     dynfor.config.searchrad = 1.5
     
     if not (level,'u_smooth') in CACHE:
-        get_T84_ff(fc_str, level, var)
+        get_T84_ff(fc_str, fc_str_prev, level, var)
     
     # Jet axis detections
     ja, jaoff = dynlib.detect.jetaxis(10000, 10000, CACHE[level,'u_smooth'], CACHE[level,'v_smooth'], static.dx, static.dy)
@@ -546,7 +546,7 @@ def get_jetaxis(fc_str, level, var):
     return ja, jaoff
 
 
-def get_irot_wind(fc_str, level, var):
+def get_irot_wind(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     u = get_single(fc_str, fc_str_prev, plev, 'u')
     v = get_single(fc_str, fc_str_prev, plev, 'v')
@@ -561,9 +561,9 @@ def get_irot_wind(fc_str, level, var):
     return uir, vir
 
 
-def get_cycfreq(fc_str, level, var):
-    mslens = get_single_ens(fc_str, 'sfc', 'msl')
-    mslctrl = get_single_ensctrl(fc_str, 'sfc', 'msl')
+def get_cycfreq(fc_str, fc_str_prev, level, var):
+    mslens = get_single_ens(fc_str, fc_str_prev, 'sfc', 'msl')
+    mslctrl = get_single_ensctrl(fc_str, fc_str_prev, 'sfc', 'msl')
 
     dynfor.config.cyc_minsize = 0.5e6       # in km^2
     dynfor.config.cyc_maxsize = 4.5e6       # in km^2
@@ -585,7 +585,7 @@ def get_cycfreq(fc_str, level, var):
     return cycfreq
 
 
-def get_jetfreq(fc_str, level, var):
+def get_jetfreq(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     uens = get_single_ens(fc_str, fc_str_prev, plev, 'u')
     uctrl = get_single_ensctrl(fc_str, fc_str_prev, plev, 'u')
@@ -622,16 +622,16 @@ def get_jetfreq(fc_str, level, var):
 
 
 def get_ensctrl_factory(level, var):
-    def get_ensctrl(fc_str, level_, var_):
-        return get_single_ensctrl(fc_str, level, var)
+    def get_ensctrl(fc_str, fc_str_prev, level_, var_):
+        return get_single_ensctrl(fc_str, fc_str_prev, level, var)
 
     return get_ensctrl
 
 
 def get_ensmean_factory(level, var):
-    def get_ensmean(fc_str, level_, var_):
-        ens = get_single_ens(fc_str, level, var)
-        ctrl = get_single_ensctrl(fc_str, level, var)
+    def get_ensmean(fc_str, fc_str_prev, level_, var_):
+        ens = get_single_ens(fc_str, fc_str_prev, level, var)
+        ctrl = get_single_ensctrl(fc_str, fc_str_prev, level, var)
 
         return (ens.sum(axis=1) + ctrl)/(ens.shape[1]+1)
 
