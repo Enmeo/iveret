@@ -638,6 +638,17 @@ def get_ensmean_factory(level, var):
     return get_ensmean
 
 
+def get_eddy_uv(fc_str, fc_str_prev, level, var):
+    plev = level2plev(level)
+    u = get_single(fc_str, fc_str_prev, plev, 'u')
+    v = get_single(fc_str, fc_str_prev, plev, 'v')
+
+    u -= u.mean(axis=0)
+    v -= v.mean(axis=0)
+
+    return u*v
+
+
 get_special = {
     'Equivalent potential temperature': get_eqpt,
     'Wind speed': get_ff,
@@ -669,6 +680,7 @@ get_special = {
     'Ensemble mean sea level pressure': get_ensmean_factory(level='sfc', var='msl'),
     'Ensemble ctrl sea level pressure': get_ensctrl_factory(level='sfc', var='msl'),
     'Change in sea-level pressure since previous forecast': get_single_error_factory(plev='sfc', q='msl'),
+    "Eddy u'v'": get_eddy_uv,
 }
 
 
@@ -687,7 +699,7 @@ if __name__ == '__main__':
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
     PLOT_SETS = {
-        'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 't850_perc', ],
+        'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'eddy_uv', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
