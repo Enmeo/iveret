@@ -80,7 +80,7 @@ def get_single_error_factory(plev, q):
                 dat[mask[plev]] = np.nan
         except Exception as e:
             print(type(e), e)
-            dat = None
+            return None
 
         for tidx, date in enumerate(static.t_parsed):
             tidx_prev = np.argwhere(static_prev.t_parsed == date)
@@ -745,6 +745,8 @@ if __name__ == '__main__':
         for q in data:
             if type(data[q]) == np.ndarray:
                 data_inst[q] = data[q][tidx]
+            elif type(data[q]) == type(None):
+                data_inst[q] = np.empty(data['sfc','msl'].shape[1:]) * np.nan
             else:
                 data_inst[q] = tuple(dat_[tidx] for dat_ in data[q])
         
