@@ -14,6 +14,8 @@ retain_plots = [
     ('ec','npolar','t850_msl'),
     ('ec','npolar','tcwv'),
     ('ec','npolar','ptpv2_jets'),
+    ('ec_ext','npolar','mtafreqa'),
+    ('ec_ext','spolar','mtafreqa'),
 ]
 
 plotdir = '/share/web/plots'

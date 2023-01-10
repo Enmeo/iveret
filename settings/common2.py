@@ -47,6 +47,7 @@ pconf[None,'High cloud cover','cmap'] = cm.gray
 
 pconf[None,'Cyclone occurrence','cmap'] = cm.Blues
 pconf[None,'Jet occurrence within 300 km','cmap'] = cm.Blues
+pconf[None,'Anomalous MTA occurrence within 300 km','cmap'] = cm.PiGn2
 
 pconf [None,'Geopotential','hook'] = lambda z: z/98.1 # from m/s^2 to gpdm
 pconfl[None,'Geopotential','hook'] = lambda z: z/98.1

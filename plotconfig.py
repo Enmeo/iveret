@@ -144,6 +144,7 @@ variables = {
     'sst': variable('Sea-surface temperature', '°C', ''),
     'cycfreq': variable('Cyclone occurrence', '%', ''),
     'jetfreq': variable('Jet occurrence within 300 km', '%', 'PV 2'),
+    'mtafreqa': variable('Anomalous MTA occurrence within 300 km', '%', ''),
     'frovo850': variable('Frontal volumes', '', '850 hPa'),
     'fronts850': variable('Front lines', '', '850 hPa'),
     'frontogenesis850': variable('Frontogenesis', 'K/(100 km)/s', '850 hPa'),
@@ -226,6 +227,10 @@ pv_scale = np.arange(1.0,9.1,1.0)
 
 msl_error_scale = [-20,-16,-12,-8,-6,-4,-3,-2,-1,-0.5,-0.25, 0.25, 0.5, 1, 2, 3, 4, 6, 8, 12, 16, 20]
 
+freqa_scale = np.arange(-0.75,0.8,0.1)
+freqa_ticks = np.arange(-0.75,0.8,0.25)
+freqa_ticklabels = range(-75,80,25)
+
 freq_scale = np.arange(0,1.01,0.05)
 freq_ticks = np.arange(0,1.01,0.2)
 freq_ticklabels = range(0,101,20)
@@ -283,6 +288,8 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('black', mslc, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.4),
             o('orange', mslm, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.7, colors='tab:orange'),
         ], name='Ensemble jet detections'),
+    'mtafreqa': plot(mtafreqa, scale=freqa_scale, ticks=freqa_ticks, ticklabels=freqa_ticklabels, overlays=[
+        ], name='Ensemble MTA detection anomalies'),
     'ptpv2_jets': plot(ptpv2, scale=np.arange(270,396,5), ticks=[270,285,300,315,330,350,370,395], overlays=[
             o('black', ffpv2, [30, 45, 60, 75, 90], linewidths=[2,]),
             o('white, red/blue', jetaxespv2, None, otype='lines', linewidths=(6,3), linecolors=('w', None), alpha=1.0,
@@ -447,6 +454,10 @@ plots = {
         'lehmkuhl': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     },
+    'ec_ext': {
+        'npolar':  _select(['mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select(['mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
+    },
     'noaa': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
             'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'ptpv2_jets', ],
@@ -471,6 +482,8 @@ pages = {
     ('ec', 'scandes'): ('ECMWF forecasts Scandinavia (restricted)', '/closed/vaerkart_ec_scandes.html'),
     ('ec', 'barents'): ('ECMWF forecasts Barents Sea (restricted)', '/closed/vaerkart_ec_barents.html'),
     ('ec', 'meteograms'): ('ECMWF forecast Meteograms (restricted)', '/closed/vaerkart_ec_meteograms.html'),
+    ('ec_ext', 'npolar'): ('ECMWF extended-range forecasts Northern Hemisphere (restricted)', '/closed/vaerkart_ec_ext_npolar.html'),
+    ('ec_ext', 'spolar'): ('ECMWF extended-range forecasts Southern Hemisphere (restricted)', '/closed/vaerkart_ec_ext_spolar.html'),
     ('no', 'vestland'): ('AROME forecasts Vestland', '/vaerkart_arome_vestland.html'),
     ('no', 'snorway'): ('AROME forecasts Southern Norway', '/vaerkart_arome.html'),
     ('no', 'scandes'): ('AROME forecasts Scandinavia', '/vaerkart_arome_scandes.html'),
@@ -490,6 +503,8 @@ plots_per_page = {
     ('ec', 'scandes'): plots['ec_local']['scandes'],
     ('ec', 'barents'): plots['ec_local']['barents'],
     ('ec', 'meteograms'): [],
+    ('ec_ext', 'npolar'): plots['ec_ext']['npolar'],
+    ('ec_ext', 'spolar'): plots['ec_ext']['spolar'],
     ('no', 'vestland'): plots['no']['vestland'],
     ('no', 'snorway'): plots['no']['snorway'],
     ('no', 'scandes'): plots['no']['scandes'],
