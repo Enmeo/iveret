@@ -160,7 +160,7 @@ variables = {
     'defang850': variable('Axes of dilatation', '', '850 hPa'),
     'iwvt': variable('Column integral water vapour transport vector', 'kg m/s', ''),
     'absiwvt': variable('Column integral water vapour transport', 'kg m/s', ''),
-    'iwvtaxes': variable('Moisture pathways', '', ''),
+    'iwvtaxes': variable('Moisture transport axes', '', ''),
     'jetaxespv2': variable('Jet axes', '', 'PV 2'),
 
     'uv300': variable("Eddy u'v'", 'm²/s²', '300 hPa', '(deviation from 10-day forecast mean)'),

@@ -255,82 +255,6 @@ def get_iwvt_axis(f, level, var):
 
     return iwvta, iwvtoff
 
-__, tcwv_clim = metopen('settings/ea.ans.1979-2020.sfc.tcwv.zonaltimeavg', 'tcwv', no_static=True)
-tcwv_clim = np.maximum(tcwv_clim, 8)
-def get_iwvta_axis(f, level, var):
-    if not 'viewvt_smooth' in CACHE:
-        cache_iwvt_components(f)
-
-    dynfor.config.nsmooth = 0
-    dynfor.config.minlen = 2.0e6
-    dynfor.config.jetint_thres = 5.0e-7 / 18**2
-    dynfor.config.searchrad = 1.5
-    dynfor.config.grid_cyclic_ew = True
-
-    u, v = CACHE['viewvt_smooth'].copy()[np.newaxis,:,:], CACHE['vinwvt_smooth'].copy()[np.newaxis,:,:]
-    u /= tcwv_clim[np.newaxis,:,np.newaxis]
-    v /= tcwv_clim[np.newaxis,:,np.newaxis]
-
-    # Integrated water vapour transport axis detections
-    iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
-    iwvta = iwvta[0,:,:]
-    iwvtoff = iwvtoff[0,:].astype('i4')
-
-    return iwvta, iwvtoff
-
-
-__, tcwv_climi = metopen('settings/ea.ans.1979-2020.sfc.tcwv.timeavg', 'tcwv', no_static=True)
-tcwv_climi = np.maximum(tcwv_climi, 8)
-def get_iwvtai_axis(f, level, var):
-    if not 'viewvt_smooth' in CACHE:
-        cache_iwvt_components(f)
-
-    dynfor.config.nsmooth = 0
-    dynfor.config.minlen = 2.0e6
-    dynfor.config.jetint_thres = 5.0e-7 / 18**2
-    dynfor.config.searchrad = 1.5
-    dynfor.config.grid_cyclic_ew = True
-
-    u, v = CACHE['viewvt_smooth'].copy()[np.newaxis,:,:], CACHE['vinwvt_smooth'].copy()[np.newaxis,:,:]
-    u /= tcwv_climi[np.newaxis,:,:]
-    v /= tcwv_climi[np.newaxis,:,:]
-
-    # Integrated water vapour transport axis detections
-    iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
-    iwvta = iwvta[0,:,:]
-    iwvtoff = iwvtoff[0,:].astype('i4')
-
-    return iwvta, iwvtoff
-
-
-f = metopen('settings/ea.ans.1979-2020.seasons_composites', no_static=True)
-tcwv_climis = dynlib.utils.scale(f.groups['sfc'].variables['tcwv'])
-tcwv_climis = np.maximum(tcwv_climis, 8)
-seas_idxs = {12: 0, 1: 0, 2: 0, 3: 1, 4: 1, 5: 1, 6: 2, 7: 2, 8: 2, 9: 3, 10: 3, 11: 3,  }
-def get_iwvtais_axis(f, level, var):
-    if not 'viewvt_smooth' in CACHE:
-        cache_iwvt_components(f)
-
-    dynfor.config.nsmooth = 0
-    dynfor.config.minlen = 2.0e6
-    dynfor.config.jetint_thres = 5.0e-7 / 18**2
-    dynfor.config.searchrad = 1.5
-    dynfor.config.grid_cyclic_ew = True
-
-    mon = static.t_parsed[0].month
-    seas_idx = seas_idxs[mon]
-
-    u, v = CACHE['viewvt_smooth'].copy()[np.newaxis,:,:], CACHE['vinwvt_smooth'].copy()[np.newaxis,:,:]
-    u /= tcwv_climis[seas_idx,np.newaxis,:,:]
-    v /= tcwv_climis[seas_idx,np.newaxis,:,:]
-
-    # Integrated water vapour transport axis detections
-    iwvta, iwvtoff = dynlib.detect.jetaxis(10000, 2000, u, v, static.dx, static.dy)
-    iwvta = iwvta[0,:,:]
-    iwvtoff = iwvtoff[0,:].astype('i4')
-
-    return iwvta, iwvtoff
-
 
 PERC_PATH = '/home/ubuntu/data'
 PERC_PERIOD = '1979-2020'
@@ -508,10 +432,7 @@ get_special = {
     'Convective available potential energy': get_cape,
     'Column integral water vapour transport vector': get_iwvt_vector,
     'Column integral water vapour transport': get_absiwvt,
-    'Moisture pathways': get_iwvt_axis,
-    'Anomalous moisture pathways': get_iwvta_axis,
-    'Anomalous moisture pathways (2)': get_iwvtai_axis,
-    'Anomalous moisture pathways (3)': get_iwvtais_axis,
+    'Moisture transport axes': get_iwvt_axis,
     'Temperature anomaly': get_t_ano,
     'Temperature percentiles': get_t_perc,
     'Frontal volumes': get_frovo,
