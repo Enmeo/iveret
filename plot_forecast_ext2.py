@@ -93,9 +93,11 @@ def get_mtafreq(fc_str, fc_str_prev, level, var):
     # Take the final 25 days as basic state 
     # TODO: Determine better basic state from ERA5
     mtafreq -= mtafreq[20:,:,:].mean(axis=0)
-    # 5-day lowpass filter
+
+    # 5-day lowpass filter with reflection boundary conditions
     filtr = dynlib.utils.lanczos_weights_lowpass(10, size=2)
-    mtafreq = dynlib.utils.filter_t(mtafreq, filtr)
+    mtafreq = np.concatenate((mtafreq[:10][::-1], mtafreq, mtafreq[-10:][::-1]), axis=0)
+    mtafreq = dynlib.utils.filter_t(mtafreq, filtr)[10:-10,:,:]
     
     return mtafreq
 
