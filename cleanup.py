@@ -14,6 +14,9 @@ retain_plots = [
     ('ec','npolar','t850_msl'),
     ('ec','npolar','tcwv'),
     ('ec','npolar','ptpv2_jets'),
+]
+
+retain_ext = [
     ('ec_ext','npolar','mtafreqa'),
     ('ec_ext','spolar','mtafreqa'),
 ]
@@ -43,6 +46,10 @@ if __name__ == '__main__':
             forstr = fname[pos_for+5:pos_for+15]
 
             fromdate = dt.strptime(fromstr, '%Y%m%d%H')
+            
+            # Keep extended forecasts
+            if (fcsrc,domain,plotname) in retain_ext and dt.now() - fromdate < td(40.0):
+                continue
 
             # Keep current forecasts
             if dt.now() - fromdate < td(10.0):
