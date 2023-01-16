@@ -524,15 +524,42 @@ def get_ensmean_factory(level, var):
     return get_ensmean
 
 
+PERC_PATH = '/home/ubuntu/data'
+PERC_PERIOD = '1979-2020'
+conf.datapath.insert(1, PERC_PATH)
+fcomp = metopen('ea.ans.%s.month_composites' % (PERC_PERIOD), no_static=True)
+
+
 def get_eddy_uv(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     u = get_single(fc_str, fc_str_prev, plev, 'u')
     v = get_single(fc_str, fc_str_prev, plev, 'v')
+    
+    # Current month (index, starting with January as 0)
+    mon = static.t_parsed[0].month - 1
 
-    u -= u.mean(axis=0)
-    v -= v.mean(axis=0)
+    u_clim = dynlib.utils.scale(fcomp.groups[plev].variables['u'])[mon,:,:]
+    v_clim = dynlib.utils.scale(fcomp.groups[plev].variables['v'])[mon,:,:]
+    u -= u_clim
+    v -= v_clim
 
     return u*v
+
+
+def get_eddy_vT(fc_str, fc_str_prev, level, var):
+    plev = level2plev(level)
+    t = get_single(fc_str, fc_str_prev, plev, 't')
+    v = get_single(fc_str, fc_str_prev, plev, 'v')
+
+    # Current month (index, starting with January as 0)
+    mon = static.t_parsed[0].month - 1
+
+    t_clim = dynlib.utils.scale(fcomp.groups[plev].variables['t'])[mon,:,:]
+    v_clim = dynlib.utils.scale(fcomp.groups[plev].variables['v'])[mon,:,:]
+    t -= t_clim
+    v -= v_clim
+
+    return v*t
 
 
 get_special = {
@@ -564,6 +591,7 @@ get_special = {
     'Ensemble ctrl sea level pressure': get_ensctrl_factory(level='sfc', var='msl'),
     'Change in sea-level pressure since previous forecast': get_single_error_factory(plev='sfc', q='msl'),
     "Eddy u'v'": get_eddy_uv,
+    "Eddy v'T'": get_eddy_vT,
 }
 
 
@@ -582,11 +610,12 @@ if __name__ == '__main__':
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
     PLOT_SETS = {
-        'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'eddy_uv', 'tcwv', 'iwvt_axis', 't850_perc', ],
+        'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'eddy_uv', 'eddy_vT', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
         'test': [],
+        'website_only': [],  # do not plot anything, only refresh website
         'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', 'sfc_fcerror', ],
     }
     

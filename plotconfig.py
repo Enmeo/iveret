@@ -164,7 +164,8 @@ variables = {
     'iwvtaxes': variable('Moisture transport axes', '', ''),
     'jetaxespv2': variable('Jet axes', '', 'PV 2'),
 
-    'uv300': variable("Eddy u'v'", 'm²/s²', '300 hPa', '(deviation from 10-day forecast mean)'),
+    'uv300': variable("Eddy u'v'", 'm²/s²', '300 hPa', 'based on ERA5 1979-2020'),
+    'vt850': variable("Eddy v'T'", 'K m/s', '850 hPa', 'based on ERA5 1979-2020'),
 }
 # Make variables available as local variables as well
 g = globals()
@@ -297,7 +298,10 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
         ], name='PV2 Pot. temperature, jets and wind speed'),
     'eddy_uv': plot(uv300, cmap=cm.PiGn2, scale=np.arange(-2300,2301,200), ticks=np.arange(-2000,2001,1000), overlays=[
             o('black', z500, np.arange(504,589,12), linewidths=[1.5]), 
-        ], name="300 hPa eddy u'v' and Z500"),
+        ], name="300 hPa eddy u'v' and 500 hPa Geopotential"),
+    'eddy_vT': plot(vt850, cmap=cm.RdBu2, scale=np.arange(-370,380,20), ticks=np.arange(-300,301,100), overlays=[
+            o('black', msl, range(900,1070,msl_ci)), 
+        ], name="850 hPa eddy v'T' and SLP"),
     'pvpt315_irot_wind': plot(pvpt315, scale=pv_scale, ticks=pv_scale, ticklabels=pv_ticklabels, overlays=[
             o('black', pvpt315, [2, ], linewidths=[1.5,]),
             o('black', irbarbspt315, None, otype='quiver'),
@@ -445,11 +449,11 @@ plots = {
     'ec': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
                 'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'sfc_fcerror',
-                'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', ],
+                'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', ],
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', ],
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
         'lehmkuhl': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
