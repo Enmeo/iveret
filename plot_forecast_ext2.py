@@ -62,7 +62,25 @@ def get(fc_str, fc_str_prev, level, var):
     return dat
 
 
+# 5-day lowpass filter with reflection boundary conditions
+def _filter_l5d(dat):
+    filtr = dynlib.utils.lanczos_weights_lowpass(10, size=2)
+    dat = np.concatenate((dat[:10][::-1], dat, dat[-10:][::-1]), axis=0)
+    dat = dynlib.utils.filter_t(dat, filtr)[10:-10,:,:]
+
+    return dat
+    
+
+PERC_PATH = '/home/ubuntu/data'
+PERC_PERIOD = '1979-2020'
+conf.datapath.insert(1, PERC_PATH)
 def get_mtafreq(fc_str, fc_str_prev, level, var):
+    mon = int(fc_str[4:6]) - 1
+    f, fgrid = metopen('ea.ans.%s.month_composites' % (PERC_PERIOD))
+    # TODO: interpolate seasonal cycle!
+    # TODO: interpolate to coarser grid
+    mtafreq_clim = dynlib.utils.scale(f.groups['sfc'].variables['wvfaxis_dist'])[mon,::3,::3]
+
     plev = level2plev(level)
     uens = get_single(fc_str, fc_str_prev, plev, 'viewvt')
     vens = get_single(fc_str, fc_str_prev, plev, 'vinwvt')
@@ -90,20 +108,57 @@ def get_mtafreq(fc_str, fc_str_prev, level, var):
         mindists = dynlib.utils.dist_from_mask_latlon(mask, green, static.x.shape[1]//2)
         mtafreq[tidx,:,:] = (mindists < 300.0e3).mean(axis=0)
     
+    # Remove climatology
+    #mtafreq -= mtafreq_clim
+
     # Take the final 25 days as basic state 
     # TODO: Determine better basic state from ERA5
     mtafreq -= mtafreq[20:,:,:].mean(axis=0)
 
-    # 5-day lowpass filter with reflection boundary conditions
-    filtr = dynlib.utils.lanczos_weights_lowpass(10, size=2)
-    mtafreq = np.concatenate((mtafreq[:10][::-1], mtafreq, mtafreq[-10:][::-1]), axis=0)
-    mtafreq = dynlib.utils.filter_t(mtafreq, filtr)[10:-10,:,:]
+    return _filter_l5d(mtafreq)
+
+
+def get_prob_cold(fc_str, fc_str_prev, level, var):
+    mon = int(fc_str[4:6]) - 1
+    plev = level2plev(level)
+    f, t_percs, fgrid = metopen(f'ea.ans.{PERC_PERIOD}.{plev}.t_percs', 't')
     
-    return mtafreq
+    # TODO: interpolate to coarser grid 
+    # Percentile index 7 -> 30-percentile
+    t_percs = t_percs[mon,7,::3,::3]
+    
+    t = get_single(fc_str, fc_str_prev, plev, 't')
+    s = t.shape
+    t = _filter_l5d(t.reshape(s[:2] + (np.prod(s[2:]), )) )
+    t = t.reshape(s)
+    prob = (t <= t_percs).mean(axis=1)
+    #prob[prob < 0.39] = np.nan
+
+    return prob
+
+def get_prob_warm(fc_str, fc_str_prev, level, var):
+    mon = int(fc_str[4:6]) - 1
+    plev = level2plev(level)
+    f, t_percs, fgrid = metopen(f'ea.ans.{PERC_PERIOD}.{plev}.t_percs', 't')
+    
+    # TODO: interpolate to coarser grid 
+    # Percentile index 11 -> 70-percentile
+    t_percs = t_percs[mon,11,::3,::3]
+    
+    t = get_single(fc_str, fc_str_prev, plev, 't')
+    s = t.shape
+    t = _filter_l5d(t.reshape(s[:2] + (np.prod(s[2:]), )) )
+    t = t.reshape(s)
+    prob = (t >= t_percs).mean(axis=1)
+    #prob[prob < 0.39] = np.nan
+
+    return prob
 
 
 get_special = {
     'Anomalous MTA occurrence within 300 km': get_mtafreq,
+    'Probability of temperatures below the 30-percentile': get_prob_cold,
+    'Probability of temperatures above the 70-percentile': get_prob_warm,
 }
 
 
@@ -122,8 +177,9 @@ if __name__ == '__main__':
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
     PLOT_SETS = {
+        'all': ['prob_t850', 'mtafreqa', ],
         'test': [],
-        'sfc': ['mtafreqa', ],
+        'website_only': [],  # do not plot anything, only refresh website
     }
     
     if len(sys.argv) > 1:

@@ -36,6 +36,9 @@ pconf[None,'Temperature anomaly','cmap'] = cm.RdYlCyBu2
 pconf[None,'Potential temperature','cmap'] = cm.RdYlCyBu2
 pconf[None,'Equivalent potential temperature','cmap'] = cm.Greys
 
+pconf [None,'Probability of temperatures below the 30-percentile','cmap'] = cm.Blues
+pconf [None,'Probability of temperatures above the 70-percentile','cmap'] = cm.Oranges
+
 pconf[None,'Specific humidity','cmap'] = cm.WYlBuKPi
 pconf[None,'Total column water vapour','cmap'] = cm.WYlBuKPi
 pconf[None,'Column integral water vapour transport','cmap'] = cm.WYlBuKPi

@@ -132,6 +132,9 @@ variables = {
     't850p': variable('Temperature percentiles', '', '850 hPa', 'based on ERA-5 1979-2020'),
     't850a': variable('Temperature anomaly', 'K', '850 hPa', 'based on ERA-5 1979-2020'),
 
+    'p_t850_cold': variable('Probability of temperatures below the 30-percentile', '%', '850 hPa', 'based on ERA-5 1979-2020'),
+    'p_t850_warm': variable('Probability of temperatures above the 70-percentile', '%', '850 hPa', 'based on ERA-5 1979-2020'),
+
     'msl': variable('Sea-level pressure', 'hPa', ''),
     'msl_error': variable('Change in sea-level pressure since previous forecast', 'hPa', ''),
     'mslc': variable('Ensemble ctrl sea level pressure', 'hPa', ''),
@@ -223,6 +226,10 @@ cc_ticks = (cc_scale[1:]+cc_scale[:-1])/2.0
 cc_ticklabels = ["0/8","1/8", "2/8", "3/8", "4/8", "5/8", "6/8", "7/8", "8/8"]
 
 t_ano_scale = [-30,-25,-21,-18,-15,-13,-11,-9,-7,-5,-3,-1,1,3,5,7,9,11,13,15,18,21,25,30] 
+
+prob_scale = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.97, 1]
+prob_ticks = [0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.97, 1]
+prob_ticklabels = [int(tick*100) for tick in prob_ticks]
 
 pv_scale = np.arange(1.0,9.1,1.0)
 
@@ -329,6 +336,9 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('grey', t850p, [1.5, 17.5], scale_label='contours at yearly recurrence', colors='0.3'),
             o('white', t850p, [0.5, 18.5], scale_label='contours where new record', colors='w'),
         ], name='850 hPa Temperature anomalies'),
+    'prob_t850': plot(p_t850_cold, scale=prob_scale, ticks=prob_ticks, ticklabels=prob_ticklabels, extend='neither', norm=mpl.colors.BoundaryNorm(prob_scale, 256), cb_tickspacing='uniform', overlays=[
+            o('orange shading', p_t850_warm, prob_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, norm=mpl.colors.BoundaryNorm(prob_scale, 256), cb_tickspacing='uniform'),
+        ], name='Probability of warm and cold conditions'),
     'q925_msl': plot(q925, scale=np.arange(1,12.1,0.5), ticks=np.arange(2,12.1,2), overlays=[
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
@@ -459,8 +469,8 @@ plots = {
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     },
     'ec_ext': {
-        'npolar':  _select(['mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
+        'npolar':  _select(['prob_t850', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select(['prob_t850', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
     },
     'noaa': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
