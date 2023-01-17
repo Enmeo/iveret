@@ -12,7 +12,7 @@ fcpath="/share/base/ecmwf_ext/$fc"
 $basepath/cleanup_ec_ext.sh
 
 # Wait for all of these files to be present before starting the plotting
-lastfiles="$fcpath/ec.ens.$fc.sfc.vinwvt.nc"
+lastfiles="$fcpath/ec.ens.$fc.850.t.nc"
 
 # Attempt for 2 hours in intervals of 5 mins
 attempts=24
@@ -41,7 +41,7 @@ if [ "$somethingmissing" = true ]; then
 fi
 
 # Do the plotting first
-python3 $basepath/plot_forecast_ext2.py sfc > $logpath/web_plot_ec_ext_sfc_out.log 2> $logpath/web_plot_ec_ext_sfc_err.log
+python3 $basepath/plot_forecast_ext2.py all > $logpath/web_plot_ec_ext_all_out.log 2> $logpath/web_plot_ec_ext_all_err.log
 
 # Mark the plotting as finished (required for rendering the correct websites)
 echo $fc > $plotstat/ecmwf_ext
