@@ -69,24 +69,37 @@ def _filter_l5d(dat):
     dat = dynlib.utils.filter_t(dat, filtr)[10:-10,:,:]
 
     return dat
+
+# Medio days of each month (for a non-leap year), start counting days at zero
+_monthly_medios = [dt(2010,1,15), dt(2010,2,14), dt(2010,3,15), dt(2010,4,15), dt(2010,5,15), dt(2010,6,15), 
+                   dt(2010,7,15), dt(2010,8,15), dt(2010,9,15), dt(2010,10,15), dt(2010,11,15), dt(2010,12,15),]
+_monthly_doys = np.array([date.timetuple().tm_yday-1 for date in _monthly_medios], dtype='i4')
+_monthly_lens = np.concatenate((_monthly_doys[1:] - _monthly_doys[:-1], np.array([31,])), axis=0)
+def _interpolate_to_valid_time(percs, dates):
+    # Disregard leap days if present (in this case, 30 and 31 December are treated identical)
+    doys = np.array([min(364,date.timetuple().tm_yday-1) for date in dates], dtype='i4')
+
+    # Might be all zeros or all ones -> in both cases we need to interpolate between mid Dec and mid Jan
+    # Thus firstidx = -1, nextidx = 0
+    firstidx = (doys[:,np.newaxis] >= _monthly_doys[np.newaxis,:]).sum(axis=1) % 12 - 1
+    nextidx = firstidx + 1
     
+    # Difference is negeative for 1 Jan through 14 Jan -> modulo to take into account periodicity
+    frac = ((doys - _monthly_doys[firstidx]) % 365 )/_monthly_lens[firstidx]
+    
+    # Linear interpolation in monthly time segments
+    ipercs = percs[firstidx,:,:] * (1-frac[:,np.newaxis,np.newaxis]) + percs[nextidx,:,:] * frac[:,np.newaxis,np.newaxis]
+    
+    return ipercs
+
 
 PERC_PATH = '/home/ubuntu/data'
 PERC_PERIOD = '1979-2020'
 conf.datapath.insert(1, PERC_PATH)
-def get_mtafreq(fc_str, fc_str_prev, level, var):
-    mon = int(fc_str[4:6]) - 1
-    f, fgrid = metopen('ea.ans.%s.month_composites' % (PERC_PERIOD))
-    # TODO: interpolate seasonal cycle!
-    # TODO: interpolate to coarser grid
-    mtafreq_clim = dynlib.utils.scale(f.groups['sfc'].variables['wvfaxis_dist'])[mon,::3,::3]
-
+def get_mtafreq(fc_str, fc_str_prev, level, var, static):
     plev = level2plev(level)
     uens = get_single(fc_str, fc_str_prev, plev, 'viewvt')
     vens = get_single(fc_str, fc_str_prev, plev, 'vinwvt')
-
-    f, static = metopen(f'{fc_str}/ec.ens.{fc_str}.sfc.viewvt')
-    f.close()
 
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 2.0e6
@@ -108,9 +121,6 @@ def get_mtafreq(fc_str, fc_str_prev, level, var):
         mindists = dynlib.utils.dist_from_mask_latlon(mask, green, static.x.shape[1]//2)
         mtafreq[tidx,:,:] = (mindists < 300.0e3).mean(axis=0)
     
-    # Remove climatology
-    #mtafreq -= mtafreq_clim
-
     # Take the final 25 days as basic state 
     # TODO: Determine better basic state from ERA5
     mtafreq -= mtafreq[20:,:,:].mean(axis=0)
@@ -118,38 +128,38 @@ def get_mtafreq(fc_str, fc_str_prev, level, var):
     return _filter_l5d(mtafreq)
 
 
-def get_prob_cold(fc_str, fc_str_prev, level, var):
+def get_prob_cold(fc_str, fc_str_prev, level, var, static):
     mon = int(fc_str[4:6]) - 1
     plev = level2plev(level)
     f, t_percs, fgrid = metopen(f'ea.ans.{PERC_PERIOD}.{plev}.t_percs', 't')
     
     # TODO: interpolate to coarser grid 
     # Percentile index 7 -> 30-percentile
-    t_percs = t_percs[mon,7,::3,::3]
+    t_percs = _interpolate_to_valid_time(t_percs[:,7,::3,::3], static.t_parsed)
     
     t = get_single(fc_str, fc_str_prev, plev, 't')
     s = t.shape
     t = _filter_l5d(t.reshape(s[:2] + (np.prod(s[2:]), )) )
     t = t.reshape(s)
-    prob = (t <= t_percs).mean(axis=1)
+    prob = (t <= t_percs[:,np.newaxis,:,:]).mean(axis=1)
     #prob[prob < 0.39] = np.nan
 
     return prob
 
-def get_prob_warm(fc_str, fc_str_prev, level, var):
+def get_prob_warm(fc_str, fc_str_prev, level, var, static):
     mon = int(fc_str[4:6]) - 1
     plev = level2plev(level)
     f, t_percs, fgrid = metopen(f'ea.ans.{PERC_PERIOD}.{plev}.t_percs', 't')
     
     # TODO: interpolate to coarser grid 
     # Percentile index 11 -> 70-percentile
-    t_percs = t_percs[mon,11,::3,::3]
+    t_percs = _interpolate_to_valid_time(t_percs[:,11,::3,::3], static.t_parsed)
     
     t = get_single(fc_str, fc_str_prev, plev, 't')
     s = t.shape
     t = _filter_l5d(t.reshape(s[:2] + (np.prod(s[2:]), )) )
     t = t.reshape(s)
-    prob = (t >= t_percs).mean(axis=1)
+    prob = (t >= t_percs[:,np.newaxis,:,:]).mean(axis=1)
     #prob[prob < 0.39] = np.nan
 
     return prob
@@ -216,7 +226,7 @@ if __name__ == '__main__':
                 continue
 
             if q in get_special:
-                data[plev,q] = get_special[q](fc_str, fc_str_prev, plev, q)
+                data[plev,q] = get_special[q](fc_str, fc_str_prev, plev, q, static)
             else:
                 data[plev,q] = get(fc_str, fc_str_prev, plev, q)
     
