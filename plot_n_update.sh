@@ -89,6 +89,7 @@ if [ "$somethingmissing" = true ]; then
 fi
 
 python3 $basepath/plot_forecast2.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log &
+python3 $basepath/extract_bimodal_for_natacha.py > $logpath/extract_for_natacha.log 2> $logpath/extract_for_natacha_err.log
 
 
 # Wait for all of these files to be present before starting the plotting
