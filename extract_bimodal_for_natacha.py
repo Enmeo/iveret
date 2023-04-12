@@ -70,7 +70,7 @@ if __name__ == '__main__':
     forecast = get_current_fc()
     
     # Override
-    forecast = dt(2023,2,23,0)
+    #forecast = dt(2023,2,23,0)
     
     print('Extract data from the %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
