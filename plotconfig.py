@@ -162,8 +162,8 @@ variables = {
     'irbarbspt330': variable('Irrot. wind barbs', 'm/s', '330 K'),
     'ffpv2': variable('Wind speed filtered to T84', 'm/s', 'PV 2'),
     'defang850': variable('Axes of dilatation', '', '850 hPa'),
-    'iwvt': variable('Column integral water vapour transport vector', 'kg m/s', ''),
-    'absiwvt': variable('Column integral water vapour transport', 'kg m/s', ''),
+    'iwvt': variable('Column integral water vapour transport vector', 'kg/s m', ''),
+    'absiwvt': variable('Column integral water vapour transport', 'kg/s m', ''),
     'iwvtaxes': variable('Moisture transport axes', '', ''),
     'jetaxespv2': variable('Jet axes', '', 'PV 2'),
 
