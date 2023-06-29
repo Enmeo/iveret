@@ -44,8 +44,8 @@ q_map = {
 }
 
 qf = {
-    'viewvt': 'viwve',
-    'vinwvt': 'viwvn',
+    'viewvt': 'unknown',
+    'vinwvt': 'unknown',
 }
 
 
