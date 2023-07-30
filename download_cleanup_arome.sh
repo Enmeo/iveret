@@ -3,9 +3,9 @@
 dest='/share/base/metno'
 cd $dest
 
-# Clean-up old forecasts: Older than 22 hours = 1320 minutes
+# Clean-up old forecasts: Older than 10 hours = 600 minutes
 if [[ `pwd` = *"share"* ]]; then 
-	find . -mmin +1320 -delete
+	find . -mmin +600 -delete
 else
 	echo "Skipping cleaning, wrong working directory!"
 fi

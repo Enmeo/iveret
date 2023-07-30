@@ -99,6 +99,7 @@ domains = {
     'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
     'vestland': domain(proj.Vestland, (6.4,6.4), (7.27273,6.4), vector_space_interval=5),
     'barents': domain(proj.Barents_Sea, (5.0,6.375), (5.68182,6.375), vector_space_interval=30, vector_space_numbers_xy=(30,40)),
+    'dmi': domain(proj.DMI_Arome, (6.4,6.4), (7.27273,6.4), vector_space_interval=30, vector_space_numbers_xy=(33,30)),
 }
 
 # Defining variables
@@ -444,6 +445,11 @@ def _select(plot_names, **kwargs):
     return {plot_name: plots[plot_name] for plot_name in plot_names}
 
 plots = {
+    'dmi': {
+        'vestland': _select(['t2m_msl','rh2m_tp',]), #'t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','clba_msl','cao_winds','shf_winds']),
+        'snorway': _select(['t2m_msl','rh2m_tp',]), #'t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','clba_msl','cao_winds','shf_winds']),
+        'dmi': _select(['t2m_msl','rh2m_tp',]), #'t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','clba_msl','cao_winds','shf_winds']),
+    },
     'no': {
         'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
         'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
@@ -503,6 +509,9 @@ pages = {
     ('no', 'scandes'): ('AROME forecasts Scandinavia', '/vaerkart_arome_scandes.html'),
     ('no', 'we60'): ('AROME forecasts Cross section 60°N', '/vaerkart_arome_we60.html'),
     ('no', 'barents'): ('AROME Arctic forecasts Barents Sea', '/vaerkart_arome_arctic.html'),
+    ('dmi', 'vestland'): ('DMI forecasts Vestland', '/vaerkart_dmi_vestland.html'),
+    ('dmi', 'snorway'): ('DMI forecasts Southern Norway', '/vaerkart_dmi_snorway.html'),
+    ('dmi', 'dmi'): ('DMI forecasts Northwestern Europe', '/vaerkart_dmi_dmi.html'),
 }
 
 plots_per_page = {
@@ -524,6 +533,9 @@ plots_per_page = {
     ('no', 'scandes'): plots['no']['scandes'],
     ('no', 'we60'): [],
     ('no', 'barents'): plots['no_arctic']['barents'],
+    ('dmi', 'vestland'): plots['dmi']['vestland'],
+    ('dmi', 'snorway'): plots['dmi']['snorway'],
+    ('dmi', 'dmi'): plots['dmi']['dmi'],
 }
 
 del o

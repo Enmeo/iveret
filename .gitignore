@@ -12,6 +12,7 @@ vaer*.html
 mpl_config
 .DS_Store
 myeasylog.log
+.dmi_api_key
 
 dynlib
 topens
