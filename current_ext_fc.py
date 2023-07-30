@@ -9,18 +9,12 @@ STATFILE = '/home/ubuntu/log/status/ecmwf_ext'
 
 def get_current_fc():
     now = dt.now()
-
-    dayhr = now.weekday(), now.hour
+    hr = now.hour
     
-    # Monday before the first extended range forecast of the week -> most recent is Thursday of previous week
-    if dayhr < (0, 20):
-        forecast = dt(now.year,now.month,now.day,0) - td(4)
-    # Before the second extended range forecast of the week -> most recent is Monday of current week
-    elif dayhr < (3, 20): 
-        forecast = dt(now.year,now.month,now.day,0) - td(dayhr[0])
-    # After second extended range forecast of the week -> most recent is previous Thurday of current week
+    if hr <  20:
+        forecast = dt(now.year,now.month,now.day,0) - td(1)
     else:
-        forecast = dt(now.year,now.month,now.day,0) - td(dayhr[0] - 3)
+        forecast = dt(now.year,now.month,now.day,0)
 
     # Override
     #forecast = dt(2023,1,2,0)

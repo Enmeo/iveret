@@ -250,12 +250,7 @@ if __name__ == '__main__':
 
     print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
     
-    if forecast.weekday() == 0:
-        fcdays = [0, 4]
-    else:
-        fcdays = [0, 3]
-
-    fclist = [forecast - td(day + 7*week) for week in range(5) for day in fcdays]
+    fclist = [forecast - td(day) for day in range(21)]
     leadlist = list(range(0,841,12))
     leadlist_link = [24*(week*7 + day) for week in range(5) for day in [0,2,4]] + [840,]
 
