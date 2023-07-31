@@ -21,12 +21,25 @@ import dynlib.utils
 from current_fc_dmi import get_current_fc_dmi as get_current_fc
 
 
+u10 = {'indicatorOfParameter': 33, 'typeOfLevel': 'heightAboveGround', 'level': 10}
+v10 = {'indicatorOfParameter': 34, 'typeOfLevel': 'heightAboveGround', 'level': 10}
 q_map = {
     '2m Temperature': {'indicatorOfParameter': 11, 'typeOfLevel': 'heightAboveGround', 'level': 2},
     '2m Relative humidity': {'indicatorOfParameter': 52, 'typeOfLevel': 'heightAboveGround', 'level': 2},
+    '10m U-wind component': u10,
+    '10m V-wind component': v10,
+    '10m Wind gusts': {'indicatorOfParameter': 228},
+    '10m Wind barbs': (u10, v10),
+    'Cloud base altitude': {'indicatorOfParameter': 186},
+    'Sensible heat flux': {'indicatorOfParameter': 122, 'stepType': 'accum'},
+    'Latent heat flux': {'indicatorOfParameter': 132, 'stepType': 'accum'},
+    'Sea-surface temperature': {'indicatorOfParameter': 11, 'typeOfLevel': 'meanSea'},
+    'Land-sea mask': {'indicatorOfParameter': 81},
     'Sea-level pressure': {'indicatorOfParameter': 1, 'typeOfLevel': 'heightAboveSea', 'level': 0},
     'Total precipitation': {'indicatorOfParameter': 61},
     'Temperature': 11,
+    'Relative humidity': 52,
+    'Wind barbs': (33, 34),
 }
 
 
@@ -59,7 +72,7 @@ def get_single(fpl, fsfc, plev, q):
     # Aggregated surface variables
     if plev == 'sfc':
         param_id = q['indicatorOfParameter']
-        if param_id in [61, ]:
+        if param_id in [61,122,132]:
             prevavail = False
             if param_id in agg_last:
                 tmp = agg_last[param_id]
@@ -96,8 +109,51 @@ def get_siconc(fpl, fsfc, level, var):
     # Not part of the available variable set.
     return np.zeros(fsfc[1].values.shape)
 
+def get_q(fpl, fsfc, level, var):
+    # Only relative humidity available on pressure levels
+    plev = level2plev(level)
+
+    rh = get_single(fpl, fsfc, plev, q_map['Relative humidity'])
+    t = get_single(fpl, fsfc, plev, q_map['Temperature'])
+    
+    e = dynlib.thermodyn.e_from_rh(rh[np.newaxis,:,:]*100, t[np.newaxis,:,:])
+    pres = np.ones(e.shape) * float(plev) * 100
+    q = dynlib.thermodyn.q_from_e(e, pres)
+
+    return q[0,:,:]
+
+def get_ff10(fpl, fsfc, level, var):
+    plev = level2plev(level)
+
+    u10 = get_single(fpl, fsfc, plev, q_map['10m U-wind component'])
+    v10 = get_single(fpl, fsfc, plev, q_map['10m V-wind component'])
+
+    return np.sqrt(u10*u10 + v10*v10)
+
+def get_caoidx(fpl, fsfc, level, var):
+    t = get_single(fpl, fsfc, '850', q_map['Temperature'])
+    msl = get_single(fpl, fsfc, 'sfc', q_map['Sea-level pressure'])
+    sst = get_single(fpl, fsfc, 'sfc', q_map['Sea-surface temperature'])
+    siconc = get_siconc(fpl, fsfc, level, var)
+    landmask = get_single(fpl, fsfc, 'sfc', q_map['Land-sea mask'])
+
+    CAOi = dynlib.detect.cold_air_outbreak_index(t[np.newaxis,:,:], msl[np.newaxis,:,:], sst[np.newaxis,:,:], siconc[np.newaxis,:,:], landmask)[0,:,:]
+    CAOi[np.isnan(CAOi)] = 0.0
+
+    return CAOi
+
+def get_shf(fpl, fsfc, level, var):
+    sshf = get_single(fpl, fsfc, 'sfc', q_map['Sensible heat flux'])
+    slhf = get_single(fpl, fsfc, 'sfc', q_map['Latent heat flux'])
+    
+    return (sshf + slhf)/-3600.0 # from J/h to W, and make according to our sign convention
+
 get_special = {
     'Sea ice concentration': get_siconc,
+    'Specific humidity': get_q,
+    '10m Wind speed': get_ff10,
+    'Cold-air outbreak index': get_caoidx,
+    'Surface total heat flux': get_shf,
 }
 
 
@@ -145,6 +201,7 @@ if __name__ == '__main__':
         static = grid_by_latlon(*fpl[1].latlons())
         static.oro = np.zeros((static.ny, static.nx))
         static.t_parsed = [date, ]
+        static.prepare_rotation()
         
         data_inst = {}
         for plot in plots:

@@ -446,9 +446,9 @@ def _select(plot_names, **kwargs):
 
 plots = {
     'dmi': {
-        'vestland': _select(['t2m_msl','rh2m_tp',]), #'t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','clba_msl','cao_winds','shf_winds']),
-        'snorway': _select(['t2m_msl','rh2m_tp',]), #'t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','clba_msl','cao_winds','shf_winds']),
-        'dmi': _select(['t2m_msl','rh2m_tp',]), #'t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','clba_msl','cao_winds','shf_winds']),
+        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'dmi': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
     },
     'no': {
         'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
@@ -554,6 +554,7 @@ STD_PLOTCONF = {
 }
 STD_PLOTCONF_PER_FCSRC = {
     'no': dict(vector_disable_interpolation=True),
+    'dmi': dict(vector_disable_interpolation=True),
 }
 
 # Doing the actual plotting
