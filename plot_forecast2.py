@@ -348,7 +348,7 @@ def get_frovo(fc_str, fc_str_prev, level, var):
     dynfor.config.minsize = 75000.0e6
 
     frovo = dynlib.detect.frontalvolume_smallscale(eqpt, static.dx, static.dy)
-    frovo = frovo[:,1,:,:]
+    frovo = frovo[:,1,:,:].astype('f8')
     frovo[frovo > 0.5] = 1.0
 
     return frovo
