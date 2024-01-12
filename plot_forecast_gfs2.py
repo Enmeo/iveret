@@ -95,6 +95,9 @@ def get_pt(f, level, var):
     if level[-3:] == 'hPa':
         p = np.ones((1,1,1)) * plev*100
         return dynlib.thermodyn.theta_from_temp(t, p)[0,:,:]
+    elif level == 'PV 2':
+        p = get_single(f, plev, 'Tropopause pressure')[np.newaxis,:,:]
+        return dynlib.thermodyn.theta_from_temp(t, p)[0,:,:]
     else:
         p = get_single(f, plev, 'Pressure')[np.newaxis,:,:]
         return dynlib.thermodyn.theta_from_temp(t, p)[0,:,:]
@@ -325,7 +328,7 @@ def get_frovo(f, level, var):
     dynfor.config.minsize = 75000.0e6
 
     frovo = dynlib.detect.frontalvolume_smallscale(eqpt, static.dx, static.dy)
-    frovo = frovo[0,1,:,:]
+    frovo = frovo[0,1,:,:].astype('f8')
     frovo[frovo > 0.5] = 1.0
 
     return frovo
