@@ -152,48 +152,38 @@ def get_cycfreq(fc_str, fc_str_prev, level, var, static):
     return _filter_l5d(cycfreq)
 
 
-def get_prob_cold(fc_str, fc_str_prev, level, var, static):
-    mon = int(fc_str[4:6]) - 1
-    plev = level2plev(level)
-    f, t_percs, fgrid = metopen(f'ea.ans.{PERC_PERIOD}.{plev}.t_percs', 't')
-    
-    # TODO: interpolate to coarser grid 
-    # Percentile index 7 -> 30-percentile
-    t_percs = _interpolate_to_valid_time(t_percs[:,7,::3,::3], static.t_parsed)
-    
-    t = get_single(fc_str, fc_str_prev, plev, 't')
-    s = t.shape
-    t = _filter_l5d(t.reshape(s[:2] + (np.prod(s[2:]), )) )
-    t = t.reshape(s)
-    prob = (t <= t_percs[:,np.newaxis,:,:]).mean(axis=1)
-    #prob[prob < 0.39] = np.nan
+def get_prob_factory(q, perc_idx):
+    def get_prob(fc_str, fc_str_prev, level, var, static):
+        mon = int(fc_str[4:6]) - 1
+        plev = level2plev(level)
+        f, t_percs, fgrid = metopen(f'ea.ans.{PERC_PERIOD}.{plev}.{q}_percs', q)
+        perc_len = t_percs.shape[1]
+        
+        # TODO: interpolate to coarser grid 
+        t_percs = _interpolate_to_valid_time(t_percs[:,perc_idx,::3,::3], static.t_parsed)
+        
+        t = get_single(fc_str, fc_str_prev, plev, q)
+        s = t.shape
+        t = _filter_l5d(t.reshape(s[:2] + (np.prod(s[2:]), )) )
+        t = t.reshape(s)
 
-    return prob
+        if perc_idx < perc_len / 2:
+            prob = (t <= t_percs[:,np.newaxis,:,:]).mean(axis=1)
+        else:
+            prob = (t >= t_percs[:,np.newaxis,:,:]).mean(axis=1)
 
-def get_prob_warm(fc_str, fc_str_prev, level, var, static):
-    mon = int(fc_str[4:6]) - 1
-    plev = level2plev(level)
-    f, t_percs, fgrid = metopen(f'ea.ans.{PERC_PERIOD}.{plev}.t_percs', 't')
-    
-    # TODO: interpolate to coarser grid 
-    # Percentile index 11 -> 70-percentile
-    t_percs = _interpolate_to_valid_time(t_percs[:,11,::3,::3], static.t_parsed)
-    
-    t = get_single(fc_str, fc_str_prev, plev, 't')
-    s = t.shape
-    t = _filter_l5d(t.reshape(s[:2] + (np.prod(s[2:]), )) )
-    t = t.reshape(s)
-    prob = (t >= t_percs[:,np.newaxis,:,:]).mean(axis=1)
-    #prob[prob < 0.39] = np.nan
+        return prob
 
-    return prob
+    return get_prob
 
 
 get_special = {
     'Anomalous MTA occurrence within 300 km': get_mtafreq,
     'Anomalous cyclone occurrence': get_cycfreq,
-    'Probability of temperatures below the 30-percentile': get_prob_cold,
-    'Probability of temperatures above the 70-percentile': get_prob_warm,
+    'Probability of 850 hPa temperatures below the 30-percentile': get_prob_factory('t', perc_idx=7),   # 30 percentile
+    'Probability of 850 hPa temperatures above the 70-percentile': get_prob_factory('t', perc_idx=11),  # 70 percentile
+    'Probability of 500 hPa geopotential below the 30-percentile': get_prob_factory('z', perc_idx=7),   # 30 percentile
+    'Probability of 500 hPa geopotential above the 70-percentile': get_prob_factory('z', perc_idx=11),  # 70 percentile
 }
 
 
@@ -212,7 +202,7 @@ if __name__ == '__main__':
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
     PLOT_SETS = {
-        'all': ['prob_t850', 'cycfreqa', 'mtafreqa', ],
+        'all': ['prob_z500', 'prob_t850', 'cycfreqa', 'mtafreqa', ],
         'test': [],
         'website_only': [],  # do not plot anything, only refresh website
     }

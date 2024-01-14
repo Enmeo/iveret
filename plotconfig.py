@@ -133,8 +133,10 @@ variables = {
     't850p': variable('Temperature percentiles', '', '850 hPa', 'based on ERA-5 1979-2020'),
     't850a': variable('Temperature anomaly', 'K', '850 hPa', 'based on ERA-5 1979-2020'),
 
-    'p_t850_cold': variable('Probability of temperatures below the 30-percentile', '%', '850 hPa', 'based on ERA-5 1979-2020'),
-    'p_t850_warm': variable('Probability of temperatures above the 70-percentile', '%', '850 hPa', 'based on ERA-5 1979-2020'),
+    'p_t850_cold': variable('Probability of 850 hPa temperatures below the 30-percentile', '%', '850 hPa', 'based on ERA-5 1979-2020'),
+    'p_t850_warm': variable('Probability of 850 hPa temperatures above the 70-percentile', '%', '850 hPa', 'based on ERA-5 1979-2020'),
+    'p_z500_low' : variable('Probability of 500 hPa geopotential below the 30-percentile', '%', '500 hPa', 'based on ERA-5 1979-2020'),
+    'p_z500_high': variable('Probability of 500 hPa geopotential above the 70-percentile', '%', '500 hPa', 'based on ERA-5 1979-2020'),
 
     'msl': variable('Sea-level pressure', 'hPa', ''),
     'msl_error': variable('Change in sea-level pressure since previous forecast', 'hPa', ''),
@@ -343,6 +345,9 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
     'prob_t850': plot(p_t850_cold, scale=prob_scale, ticks=prob_ticks, ticklabels=prob_ticklabels, extend='neither', norm=mpl.colors.BoundaryNorm(prob_scale, 256), cb_tickspacing='uniform', overlays=[
             o('orange shading', p_t850_warm, prob_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, norm=mpl.colors.BoundaryNorm(prob_scale, 256), cb_tickspacing='uniform'),
         ], name='Probability of warm and cold conditions'),
+    'prob_z500': plot(p_z500_low, scale=prob_scale, ticks=prob_ticks, ticklabels=prob_ticklabels, extend='neither', norm=mpl.colors.BoundaryNorm(prob_scale, 256), cb_tickspacing='uniform', overlays=[
+            o('red shading', p_z500_high, prob_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, norm=mpl.colors.BoundaryNorm(prob_scale, 256), cb_tickspacing='uniform'),
+        ], name='Probability of high and low-pressure conditions'),
     'q925_msl': plot(q925, scale=np.arange(1,12.1,0.5), ticks=np.arange(2,12.1,2), overlays=[
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
@@ -478,8 +483,8 @@ plots = {
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     },
     'ec_ext': {
-        'npolar':  _select(['prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
+        'npolar':  _select(['prob_z500', 'prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select(['prob_z500', 'prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
     },
     'noaa': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 

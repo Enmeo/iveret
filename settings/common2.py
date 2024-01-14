@@ -36,8 +36,11 @@ pconf[None,'Temperature anomaly','cmap'] = cm.RdYlCyBu2
 pconf[None,'Potential temperature','cmap'] = cm.RdYlCyBu2
 pconf[None,'Equivalent potential temperature','cmap'] = cm.Greys
 
-pconf [None,'Probability of temperatures below the 30-percentile','cmap'] = cm.Blues
-pconf [None,'Probability of temperatures above the 70-percentile','cmap'] = cm.Oranges
+pconf [None,'Probability of 850 hPa temperatures below the 30-percentile','cmap'] = cm.Blues
+pconf [None,'Probability of 850 hPa temperatures above the 70-percentile','cmap'] = cm.Oranges
+
+pconf [None,'Probability of 500 hPa geopotential below the 30-percentile','cmap'] = cm.Greys
+pconf [None,'Probability of 500 hPa geopotential above the 70-percentile','cmap'] = cm.Reds
 
 pconf[None,'Specific humidity','cmap'] = cm.WYlBuKPi
 pconf[None,'Total column water vapour','cmap'] = cm.WYlBuKPi
