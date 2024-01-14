@@ -146,8 +146,9 @@ variables = {
     'tp': variable('Total precipitation', 'mm/h', ''),
     'sic': variable('Sea ice concentration', '', ''),
     'sst': variable('Sea-surface temperature', '°C', ''),
-    'cycfreq': variable('Cyclone occurrence', '%', ''),
     'jetfreq': variable('Jet occurrence within 300 km', '%', 'PV 2'),
+    'cycfreq': variable('Cyclone occurrence', '%', ''),
+    'cycfreqa': variable('Anomalous cyclone occurrence', '%', ''),
     'mtafreqa': variable('Anomalous MTA occurrence within 300 km', '%', ''),
     'frovo850': variable('Frontal volumes', '', '850 hPa'),
     'fronts850': variable('Front lines', '', '850 hPa'),
@@ -297,6 +298,8 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('black', mslc, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.4),
             o('orange', mslm, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.7, colors='tab:orange'),
         ], name='Ensemble jet detections'),
+    'cycfreqa': plot(cycfreqa, scale=freqa_scale, ticks=freqa_ticks, ticklabels=freqa_ticklabels, overlays=[
+        ], name='Ensemble Cyclone detection anomalies'),
     'mtafreqa': plot(mtafreqa, scale=freqa_scale, ticks=freqa_ticks, ticklabels=freqa_ticklabels, overlays=[
         ], name='Ensemble MTA detection anomalies'),
     'ptpv2_jets': plot(ptpv2, scale=np.arange(270,396,5), ticks=[270,285,300,315,330,350,370,395], overlays=[
@@ -475,8 +478,8 @@ plots = {
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     },
     'ec_ext': {
-        'npolar':  _select(['prob_t850', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['prob_t850', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
+        'npolar':  _select(['prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select(['prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
     },
     'noaa': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 

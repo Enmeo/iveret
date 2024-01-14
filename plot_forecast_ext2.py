@@ -128,6 +128,30 @@ def get_mtafreq(fc_str, fc_str_prev, level, var, static):
     return _filter_l5d(mtafreq)
 
 
+def get_cycfreq(fc_str, fc_str_prev, level, var, static):
+    mslens = get_single(fc_str, fc_str_prev, 'sfc', 'msl')
+
+    dynfor.config.cyc_minsize = 0.5e6       # in km^2
+    dynfor.config.cyc_maxsize = 4.5e6       # in km^2
+    dynfor.config.cyc_maxoro = 1500         # in m
+    dynfor.config.cyc_mindist = 750         # in km
+    dynfor.config.cyc_minprominence = 200   # in Pa
+    
+    s = mslens.shape
+    cycfreq = np.empty(s[0:1]+s[2:])
+    for tidx in range(s[0]):
+        print(f'{tidx}/{s[0]}')
+        cycmask, meta = dynlib.detect.cyclone_by_contour(mslens[tidx,:,:,:], static)
+        cycmask[cycmask > 0.5] = 1
+        cycfreq[tidx,:,:] = cycmask.mean(axis=0)
+    
+    # Take the final 25 days as basic state 
+    # TODO: Determine better basic state from ERA5
+    cycfreq -= cycfreq[20:,:,:].mean(axis=0)
+
+    return _filter_l5d(cycfreq)
+
+
 def get_prob_cold(fc_str, fc_str_prev, level, var, static):
     mon = int(fc_str[4:6]) - 1
     plev = level2plev(level)
@@ -167,6 +191,7 @@ def get_prob_warm(fc_str, fc_str_prev, level, var, static):
 
 get_special = {
     'Anomalous MTA occurrence within 300 km': get_mtafreq,
+    'Anomalous cyclone occurrence': get_cycfreq,
     'Probability of temperatures below the 30-percentile': get_prob_cold,
     'Probability of temperatures above the 70-percentile': get_prob_warm,
 }
@@ -187,7 +212,7 @@ if __name__ == '__main__':
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
     PLOT_SETS = {
-        'all': ['prob_t850', 'mtafreqa', ],
+        'all': ['prob_t850', 'cycfreqa', 'mtafreqa', ],
         'test': [],
         'website_only': [],  # do not plot anything, only refresh website
     }
