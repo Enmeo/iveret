@@ -21,7 +21,7 @@
 	var domain = '{{ domain }}';
 	var plotdir = '{{ plotdir }}';
 	var units = {}; {% for plot in plotlist %}
-	units['{{ plot.prefix }}'] = '{{ plot.shading.units }}'; {% endfor %}
+	units['{{ plot.prefix }}'] = '{{ plot.cbar_units }}'; {% endfor %}
 	{% if archive %}var archive_available = true;
 	var archive_start = moment.utc("{{ archive.start.strftime("%Y-%m-%d %H") }}");
 	var archive_vars = [{% for plot in archive.plots %}"{{ plot }}"{% if not loop.last %}, {% endif %}{% endfor %}];
@@ -79,7 +79,7 @@
         </div>
         <div class="cbar_container">
 	  <img class="cbar" id="cbar1" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
-          <div class="cbar_units" id="cbar_units1">[{{ initplot.shading.units }}]</div>
+          <div class="cbar_units" id="cbar_units1">[{{ initplot.cbar_units }}]</div>
         </div>
       </div> <!-- plot -->
     </div> <!-- panel -->
@@ -101,7 +101,7 @@
         </div>
         <div class="cbar_container">
           <img class="cbar" id="cbar2" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
-          <div class="cbar_units" id="cbar_units2">[{{ initplot.shading.units }}]</div>
+          <div class="cbar_units" id="cbar_units2">[{{ initplot.cbar_units }}]</div>
         </div>
       </div> <!-- plot -->
     </div> <!-- panel -->
@@ -123,7 +123,7 @@
         </div>
         <div class="cbar_container">
           <img class="cbar" id="cbar3" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
-          <div class="cbar_units" id="cbar_units3">[{{ initplot.shading.units }}]</div>
+          <div class="cbar_units" id="cbar_units3">[{{ initplot.cbar_units }}]</div>
         </div>
       </div> <!-- plot -->
     </div> <!-- panel -->
@@ -145,7 +145,7 @@
         </div>
         <div class="cbar_container">
           <img class="cbar" id="cbar4" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
-          <div class="cbar_units" id="cbar_units4">[{{ initplot.shading.units }}]</div>
+          <div class="cbar_units" id="cbar_units4">[{{ initplot.cbar_units }}]</div>
         </div>
       </div> <!-- plot -->
     </div> <!-- panel -->

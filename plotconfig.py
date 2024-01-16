@@ -38,6 +38,11 @@ class plot(object):
         self.shading = shading
         self.overlays = overlays
         self.plotconf = plotconf
+        self.cbar_units = self.shading.units
+
+        for overlay in overlays:
+            if overlay.otype == 'shading' and not overlay.plotconf.get('cb_disable', False):
+                self.cbar_units = overlay.var.units
         
         if name:
             self.name = name
