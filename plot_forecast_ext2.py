@@ -103,7 +103,7 @@ def get_mtafreq(fc_str, fc_str_prev, level, var, static):
 
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 2.0e6
-    dynfor.config.jetint_thres = 5.0e-7
+    dynfor.config.jetint_thres = 3.0e-7 # adjust to roughly match the ERA5 climatology at the largest lead times.
     dynfor.config.searchrad = 1.5
     dynfor.config.grid_cyclic_ew = True
     
@@ -121,9 +121,11 @@ def get_mtafreq(fc_str, fc_str_prev, level, var, static):
         mindists = dynlib.utils.dist_from_mask_latlon(mask, green, static.x.shape[1]//2)
         mtafreq[tidx,:,:] = (mindists < 300.0e3).mean(axis=0)
     
-    # Take the final 25 days as basic state 
-    # TODO: Determine better basic state from ERA5
-    mtafreq -= mtafreq[20:,:,:].mean(axis=0)
+    # Remove interpolated monthly climatology
+    f = metopen(f'ea.ans.{PERC_PERIOD}.month_composites', no_static=True)
+    mtaclim = dynlib.utils.scale(f.groups['sfc'].variables['wvfaxis_dist'])
+    mtafreq -= _interpolate_to_valid_time(mtaclim[:,::3,::3], static.t_parsed)
+    f.close()
 
     return _filter_l5d(mtafreq)
 
@@ -145,9 +147,11 @@ def get_cycfreq(fc_str, fc_str_prev, level, var, static):
         cycmask[cycmask > 0.5] = 1
         cycfreq[tidx,:,:] = cycmask.mean(axis=0)
     
-    # Take the final 25 days as basic state 
-    # TODO: Determine better basic state from ERA5
-    cycfreq -= cycfreq[20:,:,:].mean(axis=0)
+    # Remove interpolated monthly climatology
+    f = metopen(f'ea.ans.{PERC_PERIOD}.month_composites', no_static=True)
+    cycclim = dynlib.utils.scale(f.groups['sfc'].variables['cyc_freq'])
+    cycfreq -= _interpolate_to_valid_time(cycclim[:,::3,::3], static.t_parsed)
+    f.close()
 
     return _filter_l5d(cycfreq)
 
