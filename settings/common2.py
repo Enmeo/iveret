@@ -24,6 +24,8 @@ pconf[None,None,'parallels'] = np.arange(-60,61,30)
 pconfl[None,None,'linewidths'] = [1,]
 
 pconf[None,'Geopotential','cmap'] = cm.KPiRdYl1
+pconf[None,'Geopotential (AIFS)','cmap'] = cm.KPiRdYl1
+pconf[None,'Geopotential (Google GraphCast)','cmap'] = cm.KPiRdYl1
 pconf[None,'Potential vorticity','cmap'] = cm.WYlRd
 pconf[None,'Deformation','cmap'] = cm.defabs
 pconf[None,'Wind speed','cmap'] = cm.WYlGn
@@ -58,6 +60,10 @@ pconf[None,'Anomalous cyclone occurrence','cmap'] = cm.seismic_r
 
 pconf [None,'Geopotential','hook'] = lambda z: z/98.1 # from m/s^2 to gpdm
 pconfl[None,'Geopotential','hook'] = lambda z: z/98.1
+pconf [None,'Geopotential (AIFS)','hook'] = lambda z: z/98.1 # from m/s^2 to gpdm
+pconfl[None,'Geopotential (AIFS)','hook'] = lambda z: z/98.1
+pconf [None,'Geopotential (Google GraphCast)','hook'] = lambda z: z/98.1 # from m/s^2 to gpdm
+pconfl[None,'Geopotential (Google GraphCast)','hook'] = lambda z: z/98.1
 pconf [None,'Potential vorticity','hook'] = lambda pv: np.abs(pv)*1.0e6 # from SI to abs(PVU)
 pconfl[None,'Potential vorticity','hook'] = lambda pv: np.abs(pv)*1.0e6
 pconf [None,'Temperature','hook'] = lambda t: t - 273.15
@@ -72,6 +78,10 @@ pconfl[None,'Specific humidity','hook'] = lambda q: q*1.0e3
 
 pconf [None,'Sea-level pressure','hook'] = lambda msl: msl/1.0e2
 pconfl[None,'Sea-level pressure','hook'] = lambda msl: msl/1.0e2
+pconf [None,'Sea-level pressure (AIFS)','hook'] = lambda msl: msl/1.0e2
+pconfl[None,'Sea-level pressure (AIFS)','hook'] = lambda msl: msl/1.0e2
+pconf [None,'Sea-level pressure (Google GraphCast)','hook'] = lambda msl: msl/1.0e2
+pconfl[None,'Sea-level pressure (Google GraphCast)','hook'] = lambda msl: msl/1.0e2
 pconf [None,'Change in sea-level pressure since previous forecast','hook'] = lambda msl: msl/1.0e2
 pconfl[None,'Change in sea-level pressure since previous forecast','hook'] = lambda msl: msl/1.0e2
 pconf [None,'Ensemble ctrl sea level pressure','hook'] = lambda msl: msl/1.0e2

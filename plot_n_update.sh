@@ -10,6 +10,7 @@ fcpath="/share/base/ecmwf/$fc"
 
 # Clean up old forecasts
 $basepath/cleanup_ec.sh
+$basepath/cleanup_ai.sh
 
 # Wait for all of these files to be present before starting the plotting
 lastfiles="$fcpath/ec.for-hr.$fc.700.t.nc $fcpath/ec.for.$fc.pt330.pv.nc"
@@ -45,6 +46,7 @@ python3 $basepath/update_lehmkuhl_position.py > $logpath/web_update_lehmkuhl_out
 
 # Do the plotting first
 python3 $basepath/plot_forecast_eclocal2.py > $logpath/web_plot_ec_local_out.log 2> $logpath/web_plot_ec_local_err.log &
+python3 $basepath/plot_forecast2.py ai > $logpath/web_plot_ec_ai_out.log 2> $logpath/web_plot_ec_ai_err.log &
 python3 $basepath/plot_forecast2.py isentropic > $logpath/web_plot_ec_isentropic_out.log 2> $logpath/web_plot_ec_isentropic_err.log &
 python3 $basepath/plot_forecast2.py pv2 > $logpath/web_plot_ec_pv2_out.log 2> $logpath/web_plot_ec_pv2_err.log &
 python3 $basepath/plot_forecast2.py sfc > $logpath/web_plot_ec_sfc_out.log 2> $logpath/web_plot_ec_sfc_err.log &

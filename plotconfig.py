@@ -110,6 +110,8 @@ domains = {
 # Defining variables
 variables = {
     'z500': variable('Geopotential', 'gpdm', '500 hPa'),
+    'z500_aifs': variable('Geopotential (AIFS)', 'gpdm', '500 hPa'),
+    'z500_dmgc': variable('Geopotential (Google GraphCast)', 'gpdm', '500 hPa'),
     't850': variable('Temperature', '°C', '850 hPa'),
     't925': variable('Temperature', '°C', '925 hPa'),
     'q850': variable('Specific humidity', 'g/kg', '850 hPa'),
@@ -144,6 +146,8 @@ variables = {
     'p_z500_high': variable('Probability of 500 hPa geopotential above the 70-percentile', '%', '500 hPa', 'based on ERA-5 1979-2020'),
 
     'msl': variable('Sea-level pressure', 'hPa', ''),
+    'msl_aifs': variable('Sea-level pressure (AIFS)', 'hPa', ''),
+    'msl_dmgc': variable('Sea-level pressure (Google GraphCast)', 'hPa', ''),
     'msl_error': variable('Change in sea-level pressure since previous forecast', 'hPa', ''),
     'mslc': variable('Ensemble ctrl sea level pressure', 'hPa', ''),
     'mslm': variable('Ensemble mean sea level pressure', 'hPa', ''),
@@ -281,6 +285,14 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('white', z500, [552,], colors='white', linewidths=[2]), 
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
         ], name='500 hPa Geopotential and SLP'), 
+    'z500_msl_aifs': plot(z500_aifs, scale=range(476,604,4), ticks=range(480,601,20), overlays=[
+            o('white', z500_aifs, [552,], colors='white', linewidths=[2]), 
+            o('black', msl_aifs, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
+        ], name='500 hPa Geopotential and SLP (AIFS)'), 
+    'z500_msl_dmgc': plot(z500_dmgc, scale=range(476,604,4), ticks=range(480,601,20), overlays=[
+            o('white', z500_dmgc, [552,], colors='white', linewidths=[2]), 
+            o('black', msl_dmgc, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
+        ], name='500 hPa Geopotential and SLP (Google GraphCast)'), 
     'tcwv': plot(tcwv, scale=tcwv_scale, ticks=tcwv_ticks, overlays=[
             o('black arrows', iwvt, None, otype='quiver', alpha=0.7), 
             o('magenta', lsp, [1,3,10], colors='orchid', linewidths=[1.65]),
@@ -478,11 +490,12 @@ plots = {
     'ec': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
                 'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'sfc_fcerror',
-                'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', ],
+                'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 
+                'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', ],
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', ],
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
         'lehmkuhl': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),

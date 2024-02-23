@@ -53,8 +53,8 @@ qf = {
 CACHE = {}
 
 
-def get_single(fc_str, fc_str_prev, plev, q):
-    fname = f'{fc_str}/ec.for.{fc_str}.{plev}.{q}'
+def get_single(fc_str, fc_str_prev, plev, q, fc_src='ec'):
+    fname = f'{fc_str}/{fc_src}.for.{fc_str}.{plev}.{q}'
     try:
         f, dat, static = metopen(fname, qf.get(q, q))
         dat = dat.squeeze()
@@ -123,6 +123,14 @@ def get_single_ensctrl(fc_str, fc_str_prev, plev, q):
 
 
 def get(fc_str, fc_str_prev, level, var):
+    fc_src = 'ec'
+    if var[-7:] == ' (AIFS)':
+        var = var[:-7]
+        fc_src = 'aifs'
+    if var[-19:] == ' (Google GraphCast)':
+        var = var[:-19]
+        fc_src = 'dmgc'
+
     plev = level2plev(level)
     if var in q_map:
         q = q_map[var]
@@ -130,11 +138,11 @@ def get(fc_str, fc_str_prev, level, var):
         raise ValueError(f'Unknown variable `{var}`.')
     
     if type(q) == str:
-        dat = get_single(fc_str, fc_str_prev, plev, q)
+        dat = get_single(fc_str, fc_str_prev, plev, q, fc_src=fc_src)
     else:
         dat = tuple([])
         for q_single in q:
-            dat += (get_single(fc_str, fc_str_prev, plev, q_single), )
+            dat += (get_single(fc_str, fc_str_prev, plev, q_single, fc_src=fc_src), )
 
     return dat
 
@@ -614,6 +622,7 @@ if __name__ == '__main__':
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
         'ens': ['cycfreq_msl', 'jetfreq_msl', ],
+        'ai': ['z500_msl_aifs', 'z500_msl_dmgc', ],
         'test': [],
         'website_only': [],  # do not plot anything, only refresh website
         'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', 'sfc_fcerror', ],
@@ -639,11 +648,15 @@ if __name__ == '__main__':
     
     fc_str = forecast.strftime('%Y%m%d%H')
     fc_str_prev = (forecast-td(0.5)).strftime('%Y%m%d%H')
+    conf.datapath.insert(1, '/share/base/ecmwf_ai')
     conf.datapath.insert(1, '/share/base/ecmwf')
     
     # Load surface pressure to be able to mask areas under ground
     plev, q = 'sfc', 'msl'
-    fname = f'{fc_str}/ec.for.{fc_str}.{plev}.{q}'
+    if len(sys.argv) > 1 and sys.argv[1] == 'ai':
+        fname = f'{fc_str}/aifs.for.{fc_str}.{plev}.{q}'
+    else:
+        fname = f'{fc_str}/ec.for.{fc_str}.{plev}.{q}'
     data = {}
     f, data[plev,q], static = metopen(fname, q)
     mask = {}
