@@ -104,7 +104,7 @@ domains = {
     'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
     'vestland': domain(proj.Vestland, (6.4,6.4), (7.27273,6.4), vector_space_interval=5),
     'barents': domain(proj.Barents_Sea, (5.0,6.375), (5.68182,6.375), vector_space_interval=30, vector_space_numbers_xy=(30,40)),
-    'dmi': domain(proj.DMI_Arome, (6.4,6.4), (7.27273,6.4), vector_space_interval=30, vector_space_numbers_xy=(33,30)),
+    'dmi': domain(proj.DMI_Arome, (6.4,6.4), (7.27273,6.4), vector_space_interval=40, vector_space_numbers_xy=(44,40)),
 }
 
 # Defining variables

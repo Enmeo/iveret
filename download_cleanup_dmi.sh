@@ -22,7 +22,7 @@ download_single () {
 	done
 }
 
-dest='/share/base/dmi'
+dest='/share/base/dmi2'
 time=`python3 /home/ubuntu/sw/vaerkart/current_fc_dmi.py`
 
 # Clean-up old forecasts: Older than 10 hours = 600 minutes
@@ -43,14 +43,14 @@ cd $dest/$timestr
 init=`date -d $time +"%Y-%m-%dT%H%M%SZ"`
 for filetype in PL SF; do
 	if [ "$filetype" == PL ]; then
-		minsize=244000000
+		minsize=320000000
 	else
-		minsize=255000000 # 302000000 if not init
+		minsize=420000000 # 5350000000 if not init
 	fi
 
-	for hour in {0..54..3}; do 
+	for hour in {0..60..3}; do
 		valid=`date -d "$time + $hour hours" +"%Y-%m-%dT%H%M%SZ"`
-		file="HARMONIE_NEA_${filetype}_${init}_${valid}.grib"
+		file="HARMONIE_DINI_${filetype}_${init}_${valid}.grib"
 		download_single $file $minsize
 	done
 done

@@ -21,26 +21,28 @@ import dynlib.utils
 from current_fc_dmi import get_current_fc_dmi as get_current_fc
 
 
-u10 = {'indicatorOfParameter': 33, 'typeOfLevel': 'heightAboveGround', 'level': 10}
-v10 = {'indicatorOfParameter': 34, 'typeOfLevel': 'heightAboveGround', 'level': 10}
+u10 = 165
+v10 = 166
 q_map = {
-    '2m Temperature': {'indicatorOfParameter': 11, 'typeOfLevel': 'heightAboveGround', 'level': 2},
-    '2m Relative humidity': {'indicatorOfParameter': 52, 'typeOfLevel': 'heightAboveGround', 'level': 2},
+    '2m Temperature': 167,
+    '2m Relative humidity': 260242,
     '10m U-wind component': u10,
     '10m V-wind component': v10,
-    '10m Wind gusts': {'indicatorOfParameter': 228},
+    '10m Wind gusts': 260065,
     '10m Wind barbs': (u10, v10),
-    'Cloud base altitude': {'indicatorOfParameter': 186},
-    'Sensible heat flux': {'indicatorOfParameter': 122, 'stepType': 'accum'},
-    'Latent heat flux': {'indicatorOfParameter': 132, 'stepType': 'accum'},
-    'Sea-surface temperature': {'indicatorOfParameter': 11, 'typeOfLevel': 'meanSea'},
-    'Land-sea mask': {'indicatorOfParameter': 81},
-    'Sea-level pressure': {'indicatorOfParameter': 1, 'typeOfLevel': 'heightAboveSea', 'level': 0},
-    'Total precipitation': {'indicatorOfParameter': 61},
-    'Temperature': 11,
-    'Relative humidity': 52,
-    'Wind barbs': (33, 34),
+    'Cloud base altitude': 260107,
+    'Sensible heat flux': 260003,
+    'Latent heat flux': 260002,
+    'Sea-surface temperature': {'paramId': 130, 'typeOfLevel': 'heightAboveGround', 'level': 0},  # is actually a generic surface temperature
+    'Land-sea mask': 260179,
+    'Sea-level pressure': {'paramId': 54, 'typeOfLevel': 'heightAboveSea', 'level': 0},
+    'Total precipitation': 228228,
+    'Temperature': 130,
+    'Relative humidity': 157,
+    'Wind barbs': (131, 132),
 }
+
+pconf[None,'2m Relative humidity','hook'] = lambda rh: rh/100.0 # from % to 1
 
 
 def _assure_unique(msgs, plev, q):
@@ -58,12 +60,15 @@ agg_last = {}
 def get_single(fpl, fsfc, plev, q):
    # Standard surface variables
     if plev == 'sfc':
-        msgs = fsfc.select(**q)
+        if type(q) == dict:
+            msgs = fsfc.select(**q)
+        else:
+            msgs = fsfc.select(paramId=q)
 
     # Standard pressure levels
     else:
         plev = int(plev)
-        msgs = fpl.select(indicatorOfParameter=q, typeOfLevel='isobaricInhPa', level=plev)
+        msgs = fpl.select(paramId=q, typeOfLevel='isobaricInhPa', level=plev)
 
     _assure_unique(msgs, plev, q)
 
@@ -71,14 +76,13 @@ def get_single(fpl, fsfc, plev, q):
 
     # Aggregated surface variables
     if plev == 'sfc':
-        param_id = q['indicatorOfParameter']
-        if param_id in [61,122,132]:
+        if q in [228228,260002,260003]:
             prevavail = False
-            if param_id in agg_last:
-                tmp = agg_last[param_id]
+            if q in agg_last:
+                tmp = agg_last[q]
                 prevavail = True
             
-            agg_last[param_id] = dat.copy()
+            agg_last[q] = dat.copy()
             if prevavail:
                 dat -= tmp
 
@@ -116,7 +120,7 @@ def get_q(fpl, fsfc, level, var):
     rh = get_single(fpl, fsfc, plev, q_map['Relative humidity'])
     t = get_single(fpl, fsfc, plev, q_map['Temperature'])
     
-    e = dynlib.thermodyn.e_from_rh(rh[np.newaxis,:,:]*100, t[np.newaxis,:,:])
+    e = dynlib.thermodyn.e_from_rh(rh[np.newaxis,:,:], t[np.newaxis,:,:])
     pres = np.ones(e.shape) * float(plev) * 100
     q = dynlib.thermodyn.q_from_e(e, pres)
 
@@ -177,10 +181,10 @@ if __name__ == '__main__':
     print(len(plots))
     
     fc_str = forecast.strftime('%Y%m%d%H')
-    conf.datapath.insert(0, '/share/base/dmi')
+    conf.datapath.insert(0, '/share/base/dmi2')
     
-    leadlist = list(range(0,55,3))
-    leadlist_link = range(0,55,6)
+    leadlist = list(range(0,61,3))
+    leadlist_link = range(0,61,6)
 
     DATEFMT_FNAME = '%Y-%m-%dT%H%M%SZ'
     for lead in leadlist:
@@ -191,8 +195,8 @@ if __name__ == '__main__':
         
         initstr = forecast.strftime(DATEFMT_FNAME)
         validstr = date.strftime(DATEFMT_FNAME)
-        fpath_pl = conf.datapath[0] + f'/{fc_str}/HARMONIE_NEA_PL_{initstr}_{validstr}.grib'
-        fpath_sfc = conf.datapath[0] + f'/{fc_str}/HARMONIE_NEA_SF_{initstr}_{validstr}.grib'
+        fpath_pl = conf.datapath[0] + f'/{fc_str}/HARMONIE_DINI_PL_{initstr}_{validstr}.grib'
+        fpath_sfc = conf.datapath[0] + f'/{fc_str}/HARMONIE_DINI_SF_{initstr}_{validstr}.grib'
         print(fpath_pl)
 
         fpl = pygrib.open(fpath_pl)
