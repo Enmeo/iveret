@@ -20,6 +20,16 @@ download_single () {
 
 		wget "${baseurl}/${file}?api-key=${API_KEY}" -O $file
 	done
+
+	if [ "$size" -ge "$minsize" ]; then
+		mv $file $file.full
+		if [[ $file == *"_SF_"* ]]; then
+			grib_copy -w paramId=165/166/167/130/54/228228/260179/260002/260003/260107/260065/260242 $file.full $file
+		elif [[ $file == *"_PL_"* ]]; then
+			grib_copy -w paramId=130/131/132/157,level=500/700/850/925 $file.full $file
+		fi
+		rm $file.full
+	fi
 }
 
 dest='/share/base/dmi2'
