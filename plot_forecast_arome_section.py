@@ -166,6 +166,38 @@ class q_pt(pt):
 
         return True
 
+
+# Wind speed shading, potential temperature contours
+class eqpt_pt(pt):
+    requires = [('W-E_60', 'specific_humidity_ml'), ('W-E_60', 'air_temperature_ml'), ]
+    requires_diagnostic = [pt.cal_pt, ]
+    plotname = 'eqpt_pt'
+
+    def plot(self, data, static, dateinit, datevalid):
+        done = ff.plot(self, data, static, dateinit, datevalid)
+        if done:
+            return True
+
+        q = data[self.sect,'specific_humidity_ml'][np.newaxis,:,:]
+        t = data[self.sect,'air_temperature_ml'][np.newaxis,:,:]
+        p = data[self.sect,'p'][np.newaxis,:,:]
+
+        eqpt = dynlib.thermodyn.thetae_from_q(q, t, p)[0,:,:]
+        
+        self.cs = plt.contourf(data[self.sect,'x'], data[self.sect,'p'], eqpt,
+                np.arange(270,351,2.5), extend='both', cmap=cm.RdYlCyBu2)
+        self.cs_labels = (np.arange(270,351,10), np.arange(270,351,10))
+
+        plt.contour(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'air_temperature_ml'],
+                [273.16, ], colors='tab:red', linewidths=2)
+
+        plt.contour(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'pt'], 
+                np.arange(250, 451, 5), colors='0.3', linewidths=0.7)
+        plt.contour(data[self.sect,'x'], data[self.sect,'p'], data[self.sect,'pt'], 
+                [270, 300, 350], colors='0.2', linewidths=2)
+
+        return True
+
 # Wind speed shading, potential temperature contours
 class eturb_pt(pt):
     requires = [('W-E_60', 'turbulent_kinetic_energy_ml'), ('W-E_60', 'air_temperature_ml'), ]
@@ -227,6 +259,7 @@ plots = [
     ff_pt(), 
     q_pt(), 
     cc_pt(),
+    eqpt_pt(),
 #    eturb_pt(),
 ]
 

@@ -58,6 +58,7 @@ class overlay(object):
 
 
 # Defining stuff
+eqpt = variable(u'Equivalent potential temperature', u'K', u'')
 q = variable(u'Specific humidity', u'g/kg', u'')
 eturb = variable(u'Turbulent kinetic energy', u'm²/s²', u'')
 cc = variable(u'Cloud cover area fraction', u'', u'')
@@ -72,6 +73,8 @@ o = overlay
 plotlist = [
     plot(u'ff_pt', v, [o('black', pt, 5), o('thick black', pt, [270, 300, 350, ]), o('vectors', quiver, None), ],
         name='Winds and pot. temperature'),
+    plot(u'eqpt_pt', eqpt, [o('red', t, [0, ]), o('black', pt, 5), o('thick black', pt, [270, 300, 350, ])],
+        name='Equivalent pot. temperature and pot. temperature'),
     plot(u'q_pt', q, [o('red', t, [0, ]), o('black', pt, 5), o('thick black', pt, [270, 300, 350, ])],
         name='Humidity and pot. temperature'),
 #    plot(u'eturb_pt', eturb, [o('black', pt, 5), o('thick black', pt, [270, 300, 350, ])],
