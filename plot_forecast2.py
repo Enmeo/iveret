@@ -170,6 +170,25 @@ def get_ff(fc_str, fc_str_prev, level, var):
 
     return np.sqrt(u**2 + v**2)
 
+def get_defabs(fc_str, fc_str_prev, level, var):
+    plev = level2plev(level)
+    u = get_single(fc_str, fc_str_prev, plev, 'u')
+    v = get_single(fc_str, fc_str_prev, plev, 'v')
+
+    return dynlib.diag.def_total(u, v, static.dx, static.dy)
+
+def get_defang(fc_str, fc_str_prev, level, var):
+    plev = level2plev(level)
+    u = get_single(fc_str, fc_str_prev, plev, 'u')
+    v = get_single(fc_str, fc_str_prev, plev, 'v')
+
+    defabs = dynlib.diag.def_total(u, v, static.dx, static.dy)
+    defang = dynlib.diag.def_angle(u, v, static.dx, static.dy)
+    defang[defabs < 1.0e-4] = np.nan
+    defabs[defabs < 1.0e-4] = np.nan
+
+    return (defabs, defang)
+
 def get_ff10(fc_str, fc_str_prev, level, var):
     u10 = get_single(fc_str, fc_str_prev, 'sfc', 'u10')
     v10 = get_single(fc_str, fc_str_prev, 'sfc', 'v10')
@@ -573,6 +592,8 @@ def get_eddy_vT(fc_str, fc_str_prev, level, var):
 get_special = {
     'Equivalent potential temperature': get_eqpt,
     'Wind speed': get_ff,
+    'Deformation': get_defabs,
+    'Axes of dilatation': get_defang,
     '10m Wind speed': get_ff10,
     '2m Relative humidity': get_rh2m,
     'Cold-air outbreak index': get_cao,

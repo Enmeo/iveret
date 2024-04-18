@@ -400,6 +400,13 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
         cb_tickspacing='uniform', cmap='RdGy_r', overlays=[
             o('black', barbs700, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
     ], name='700 hPa Vertical wind and wind barbs'),
+    'deform850_fronts': plot(def850, scale=np.arange(10,36,5)*1.0e-5, overlays=[
+            o('blue shading', frovo850, [0.5, 2], otype='shading', cmap=None, colors=['cornflowerblue',], extend='neither', antialiased=True, cb_disable=True, alpha=0.5),
+            o('black double-arrows', defang850, None, otype='dilatation', vector_space_numbers_xy=(54,36), quiver_length=5.0e-3), 
+            o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
+            o('magenta', lsp, [1,3,10], colors='orchid', linewidths=[1.65]),
+            o('cyan', cp, [1,3,10], colors='c', linewidths=[1.65]),
+    ], name='850 hPa Deformation, fronts and precipitation'),
     #'ff10_caos': plot(ff10, scale=np.arange(5.0,32.6,2.5), overlays=[
     #        o('blue', caoidx, [2, 4, 8, 12,], linewidths=[0.9, 1.5, 1.2, 1.2, ], colors='darkblue'),
     #        o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
@@ -458,12 +465,6 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
     ], name='Sea-level pressure forecast increment'),
 }
 
-## Old ECMWF plot definitions
-#old_ecmwf_plots = [
-#    plot('deform850_fronts', def850, [o('black double-arrows', defang850, None), o('dark cyan shading', frovo850, None), 
-#        o('dark cyan contour', tp, [1,5]), o('red, blue, purple', fronts850, None), o('dark red', t850, [-5,]), ],
-#        name='850 hPa Deformation, fronts and precipitation'),
-#]
 
 def _select(plot_names, **kwargs):
     plots = plot_archetypes(**kwargs)
@@ -488,7 +489,7 @@ plots = {
         'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','cao_winds','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
+        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'deform850_fronts', 'tcwv', 'iwvt_axis', 
                 'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'sfc_fcerror',
                 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 
                 'z500_msl_aifs', 'z500_msl_dmgc', ],
@@ -652,6 +653,10 @@ class plotter(object):
             elif o.otype == 'quiver':
                 overlays.append(
                     fig.map_overlay_quiver(*data[plevq], static, **pconfl.merge(*plevq, **plotconf))
+                )
+            elif o.otype == 'dilatation':
+                overlays.append(
+                    fig.map_overlay_dilatation(*data[plevq], static, **pconfl.merge(*plevq, **plotconf))
                 )
             elif o.otype == 'shading':
                 overlays.append(
