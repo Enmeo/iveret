@@ -24,7 +24,7 @@ from current_fc_dmi import get_current_fc_dmi as get_current_fc
 u10 = 165
 v10 = 166
 q_map = {
-    '2m Temperature': 167,
+    '2m Temperature': {'paramId': 167, 'stepType': 'instant'},
     '2m Relative humidity': 260242,
     '10m U-wind component': u10,
     '10m V-wind component': v10,
