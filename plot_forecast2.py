@@ -441,7 +441,7 @@ def _idx2latlon(jetaxis):
 def get_jetaxis(fc_str, fc_str_prev, level, var):
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 2.0e6
-    dynfor.config.jetint_thres = 0.55e-8
+    dynfor.config.jetint_thres = 0.732e-8
     dynfor.config.searchrad = 1.5
     
     if not (level,'u_smooth') in CACHE:
@@ -512,7 +512,7 @@ def get_jetfreq(fc_str, fc_str_prev, level, var):
 
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 2.0e6
-    dynfor.config.jetint_thres = 0.55e-8
+    dynfor.config.jetint_thres = 0.732e-8
     dynfor.config.searchrad = 1.5
     
     # Precalculate distances between points on a lat/lon grid
