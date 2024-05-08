@@ -160,6 +160,7 @@ variables = {
     'jetfreq': variable('Jet occurrence within 300 km', '%', 'PV 2'),
     'cycfreq': variable('Cyclone occurrence', '%', ''),
     'cycfreqa': variable('Anomalous cyclone occurrence', '%', '', 'based on ERA5 1979-2020'),
+    'mtafreq': variable('MTA occurrence within 300 km', '%', ''),
     'mtafreqa': variable('Anomalous MTA occurrence within 300 km', '%', '', 'based on ERA5 1979-2020'),
     'frovo850': variable('Frontal volumes', '', '850 hPa'),
     'fronts850': variable('Front lines', '', '850 hPa'),
@@ -252,6 +253,7 @@ freqa_scale = np.arange(-0.75,0.8,0.1)
 freqa_ticks = np.arange(-0.75,0.8,0.25)
 freqa_ticklabels = range(-75,80,25)
 
+lfreq_scale = np.array([0.1,0.5,0.9])
 freq_scale = np.arange(0,1.01,0.05)
 freq_ticks = np.arange(0,1.01,0.2)
 freq_ticklabels = range(0,101,20)
@@ -310,13 +312,15 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('white shading', hcc, cc_scale, otype='shading', extend='neither', antialiased=True, cb_disable=True, alpha=0.4),
         ], name='Cloud cover'),
     'cycfreq_msl': plot(cycfreq, scale=freq_scale, ticks=freq_ticks, ticklabels=freq_ticklabels, overlays=[
+            o('magenta', mtafreq, lfreq_scale, linewidths=[1.8,], alpha=0.7, colors='orchid'),
+            o('green', jetfreq, lfreq_scale, linewidths=[1.8,], alpha=0.7, colors='forestgreen'),
             o('black', mslc, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.4),
             o('orange', mslm, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.7, colors='tab:orange'),
-        ], name='Ensemble cyclone detections'),
-    'jetfreq_msl': plot(jetfreq, scale=freq_scale, ticks=freq_ticks, ticklabels=freq_ticklabels, overlays=[
-            o('black', mslc, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.4),
-            o('orange', mslm, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.7, colors='tab:orange'),
-        ], name='Ensemble jet detections'),
+        ], name='Ensemble feature detections'),
+#    'jetfreq_msl': plot(jetfreq, scale=freq_scale, ticks=freq_ticks, ticklabels=freq_ticklabels, overlays=[
+#            o('black', mslc, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.4),
+#            o('orange', mslm, range(900,1070,msl_ci), linewidths=[0.5,], alpha=0.7, colors='tab:orange'),
+#        ], name='Ensemble jet detections'),
     'cycfreqa': plot(cycfreqa, scale=freqa_scale, ticks=freqa_ticks, ticklabels=freqa_ticklabels, overlays=[
         ], name='Ensemble Cyclone detection anomalies'),
     'mtafreqa': plot(mtafreqa, scale=freqa_scale, ticks=freqa_ticks, ticklabels=freqa_ticklabels, overlays=[
@@ -491,12 +495,12 @@ plots = {
     'ec': {
         'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'deform850_fronts', 'tcwv', 'iwvt_axis', 
                 'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'sfc_fcerror',
-                'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 
+                'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 
                 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
+        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'jetfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
+        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
         'lehmkuhl': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),

@@ -7,6 +7,8 @@ import matplotlib as mpl
 mpl.use('Agg')
 import scipy.interpolate as interp
 
+import pandas as pd # Temporary save of MTA detections
+
 from plotconfig import *
 from settings.common2 import *
 
@@ -533,6 +535,100 @@ def get_jetfreq(fc_str, fc_str_prev, level, var):
     
     return jetfreq
 
+# Only for temporary save of MTA 
+def expand_dates_n_lines(loff, grid):
+    dates = []
+    lineids = []
+    for tidx in range(loff.shape[0]):
+        npts = loff[tidx,:].max()
+        dates.extend([grid.t_parsed[tidx],]*npts)
+
+        prv = 0
+        for lidx in range(1,loff.shape[1]):
+            if loff[tidx,lidx] == 0:
+                break
+
+            nxt = loff[tidx,lidx]
+            lineids.extend([lidx,]*(nxt-prv))
+            prv = nxt
+
+    return dates, lineids
+
+# Only for temporary save of MTA; For 1.5 deg grid resolution
+def idx2latlon(jetaxis):
+    lon = (jetaxis[:,:,0]-1) * 1.5 - 180
+    lat = 90.0 - (jetaxis[:,:,1]-1) * 1.5
+
+    return lat, lon
+
+# only for testing
+mask = {}
+
+def get_mtafreq(fc_str, fc_str_prev, level, var):
+    plev = level2plev(level)
+    uens = get_single_ens(fc_str, fc_str_prev, plev, 'viewvt')
+    uctrl = get_single_ensctrl(fc_str, fc_str_prev, plev, 'viewvt')
+    vens = get_single_ens(fc_str, fc_str_prev, plev, 'vinwvt')
+    vctrl = get_single_ensctrl(fc_str, fc_str_prev, plev, 'vinwvt')
+
+    f, staticl = metopen(f'{fc_str}/ec.ensctrl.{fc_str}.sfc.viewvt')
+    f.close()
+
+    # only for testing
+    f, static = metopen(f'{fc_str}/ec.for.{fc_str}.sfc.msl')
+    f.close()
+
+    dynfor.config.nsmooth = 0
+    dynfor.config.minlen = 2.0e6
+    dynfor.config.jetint_thres = 5.0e-7
+    dynfor.config.searchrad = 1.5
+    
+    # Precalculate distances between points on a lat/lon grid
+    green = dynlib.utils.dist_green_latlon(static.x[0,:], static.y[:,0])
+
+    # Temporary save of MTA detections for Master project with Helwig
+    ja_ = np.empty(uens.shape[:1] + (51,10000,3))
+    jaoff_ = np.empty(uens.shape[:1] + (51,100,), dtype='i4')
+
+    mtafreq = np.empty(uens.shape[0:1] + static.x.shape)
+    for tidx in range(uens.shape[0]):
+        uin = np.concatenate((uens[tidx,:,:,:], uctrl[tidx:tidx+1,:,:]), axis=0)
+        vin = np.concatenate((vens[tidx,:,:,:], vctrl[tidx:tidx+1,:,:]), axis=0)
+
+        # MTA detections
+        ja, jaoff = dynlib.detect.jetaxis(10000, 100, uin, vin, staticl.dx, staticl.dy)
+        jaoff = jaoff.astype('i4')
+        ja_[tidx,:,:,:] = ja # Temporary save of MTA detections
+        jaoff_[tidx,:,:] = jaoff
+        ja[:,:,:2] = (ja[:,:,:2] -1)*3 +1 # Convert Fortran grid point indices from 1.5 to 0.5 deg grid
+        jamask = dynlib.utils.mask_lines(static.x.shape[1], static.x.shape[0], ja, jaoff)
+        
+        # Find everything within 300 km of a MTA and save
+        mindists = dynlib.utils.dist_from_mask_latlon(jamask, green, static.x.shape[1]//2)
+        mtafreq[tidx,:,:] = (mindists < 300.0e3).mean(axis=0)
+    
+    # Temporary save of MTA detections 
+    for n in range(ja_.shape[1]):
+        if n < 50:
+            memberstr = f'ens_{n:02d}'
+        else:
+            memberstr = 'ensctrl'
+
+        mask = (ja_[:,n,:,2] == 0)
+        lat, lon = idx2latlon(ja_[:,n,:,:],)
+        addinfo = ja_[:,n,:,2]
+        dates, lineids = expand_dates_n_lines(jaoff_[:,n,:], staticl)
+        out = pd.DataFrame({
+            'line_id': lineids,
+            'date': dates,
+            'latitude': lat[~mask],
+            'longitude': lon[~mask],
+            'viwvt': addinfo[~mask],
+        })
+        out.to_xarray().to_netcdf(f'/share/web/mtaens/ec.{memberstr}.{fc_str}.sfc.mta.nc')
+    
+    return mtafreq
+
 
 def get_ensctrl_factory(level, var):
     def get_ensctrl(fc_str, fc_str_prev, level_, var_):
@@ -616,6 +712,7 @@ get_special = {
     'Irrot. wind barbs': get_irot_wind,
     'Cyclone occurrence': get_cycfreq,
     'Jet occurrence within 300 km': get_jetfreq,
+    'MTA occurrence within 300 km': get_mtafreq,
     'Ensemble mean sea level pressure': get_ensmean_factory(level='sfc', var='msl'),
     'Ensemble ctrl sea level pressure': get_ensctrl_factory(level='sfc', var='msl'),
     'Change in sea-level pressure since previous forecast': get_single_error_factory(plev='sfc', q='msl'),
