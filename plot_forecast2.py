@@ -739,7 +739,7 @@ if __name__ == '__main__':
         'plev': ['z500_msl', 't850_msl', 'eqpt850_cape', 'eddy_uv', 'eddy_vT', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', ],
-        'ens': ['cycfreq_msl', 'jetfreq_msl', ],
+        'ens': ['cycfreq_msl', ],
         'ai': ['z500_msl_aifs', 'z500_msl_dmgc', ],
         'test': [],
         'website_only': [],  # do not plot anything, only refresh website
