@@ -375,6 +375,7 @@ def get_frovo(fc_str, fc_str_prev, level, var):
     dynfor.config.tfp_mingrad_largescale = 3.75e-5
     dynfor.config.tfp_mingrad_smallscale = 5.25e-5
     dynfor.config.minsize = 75000.0e6
+    dynfor.config.grid_cyclic_ew = True
 
     frovo = dynlib.detect.frontalvolume_smallscale(eqpt, static.dx, static.dy)
     frovo = frovo[:,1,:,:].astype('f8')
@@ -443,6 +444,7 @@ def get_jetaxis(fc_str, fc_str_prev, level, var):
     dynfor.config.minlen = 2.0e6
     dynfor.config.jetint_thres = 0.732e-8
     dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
     
     if not (level,'u_smooth') in CACHE:
         get_T84_ff(fc_str, fc_str_prev, level, var)
@@ -485,6 +487,7 @@ def get_cycfreq(fc_str, fc_str_prev, level, var):
     dynfor.config.cyc_maxoro = 1500         # in m
     dynfor.config.cyc_mindist = 750         # in km
     dynfor.config.cyc_minprominence = 200   # in Pa
+    dynfor.config.grid_cyclic_ew = True
     
     s = mslens.shape
     cycfreq = np.empty(s[0:1]+s[2:])
@@ -514,6 +517,7 @@ def get_jetfreq(fc_str, fc_str_prev, level, var):
     dynfor.config.minlen = 2.0e6
     dynfor.config.jetint_thres = 0.732e-8
     dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
     
     # Precalculate distances between points on a lat/lon grid
     green = dynlib.utils.dist_green_latlon(static.x[0,:], static.y[:,0])
@@ -561,9 +565,6 @@ def idx2latlon(jetaxis):
 
     return lat, lon
 
-# only for testing
-mask = {}
-
 def get_mtafreq(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     uens = get_single_ens(fc_str, fc_str_prev, plev, 'viewvt')
@@ -574,14 +575,11 @@ def get_mtafreq(fc_str, fc_str_prev, level, var):
     f, staticl = metopen(f'{fc_str}/ec.ensctrl.{fc_str}.sfc.viewvt')
     f.close()
 
-    # only for testing
-    f, static = metopen(f'{fc_str}/ec.for.{fc_str}.sfc.msl')
-    f.close()
-
     dynfor.config.nsmooth = 0
     dynfor.config.minlen = 2.0e6
     dynfor.config.jetint_thres = 5.0e-7
     dynfor.config.searchrad = 1.5
+    dynfor.config.grid_cyclic_ew = True
     
     # Precalculate distances between points on a lat/lon grid
     green = dynlib.utils.dist_green_latlon(static.x[0,:], static.y[:,0])
