@@ -651,8 +651,8 @@ def get_eddy_uv(fc_str, fc_str_prev, level, var):
     v = get_single(fc_str, fc_str_prev, plev, 'v')
     
     # Remove zonal average
-    u -= u.mean(axis=-2)[...,np.newaxis,:]
-    v -= v.mean(axis=-2)[...,np.newaxis,:]
+    u -= u.mean(axis=-1)[...,np.newaxis]
+    v -= v.mean(axis=-1)[...,np.newaxis]
 
     return u*v
 
@@ -663,8 +663,8 @@ def get_eddy_vT(fc_str, fc_str_prev, level, var):
     v = get_single(fc_str, fc_str_prev, plev, 'v')
     
     # Remove zonal average
-    t -= t.mean(axis=-2)[...,np.newaxis,:]
-    v -= v.mean(axis=-2)[...,np.newaxis,:]
+    t -= t.mean(axis=-1)[...,np.newaxis]
+    v -= v.mean(axis=-1)[...,np.newaxis]
 
     return v*t
 
