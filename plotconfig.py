@@ -332,7 +332,9 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
         ], name='PV2 Pot. temperature, jets and wind speed'),
     'eddy_uv': plot(uv300, cmap=cm.PiGn2, scale=np.arange(-2300,2301,200), ticks=np.arange(-2000,2001,1000), overlays=[
             o('black', z500, np.arange(504,589,12), linewidths=[1.5]), 
-        ], name="300 hPa eddy u'v' and 500 hPa Geopotential"),
+            o('white, red/blue', jetaxespv2, None, otype='lines', linewidths=(6,3), linecolors=('w', None), alpha=1.0,
+                scale=(330, 340), cmap='bwr'),
+        ], name="300 hPa eddy u'v', 500 hPa geopotential and jets"),
     'eddy_vT': plot(vt850, cmap=cm.RdBu2, scale=np.arange(-370,380,20), ticks=np.arange(-300,301,100), overlays=[
             o('black', msl, range(900,1070,msl_ci)), 
         ], name="850 hPa eddy v'T' and SLP"),
