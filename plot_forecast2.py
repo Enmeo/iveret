@@ -647,24 +647,14 @@ def get_ensmean_factory(level, var):
     return get_ensmean
 
 
-PERC_PATH = '/home/ubuntu/data'
-PERC_PERIOD = '1979-2020'
-conf.datapath.insert(1, PERC_PATH)
-fcomp = metopen('ea.ans.%s.month_composites' % (PERC_PERIOD), no_static=True)
-
-
 def get_eddy_uv(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     u = get_single(fc_str, fc_str_prev, plev, 'u')
     v = get_single(fc_str, fc_str_prev, plev, 'v')
     
-    # Current month (index, starting with January as 0)
-    mon = static.t_parsed[0].month - 1
-
-    u_clim = dynlib.utils.scale(fcomp.groups[plev].variables['u'])[mon,:,:]
-    v_clim = dynlib.utils.scale(fcomp.groups[plev].variables['v'])[mon,:,:]
-    u -= u_clim
-    v -= v_clim
+    # Remove zonal average
+    u -= u.mean(axis=-2)[...,np.newaxis,:]
+    v -= v.mean(axis=-2)[...,np.newaxis,:]
 
     return u*v
 
@@ -673,14 +663,10 @@ def get_eddy_vT(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     t = get_single(fc_str, fc_str_prev, plev, 't')
     v = get_single(fc_str, fc_str_prev, plev, 'v')
-
-    # Current month (index, starting with January as 0)
-    mon = static.t_parsed[0].month - 1
-
-    t_clim = dynlib.utils.scale(fcomp.groups[plev].variables['t'])[mon,:,:]
-    v_clim = dynlib.utils.scale(fcomp.groups[plev].variables['v'])[mon,:,:]
-    t -= t_clim
-    v -= v_clim
+    
+    # Remove zonal average
+    t -= t.mean(axis=-2)[...,np.newaxis,:]
+    v -= v.mean(axis=-2)[...,np.newaxis,:]
 
     return v*t
 

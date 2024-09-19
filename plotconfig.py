@@ -181,8 +181,8 @@ variables = {
     'iwvtaxes': variable('Moisture transport axes', '', ''),
     'jetaxespv2': variable('Jet axes', '', 'PV 2'),
 
-    'uv300': variable("Eddy u'v'", 'm²/s²', '300 hPa', 'based on ERA5 1979-2020'),
-    'vt850': variable("Eddy v'T'", 'K m/s', '850 hPa', 'based on ERA5 1979-2020'),
+    'uv300': variable("Eddy u'v'", 'm²/s²', '300 hPa', 'based on deviations from zonal mean'),
+    'vt850': variable("Eddy v'T'", 'K m/s', '850 hPa', 'based on deviations from zonal mean'),
 }
 # Make variables available as local variables as well
 g = globals()
