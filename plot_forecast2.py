@@ -522,6 +522,10 @@ def get_jetfreq(fc_str, fc_str_prev, level, var):
     # Precalculate distances between points on a lat/lon grid
     green = dynlib.utils.dist_green_latlon(static.x[0,:], static.y[:,0])
 
+    # Temporary save of MTA detections for Master project with Helwig
+    ja_ = np.empty(uens.shape[:1] + (51,10000,3))
+    jaoff_ = np.empty(uens.shape[:1] + (51,100,), dtype='i4')
+
     jetfreq = np.empty(uens.shape[0:1] + static.x.shape)
     for tidx in range(uens.shape[0]):
         uin = np.concatenate((uens[tidx,:,:,:], uctrl[tidx:tidx+1,:,:]), axis=0)
@@ -530,12 +534,34 @@ def get_jetfreq(fc_str, fc_str_prev, level, var):
         # Jet axis detections
         ja, jaoff = dynlib.detect.jetaxis(10000, 100, uin, vin, staticl.dx, staticl.dy)
         jaoff = jaoff.astype('i4')
+        ja_[tidx,:,:,:] = ja # Temporary save of MTA detections
+        jaoff_[tidx,:,:] = jaoff
         ja[:,:,:2] = (ja[:,:,:2] -1)*3 +1 # Convert Fortran grid point indices from 1.5 to 0.5 deg grid
         jamask = dynlib.utils.mask_lines(static.x.shape[1], static.x.shape[0], ja, jaoff)
         
         # Find everything within 300 km of a jet axis and save
         mindists = dynlib.utils.dist_from_mask_latlon(jamask, green, static.x.shape[1]//2)
         jetfreq[tidx,:,:] = (mindists < 300.0e3).mean(axis=0)
+    
+    # Temporary save of Jet detections
+    for n in range(ja_.shape[1]):
+        if n < 50:
+            memberstr = f'ens_{n:02d}'
+        else:
+            memberstr = 'ensctrl'
+
+        mask = (ja_[:,n,:,2] == 0)
+        lat, lon = idx2latlon(ja_[:,n,:,:],)
+        addinfo = ja_[:,n,:,2]
+        dates, lineids = expand_dates_n_lines(jaoff_[:,n,:], staticl)
+        out = pd.DataFrame({
+            'line_id': lineids,
+            'date': dates,
+            'latitude': lat[~mask],
+            'longitude': lon[~mask],
+            'viwvt': addinfo[~mask],
+        })
+        out.to_xarray().to_netcdf(f'/share/web/jetens/ec.{memberstr}.{fc_str}.pv2000.jetaxis.nc')
     
     return jetfreq
 

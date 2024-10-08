@@ -125,8 +125,9 @@ fi
 
 python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_out.log 2> $logpath/web_plot_ec_meteograms_err.log &
 
-# Temporary saving input for the MTA detection
-cp "$fcpath/ec.ens*.sfc.vi[en]wvt.nc" /share/web/mtaens
+# Temporary saving input for the MTA and jet detections
+cp -a $fcpath/ec.ens*.sfc.vi[en]wvt.nc /share/web/mtaens
+cp -a $fcpath/ec.ens*.pv2000.[uv].nc /share/web/jetens
 
 # Clean-up old plots
 echo "Cleaning up old plots."
