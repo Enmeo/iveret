@@ -53,7 +53,6 @@ python3 $basepath/plot_forecast2.py plev > $logpath/web_plot_ec_plev_out.log 2> 
 echo $fc > $plotstat/ecmwf
 
 # Then render the fitting website
-python3 $basepath/web/render_vaerkart_natl.py > $logpath/web_render_ec_natl_out.log 2> $logpath/web_render_ec_natl_err.log
 python3 $basepath/web/render_vaerkart_meteograms.py > $logpath/web_render_ec_meteograms_out.log 2> $logpath/web_render_ec_meteograms_err.log
 python3 $basepath/web/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoop_err.log
 
