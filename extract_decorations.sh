@@ -16,7 +16,7 @@ opath="."
 # Aspect 3:2; for ec_for, no_kyst_lofotenbasin
 geometry="147x720+1080+0"
 
-# Aspect 1:1; for ec_for_npolar, ec_for_spolar, ec_for_lehmkuhl and no_for, no_kyst, no_kyst_vestland, no_kyst_bergen, no_kyst_lofoten
+# Aspect 1:1; for ec_for_npolar, ec_for_spolar, and no_for, no_kyst, no_kyst_vestland, no_kyst_bergen, no_kyst_lofoten
 #geometry="130x960+960+0"
 
 # Aspect about 5:4; for no_for_arctic

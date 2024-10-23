@@ -829,7 +829,6 @@ if __name__ == '__main__':
     render_webpage('natl', 'ec', forecast, fclist, leadlist, leadlist_link)
     render_webpage('npolar', 'ec', forecast, fclist, leadlist, leadlist_link)
     render_webpage('spolar', 'ec', forecast, fclist, leadlist, leadlist_link)
-    render_webpage('lehmkuhl', 'ec', forecast, fclist, leadlist, leadlist_link)
     render_webpage('tindpac', 'ec', forecast, fclist, leadlist, leadlist_link)
 
 # the end

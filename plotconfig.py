@@ -10,8 +10,6 @@ from datetime import datetime as dt, timedelta as td
 from dynlib.shorthands import *
 from settings.common2 import pconf, pconfl, WEB_ROOT, VAERKART_ROOT
 
-from update_lehmkuhl_position import get_lehmkuhl_position
-
 #
 # Central plot configuration for (hopefully soon) all plots on iveret
 #
@@ -82,23 +80,10 @@ class overlay(object):
 datasources = ['no', 'ecmwf', 'noaa', 'no_kyst', ]
 
 # Defining domains
-
-# Parameterised plot domain following Statsraad Lehmkuhl
-def lehmkuhl_proj_factory(lat, lon):
-    # dynlib requires the map projection to be a callable returning the projection object. 
-    # With this construction the lat/lon variables are bound to the lambda statement at the 
-    # time of definition of this class and function, rather than at the time of execution 
-    # of the lambda construct (where they would otherwise no longer be available as local/
-    # global variables).
-    return lambda: proj.Basemap(projection='gnom', width=6000000, height=6000000,
-        lat_0=lat, lon_0=lon, resolution='l')
-
-llat, llon = get_lehmkuhl_position()
 domains = {
     'npolar': domain(proj.n_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
     'spolar': domain(proj.s_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
     'natl': domain(proj.N_Atlantic_forecast, (7.2,4.8), (8.18182,4.8), vector_space_numbers_xy=(45, 30), quiver_width=0.002),
-    'lehmkuhl': domain(lehmkuhl_proj_factory(llat, llon), (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002, mark=(llon, llat), mark_kwargs=dict(markersize=20, markeredgewidth=1.5)),
     'tindpac': domain(proj.Tropical_IndoPacific, (12.5,5.0), (14.2,5.0), vector_space_numbers_xy=(110, 44), quiver_width=0.001),
     'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30, vector_space_numbers_xy=(30, 40)),
     'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
@@ -504,7 +489,6 @@ plots = {
             msl_ci=5, msl_reduce=True, sst_reduce=True),
         'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
-        'lehmkuhl': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'ff10_gusts', 'tcc', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
         'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     },
     'ec_ext': {
@@ -531,7 +515,6 @@ pages = {
     ('ec', 'npolar'): ('ECMWF forecasts Northern Hemisphere (restricted)', '/closed/vaerkart_ec_npolar.html'),
     ('ec', 'spolar'): ('ECMWF forecasts Southern Hemisphere (restricted)', '/closed/vaerkart_ec_spolar.html'),
     ('ec', 'tindpac'): ('ECMWF forecasts Tropical Indopacific (restricted)', '/closed/vaerkart_ec_tindpac.html'),
-    ('ec', 'lehmkuhl'): ('ECMWF forecasts Statsraad Lehmkuhl (restricted)', '/closed/vaerkart_ec_lehmkuhl.html'),
     ('ec', 'scandes'): ('ECMWF forecasts Scandinavia (restricted)', '/closed/vaerkart_ec_scandes.html'),
     ('ec', 'barents'): ('ECMWF forecasts Barents Sea (restricted)', '/closed/vaerkart_ec_barents.html'),
     ('ec', 'meteograms'): ('ECMWF forecast Meteograms (restricted)', '/closed/vaerkart_ec_meteograms.html'),
@@ -554,7 +537,6 @@ plots_per_page = {
     ('ec', 'natl'): plots['ec']['natl'],
     ('ec', 'npolar'): plots['ec']['npolar'],
     ('ec', 'spolar'): plots['ec']['spolar'],
-    ('ec', 'lehmkuhl'): plots['ec']['lehmkuhl'],
     ('ec', 'tindpac'): plots['ec']['tindpac'],
     ('ec', 'scandes'): plots['ec_local']['scandes'],
     ('ec', 'barents'): plots['ec_local']['barents'],

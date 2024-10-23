@@ -41,9 +41,6 @@ if [ "$somethingmissing" = true ]; then
 	exit -1
 fi
 
-# Update the position of Lehmkuhl if possible
-python3 $basepath/update_lehmkuhl_position.py > $logpath/web_update_lehmkuhl_out.log 2> $logpath/web_update_lehmkuhl_err.log
-
 # Do the plotting first
 python3 $basepath/plot_forecast_eclocal2.py > $logpath/web_plot_ec_local_out.log 2> $logpath/web_plot_ec_local_err.log &
 python3 $basepath/plot_forecast2.py ai > $logpath/web_plot_ec_ai_out.log 2> $logpath/web_plot_ec_ai_err.log &
