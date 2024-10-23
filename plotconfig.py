@@ -211,8 +211,8 @@ rh_scale = [0.2, 0.4, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 0.9
 rh_ticks = [-1,] + rh_scale + [10.0,]
 
 tp_scale = [-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0]
-tp_labels = [0.0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0]
-tp_ticks = [-1, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0, 1000.0]
+tp_ticks = tp_scale
+tp_labels = [0, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.4, 2.0, 3.0, 5.0, 7.0, 10.0]
 
 clba_scale = [0,100,200,300,400,500,750,1000,1250,1500,2000,2500,3000,4000,5000,6000,7000,8000,30000]
 clba_ticks = [0, 200, 500, 1000, 1500, 3000, 5000, 8000]
@@ -410,7 +410,7 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
     ], name='10m wind speed, barbs and gusts'),
     'rh2m_tp': plot(rh2, scale=rh_scale, cmap='Greys_r', ticks=rh_ticks, norm=mpl.colors.BoundaryNorm(rh_ticks, 256), overlays=[
             o('blue shading', tp, tp_scale, otype='shading', alpha=0.5, ticks=tp_ticks, extend='max', ticklabels=tp_labels,
-                cb_tickspacing='uniform', norm=mpl.colors.BoundaryNorm(tp_ticks, 256)),
+                cb_tickspacing='uniform', norm=mpl.colors.BoundaryNorm(tp_ticks + [1000], 256)),
             o('violet', sic, [0.2, 0.8], colors='blueviolet'),
             o('dark red', t850, [-5,], colors='firebrick', linestyles='solid'),
     ], name='2m Relative humidity and precipitation'),
