@@ -53,7 +53,7 @@ python3 $basepath/plot_forecast2.py plev > $logpath/web_plot_ec_plev_out.log 2> 
 echo $fc > $plotstat/ecmwf
 
 # Then render the fitting website
-python3 $basepath/web/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoop_err.log
+python3 $basepath/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoop_err.log
 
 
 # Wait for all of these files to be present before starting the plotting
