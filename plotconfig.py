@@ -489,6 +489,19 @@ def sect_archetypes(pt_ci=5, pt_highlight=[270,300,350]):
             o('thick black', pt, pt_highlight, colors='0.2', linewidths=[2,]),
         ], name='Cloud cover and pot. temperature'),
 }
+# Define special plot archetypes (such as the bimodality meteograms)
+def special_archetypes():
+    return {
+    't2m_bgo': plot(t2, overlays=[], name='2m Temperature Bergen'), 
+    't2m_modal_bgo': plot(t2, overlays=[], name='Multimodality in 2m temperature Bergen (KMeans)'), 
+    't2m_modal_naive_bgo': plot(t2, overlays=[], name='Multimodality in 2m temperature Bergen (Naive)'),
+    'tcwv_bgo': plot(tcwv, overlays=[], name='Total column water vapour Bergen'), 
+    'tcwv_modal_bgo': plot(tcwv, overlays=[], name='Multimodality in total column water vapour Bergen (KMeans)'), 
+    'tcwv_modal_naive_bgo': plot(tcwv, overlays=[], name='Multimodality in total column water vapour Bergen (Naive)'), 
+    'msl_bgo': plot(msl, overlays=[], name='Sea-level pressure Bergen'), 
+    'msl_modal_bgo': plot(msl, overlays=[], name='Multimodality in sea-level pressure Bergen (KMeans)'), 
+    'msl_modal_naive_bgo': plot(msl, overlays=[], name='Multimodality in sea-level pressure Bergen (Naive)'), 
+}
 
 
 def _select_map(plot_names, **kwargs):
@@ -497,6 +510,10 @@ def _select_map(plot_names, **kwargs):
 
 def _select_sect(plot_names, **kwargs):
     plots = sect_archetypes(**kwargs)
+    return {plot_name: plots[plot_name] for plot_name in plot_names}
+
+def _select_special(plot_names, **kwargs):
+    plots = special_archetypes(**kwargs)
     return {plot_name: plots[plot_name] for plot_name in plot_names}
 
 plots = {
@@ -529,6 +546,7 @@ plots = {
         'spolar':  _select_map(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
         'tindpac': _select_map(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'meteograms': _select_special(['t2m_bgo', 't2m_modal_bgo', 't2m_modal_naive_bgo', 'tcwv_bgo', 'tcwv_modal_bgo', 'tcwv_modal_naive_bgo', 'msl_bgo', 'msl_modal_bgo', 'msl_modal_naive_bgo', ]),
     },
     'ec_ext': {
         'npolar':  _select_map(['prob_z500', 'prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
@@ -577,11 +595,11 @@ plots_per_page = {
     ('ec', 'npolar'): plots['ec']['npolar'],
     ('ec', 'spolar'): plots['ec']['spolar'],
     ('ec', 'tindpac'): plots['ec']['tindpac'],
-    ('ec', 'scandes'): plots['ec_local']['scandes'],
-    ('ec', 'barents'): plots['ec_local']['barents'],
-    ('ec', 'meteograms'): [],
+    ('ec', 'meteograms'): plots['ec']['meteograms'],
     ('ec_ext', 'npolar'): plots['ec_ext']['npolar'],
     ('ec_ext', 'spolar'): plots['ec_ext']['spolar'],
+    ('ec', 'scandes'): plots['ec_local']['scandes'],
+    ('ec', 'barents'): plots['ec_local']['barents'],
     ('no', 'vestland'): plots['no']['vestland'],
     ('no', 'snorway'): plots['no']['snorway'],
     ('no', 'scandes'): plots['no']['scandes'],
@@ -723,7 +741,7 @@ def level2plev(level):
 
 
 
-def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link):
+def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link, enable_cb=True):
     from jinja2 import FileSystemLoader, Environment
     env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/web'))
     
@@ -751,6 +769,7 @@ def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link):
         'date_init': date_fc,
         'plotdir': 'maps',
         'display_details': False,
+        'enable_cb': enable_cb,
     }
     if fcsrc == 'ec':
         if domain == 'natl':

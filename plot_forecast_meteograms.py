@@ -12,6 +12,8 @@ from settings.common2 import plotpath
 
 import dynlib.utils
 
+from plotconfig import render_webpage
+
 from current_fc import *
 
 from topens.PersistentGraph.persistentgraph import *
@@ -387,6 +389,14 @@ for file_ in files_ens:
 for plot in plots:
     plot.plot(data_ctrl, data_ens, forecast)
     plt.close()
-        
+
+
+print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
+
+fclist = [forecast - td(0.5)*i for i in range(15)]
+leadlist = [0, ]
+leadlist_link = [0, ]
+
+render_webpage('meteograms','ec', forecast, fclist, leadlist, leadlist_link, enable_cb=False)
 
 # the end

@@ -77,10 +77,10 @@
         <div id="map_container1" class="map">
           <img id="map1" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
-        <div class="cbar_container">
+        {% if enable_cb %}<div class="cbar_container">
 	  <img class="cbar" id="cbar1" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
           <div class="cbar_units" id="cbar_units1">[{{ initplot.cbar_units }}]</div>
-        </div>
+	</div>{% endif %}
       </div> <!-- plot -->
     </div> <!-- panel -->
     <div class="panel panel_top panel_right" id="panel_top_right" style="width=49.5%; display: none;">
@@ -99,10 +99,10 @@
         <div id="map_container2" class="map">
           <img id="map2" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
-        <div class="cbar_container">
+        {% if enable_cb %}<div class="cbar_container">
           <img class="cbar" id="cbar2" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
           <div class="cbar_units" id="cbar_units2">[{{ initplot.cbar_units }}]</div>
-        </div>
+        </div>{% endif %}
       </div> <!-- plot -->
     </div> <!-- panel -->
     <div class="panel panel_bottom panel_left" id="panel_bottom_left" style="width=100%; display: none;">
@@ -121,10 +121,10 @@
         <div id="map_container3" class="map">
           <img id="map3" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
-        <div class="cbar_container">
+        {% if enable_cb %}<div class="cbar_container">
           <img class="cbar" id="cbar3" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
           <div class="cbar_units" id="cbar_units3">[{{ initplot.cbar_units }}]</div>
-        </div>
+        </div>{% endif %}
       </div> <!-- plot -->
     </div> <!-- panel -->
     <div class="panel panel_bottom panel_right" id="panel_bottom_right" style="width=49.5%; display: none;">
@@ -143,13 +143,13 @@
         <div id="map_container4" class="map">
           <img id="map4" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
         </div>
-        <div class="cbar_container">
+	{% if enable_cb %}<div class="cbar_container">
           <img class="cbar" id="cbar4" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
           <div class="cbar_units" id="cbar_units4">[{{ initplot.cbar_units }}]</div>
-        </div>
+	</div>{% endif %}
       </div> <!-- plot -->
     </div> <!-- panel -->
-    <div id="time_controls">
+    {% if leadlist|length > 1 %}<div id="time_controls">
       <ul id="play_controls">
         <li id="but_first"><span onclick="firsttim()">&#8739;&#8201;&#8810;</span></li> 
         <li id="but_prev"><span onclick="prevtim()">&#8810;</span></li>
@@ -161,7 +161,7 @@
       <ul id="timselect">{% for lead in leadlist_link %}
         <li><span class="link" onclick="chtim({{ lead }})" id="timselect_{{ lead }}">{{ lead }}</span></li>{% endfor %}
       </ul>
-    </div>
+    </div>{% endif %}
   </div> <!-- content -->
   <div id="help_modal" title="Help and key bindings">
     <p><b>Left and right keys</b></p>
