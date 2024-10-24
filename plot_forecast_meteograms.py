@@ -7,8 +7,8 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.dates as mdates
 
-from dynlib.shorthands import np, plt, metopen, dt
-from settings.ecmwf import *
+from dynlib.shorthands import np, plt, metopen, dt, conf
+from settings.common2 import plotpath
 
 import dynlib.utils
 
@@ -17,6 +17,8 @@ from current_fc import *
 from topens.PersistentGraph.persistentgraph import *
 from topens.PersistentGraph.plots import *
 
+
+conf.datapath.insert(1, '/share/base/ecmwf')
 
 ######################################################
 # The base of _everything_

@@ -8,7 +8,7 @@ mpl.use('Agg')
 mpl.rcParams.update({'font.size': 16})
 
 from dynlib.shorthands import *
-from settings.metno import *
+from settings.common2 import plotpath
 
 import dynlib.thermodyn
 
@@ -17,6 +17,7 @@ from plotconfig import render_webpage
 from current_fc_arome import get_current_fc_arome
 
 
+conf.datapath.insert(1, '/share/base/metno')
 
 ######################################################
 # The base of _everything_
