@@ -752,7 +752,7 @@ def level2plev(level):
 def render_webpage_factory(pages, plots_per_page, web_root):
     def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link, enable_cb=True):
         from jinja2 import FileSystemLoader, Environment
-        env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/web'))
+        env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/templates'))
         
         # Find saveto and plotlist by domain and fcsrc
         saveto = web_root + pages[fcsrc,domain][1]

@@ -118,7 +118,7 @@ for chapter in chapters:
 # Where to save the weather map; 
 filepath = conf.plotpath+'/../publoop.html'
 
-env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/web'))
+env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/templates'))
 
 t = env.get_template('template_publoop.html')
 c = {
