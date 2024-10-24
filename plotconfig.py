@@ -88,6 +88,7 @@ domains = {
     'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30, vector_space_numbers_xy=(30, 40)),
     'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
     'vestland': domain(proj.Vestland, (6.4,6.4), (7.27273,6.4), vector_space_interval=5),
+    'bergen': domain(proj.Bergen, (6.4,6.4), (7.27273,6.4), vector_space_interval=1),
     'barents': domain(proj.Barents_Sea, (5.0,6.375), (5.68182,6.375), vector_space_interval=30, vector_space_numbers_xy=(30,40)),
     'dmi': domain(proj.DMI_Arome, (6.4,6.4), (7.27273,6.4), vector_space_interval=40, vector_space_numbers_xy=(44,40)),
 }
@@ -626,7 +627,11 @@ STD_PLOTCONF = {
 }
 STD_PLOTCONF_PER_FCSRC = {
     'no': dict(vector_disable_interpolation=True),
+    'no_kyst': dict(vector_disable_interpolation=True, coastcolor=None, quiver_width=0.0015, quiver_length=30),
     'dmi': dict(vector_disable_interpolation=True),
+}
+STD_PLOTCONF_PER_FCSRC_AND_DOMAIN = {
+    ('no_kyst','snorway'): dict(vector_space_interval=15),
 }
 
 # Doing the actual plotting
@@ -646,6 +651,9 @@ class plotter(object):
         # Domain-specific plot configuration
         self.std_plotconf['m'] = domain.proj
         self.std_plotconf.update(domain.plotconf)
+
+        # Domain and forecast source-specific configuration
+        self.std_plotconf.update(STD_PLOTCONF_PER_FCSRC_AND_DOMAIN.get((fcsrc,domainname), {}))
 
         if DECORATIONS:
             self.std_plotconf['fig_size'] = domain.fig_size_deco
@@ -741,56 +749,61 @@ def level2plev(level):
 
 
 
-def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link, enable_cb=True):
-    from jinja2 import FileSystemLoader, Environment
-    env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/web'))
+def render_webpage_factory(pages, plots_per_page, web_root):
+    def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link, enable_cb=True):
+        from jinja2 import FileSystemLoader, Environment
+        env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/web'))
+        
+        # Find saveto and plotlist by domain and fcsrc
+        saveto = web_root + pages[fcsrc,domain][1]
+        plotlist = []
+        for prefix, plot in plots_per_page[fcsrc,domain].items():
+            plot.prefix = prefix
+            plotlist.append(plot)
+
+        # Rendering
+        t = env.get_template('template_jinja2.html')
+        c = {
+            'plot_domains': pages.values(),
+            'plot_domain': pages[fcsrc,domain][0],
+            'fcsrc': fcsrc,
+            'domain': domain,
+            'plotlist': plotlist,
+            'timlist': [date_fc + td(0,3600*lead) for lead in leadlist],
+            'leadlist': leadlist,
+            'leadlist_link': leadlist_link,
+            'fclist': fclist,
+            'initplot': plotlist[0],
+            'date_begin': date_fc,
+            'date_init': date_fc,
+            'plotdir': 'maps',
+            'display_details': False,
+            'enable_cb': enable_cb,
+        }
+        if fcsrc == 'ec':
+            if domain == 'natl':
+                c['archive'] = {
+                    'start': dt(2017,9,22),
+                    'plots': ['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'ptpv2_jets', ],
+                    'step': 12,
+                }
+            elif domain == 'npolar':
+                c['archive'] = {
+                    'start': dt(2021,6,2),
+                    'plots': ['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
+                    'step': 12,
+                }
+
+
+        f = codecs.open(saveto, mode='w', encoding='utf-8')
+        f.write(t.render(**c))
+        f.close()
+
+        return
     
-    # Find saveto and plotlist by domain and fcsrc
-    saveto = WEB_ROOT + pages[fcsrc,domain][1]
-    plotlist = []
-    for prefix, plot in plots_per_page[fcsrc,domain].items():
-        plot.prefix = prefix
-        plotlist.append(plot)
+    return render_webpage
 
-    # Rendering
-    t = env.get_template('template_jinja2.html')
-    c = {
-        'plot_domains': pages.values(),
-        'plot_domain': pages[fcsrc,domain][0],
-        'fcsrc': fcsrc,
-        'domain': domain,
-        'plotlist': plotlist,
-        'timlist': [date_fc + td(0,3600*lead) for lead in leadlist],
-        'leadlist': leadlist,
-        'leadlist_link': leadlist_link,
-        'fclist': fclist,
-        'initplot': plotlist[0],
-        'date_begin': date_fc,
-        'date_init': date_fc,
-        'plotdir': 'maps',
-        'display_details': False,
-        'enable_cb': enable_cb,
-    }
-    if fcsrc == 'ec':
-        if domain == 'natl':
-            c['archive'] = {
-                'start': dt(2017,9,22),
-                'plots': ['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'ptpv2_jets', ],
-                'step': 12,
-            }
-        elif domain == 'npolar':
-            c['archive'] = {
-                'start': dt(2021,6,2),
-                'plots': ['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
-                'step': 12,
-            }
-
-
-    f = codecs.open(saveto, mode='w', encoding='utf-8')
-    f.write(t.render(**c))
-    f.close()
-
-    return
+render_webpage = render_webpage_factory(pages, plots_per_page, web_root=WEB_ROOT)
 
 
 # C'est le fin

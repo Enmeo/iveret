@@ -33,16 +33,19 @@ pconf[None,'10m Wind speed','cmap'] = cm.WYlGn
 
 pconf[None,'Temperature','cmap'] = cm.RdYlCyBu2
 pconf[None,'2m Temperature','cmap'] = cm.RdYlCyBu2
-pconf[None,'Sea surface temperature','cmap'] = cm.RdYlCyBu2
 pconf[None,'Temperature anomaly','cmap'] = cm.RdYlCyBu2
 pconf[None,'Potential temperature','cmap'] = cm.RdYlCyBu2
 pconf[None,'Equivalent potential temperature','cmap'] = cm.Greys
 
-pconf [None,'Probability of 850 hPa temperatures below the 30-percentile','cmap'] = cm.Blues
-pconf [None,'Probability of 850 hPa temperatures above the 70-percentile','cmap'] = cm.Oranges
+pconf[None,'Sea-surface temperature','cmap'] = cm.RdYlCyBu2
+pconf[None,'Sea-surface salinity','cmap'] = cm.viridis_r
+pconf[None,'Surface current speed','cmap'] = cm.RdYlCyBu2
 
-pconf [None,'Probability of 500 hPa geopotential below the 30-percentile','cmap'] = cm.Greys
-pconf [None,'Probability of 500 hPa geopotential above the 70-percentile','cmap'] = cm.Reds
+pconf[None,'Probability of 850 hPa temperatures below the 30-percentile','cmap'] = cm.Blues
+pconf[None,'Probability of 850 hPa temperatures above the 70-percentile','cmap'] = cm.Oranges
+
+pconf[None,'Probability of 500 hPa geopotential below the 30-percentile','cmap'] = cm.Greys
+pconf[None,'Probability of 500 hPa geopotential above the 70-percentile','cmap'] = cm.Reds
 
 pconf[None,'Specific humidity','cmap'] = cm.WYlBuKPi
 pconf[None,'Total column water vapour','cmap'] = cm.WYlBuKPi
@@ -72,6 +75,8 @@ pconf [None,'2m Temperature','hook'] = lambda t: t - 273.15
 pconfl[None,'2m Temperature','hook'] = lambda t: t - 273.15
 pconf [None,'Sea-surface temperature','hook'] = lambda t: t - 273.15
 pconfl[None,'Sea-surface temperature','hook'] = lambda t: t - 273.15
+pconf [None,'Surface current speed','hook'] = lambda ff: ff*100.0
+pconfl[None,'Surface current speed','hook'] = lambda ff: ff*100.0
 
 pconf [None,'Specific humidity','hook'] = lambda q: q*1.0e3
 pconfl[None,'Specific humidity','hook'] = lambda q: q*1.0e3
