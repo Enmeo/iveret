@@ -12,11 +12,6 @@ import pyproj
 from plotconfig_ihavet import *
 from settings.common2 import *
 
-import dynlib.diag
-import dynlib.detect
-import dynlib.thermodyn
-import dynlib.utils
-
 from current_fc_kyst import get_current_fc_kyst
 
 
@@ -29,13 +24,13 @@ q_map = {
 def get_single(fc_str, plev, q):
     fname1 = f'norkyst_an_{fc_str}.{plev}'
     fname2 = f'norkyst_fc_{fc_str}.{plev}'
-    #try:
-    f, dat1 = metopen(fname1, q, no_static=True)
-    f, dat2 = metopen(fname2, q, no_static=True)
-    dat = np.concatenate((dat1, dat2), axis=0)
-    dat = dat.squeeze()
-    #except:
-    #    dat = None
+    try:
+        f, dat1 = metopen(fname1, q, no_static=True)
+        f, dat2 = metopen(fname2, q, no_static=True)
+        dat = np.concatenate((dat1, dat2), axis=0)
+        dat = dat.squeeze()
+    except:
+        dat = None
 
     return dat
 
@@ -223,6 +218,7 @@ if __name__ == '__main__':
     static.x = f1.variables['lon'][::]
     static.y = f2.variables['lat'][::]
     static.gridtype = 'latlon'
+    static.t = np.concatenate((static.t, static2.t), axis=0)
     static.t_parsed = np.concatenate((static.t_parsed, static2.t_parsed), axis=0)
 
     f1.close()
@@ -262,8 +258,8 @@ if __name__ == '__main__':
     print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
 
     fclist = [forecast - td(i) for i in range(5)]
-    leadlist = range(0,67,3)
-    leadlist_link = range(0,67,6)
+    leadlist = range(0,121,3)
+    leadlist_link = range(0,121,12)
     render_webpage('bergen', 'no_kyst', forecast, fclist, leadlist, leadlist_link)
     render_webpage('vestland', 'no_kyst', forecast, fclist, leadlist, leadlist_link)
     render_webpage('snorway', 'no_kyst', forecast, fclist, leadlist, leadlist_link)
