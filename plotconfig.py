@@ -168,6 +168,15 @@ variables = {
 
     'uv300': variable("Eddy u'v'", 'm²/s²', '300 hPa', 'based on deviations from zonal mean'),
     'vt850': variable("Eddy v'T'", 'K m/s', '850 hPa', 'based on deviations from zonal mean'),
+
+    # Variables for cross sections
+    'vn': variable('Cross-plane winds', 'm/s', ''),
+    'barbs': variable('In plane winds', '', ''),
+    'pt': variable('Potential temperature', 'K', ''),
+    'eqpt': variable('Equivalent potential temperature', 'K', ''),
+    't': variable('Temperature', '°C', ''),
+    'q': variable('Specific humidity', 'g/kg', ''),
+    'cc': variable('Cloud cover area fraction', '', ''),
 }
 # Make variables available as local variables as well
 g = globals()
@@ -243,8 +252,10 @@ freq_scale = np.arange(0,1.01,0.05)
 freq_ticks = np.arange(0,1.01,0.2)
 freq_ticklabels = range(0,101,20)
 
-# Defining what is available per plot domain and data source
-def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropic=False, sh=False):
+cc_scale = [0.01, 0.1, 0.3, 0.5, 0.7, 0.9, 0.99]
+
+# Defining standard map setup to be shared across forecast sources and domains
+def map_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropic=False, sh=False):
     if msl_reduce:
         selected_msl_kwargs = dict(alpha=0.8, linewidths=[0.5])
     else:
@@ -455,53 +466,81 @@ def plot_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratrop
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
     ], name='Sea-level pressure forecast increment'),
 }
+# Defining standard cross section setups to be shared across forecast sources and domains
+def sect_archetypes(pt_ci=5, pt_highlight=[270,300,350]):
+    return {
+    'ff_pt': plot(vn, scale=np.arange(-45,46,5), ticks=np.arange(-40,41,10), overlays=[
+            o('black', pt, range(250,451,pt_ci), colors='0.3', linewidths=[0.7,]),
+            o('thick black', pt, pt_highlight, colors='0.2', linewidths=[2,]),
+            o('vectors', barbs, None, otype='quiver', width=0.002),
+        ], name='Winds and pot. temperature'),
+    'eqpt_pt': plot(eqpt, scale=np.arange(270,351,2.5), ticks=np.arange(270,351,10), overlays=[
+            o('black', t, [273.16,], colors='tab:red', linewidths=2),
+            o('black', pt, range(250,451,pt_ci), colors='0.3', linewidths=[0.7,]),
+            o('thick black', pt, pt_highlight, colors='0.2', linewidths=[2,]),
+        ], name='Equivalent pot. and pot. temperature'),
+    'q_pt': plot(q, scale=np.arange(1,12.1,0.5), ticks=np.arange(2,13,2), overlays=[
+            o('black', t, [273.16,], colors='tab:red', linewidths=2),
+            o('black', pt, range(250,451,pt_ci), colors='0.3', linewidths=[0.7,]),
+            o('thick black', pt, pt_highlight, colors='0.2', linewidths=[2,]),
+        ], name='Humidity and pot. temperature'),
+    'cc_pt': plot(cc, scale=cc_scale, ticks=cc_scale, norm=mpl.colors.BoundaryNorm([-1,]+cc_scale+[2,], 256), overlays=[
+            o('black', pt, range(250,451,pt_ci), colors='0.3', linewidths=[0.7,]),
+            o('thick black', pt, pt_highlight, colors='0.2', linewidths=[2,]),
+        ], name='Cloud cover and pot. temperature'),
+}
 
 
-def _select(plot_names, **kwargs):
-    plots = plot_archetypes(**kwargs)
+def _select_map(plot_names, **kwargs):
+    plots = map_archetypes(**kwargs)
+    return {plot_name: plots[plot_name] for plot_name in plot_names}
+
+def _select_sect(plot_names, **kwargs):
+    plots = sect_archetypes(**kwargs)
     return {plot_name: plots[plot_name] for plot_name in plot_names}
 
 plots = {
     'dmi': {
-        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
-        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
-        'dmi': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'vestland': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'snorway': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'dmi': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
     },
     'no': {
-        'vestland': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
-        'snorway': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
-        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'vestland': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'snorway': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'scandes': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'we60': _select_sect(['ff_pt', 'eqpt_pt', 'q_pt', 'cc_pt', ]),
     },
     'no_arctic': {
-        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
+        'barents': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','w850_ff','w500_winds','w700_winds','ff10_gusts','rh2m_tp','clba_msl','cao_winds','shf_winds']),
     },
     'ec_local': {
-        'scandes': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','cao_winds','shf_winds']),
-        'barents': _select(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','cao_winds','shf_winds']),
+        'scandes': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','cao_winds','shf_winds']),
+        'barents': _select_map(['t2m_msl','t925_msl','t850_msl','q925_msl','q850_msl','ff10_gusts','rh2m_tp','cao_winds','shf_winds']),
     },
     'ec': {
-        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'deform850_fronts', 'tcwv', 'iwvt_axis', 
+        'natl': _select_map(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'deform850_fronts', 'tcwv', 'iwvt_axis', 
                 'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'sfc_fcerror',
                 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 
                 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
+        'npolar':  _select_map(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'sfc_fcerror', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
+        'spolar':  _select_map(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
-        'tindpac': _select(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'tindpac': _select_map(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
     },
     'ec_ext': {
-        'npolar':  _select(['prob_z500', 'prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['prob_z500', 'prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
+        'npolar':  _select_map(['prob_z500', 'prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'spolar':  _select_map(['prob_z500', 'prob_t850', 'cycfreqa', 'mtafreqa', ], msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
     },
     'noaa': {
-        'natl': _select(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
+        'natl': _select_map(['z500_msl', 't850_msl', 't850_perc', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 
             'ff10_gusts', 'tcc', 'rh2m_tp', 'sshf_winds', 'slhf_winds', 'cao_winds', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, tcwv_extratropic=True, sst_reduce=True),
-        'npolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
+        'npolar':  _select_map(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True),
-        'spolar':  _select(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
+        'spolar':  _select_map(['z500_msl', 't850_msl', 'tcwv', 'ptpv2_jets', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
     },
 }
@@ -546,7 +585,7 @@ plots_per_page = {
     ('no', 'vestland'): plots['no']['vestland'],
     ('no', 'snorway'): plots['no']['snorway'],
     ('no', 'scandes'): plots['no']['scandes'],
-    ('no', 'we60'): [],
+    ('no', 'we60'): plots['no']['we60'],
     ('no', 'barents'): plots['no_arctic']['barents'],
     ('dmi', 'vestland'): plots['dmi']['vestland'],
     ('dmi', 'snorway'): plots['dmi']['snorway'],

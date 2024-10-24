@@ -12,6 +12,8 @@ from settings.metno import *
 
 import dynlib.thermodyn
 
+from plotconfig import render_webpage
+
 from current_fc_arome import get_current_fc_arome
 
 
@@ -306,6 +308,15 @@ for tidx, date in zip(range(len(static.t)), static.t_parsed):
     for plot in plots:
         plot.plot(data_inst, static, forecast, date)
         plot.plot_finish(forecast, date)
+
+
+print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
+
+fclist = [forecast - td(0.25)*i for i in range(29)]
+leadlist = range(0,67,3)
+leadlist_link = range(0,67,6)
+
+render_webpage('we60','no', forecast, fclist, leadlist, leadlist_link)
 
 
 # the end

@@ -16,7 +16,6 @@ python3 $basepath/plot_forecast_arome2.py > $logpath/web_plot_no_out.log 2> $log
 python3 $basepath/current_fc_arome.py > $plotstat/arome
 
 # Then render the fitting websites
-python3 $basepath/web/render_vaerkart_arome_we60.py > $logpath/web_render_no_we60_out.log 2> $logpath/web_render_no_we60_err.log
 python3 $basepath/web/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoo_err.log
 
 # Clean-up old plots
