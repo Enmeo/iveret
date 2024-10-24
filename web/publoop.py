@@ -4,7 +4,7 @@ import codecs
 from datetime import datetime as dt, timedelta as td
 from jinja2 import FileSystemLoader, Environment
 
-from settings.common import basepath
+from settings.common2 import VAERKART_ROOT
 from current_fc import get_current_plotted_fc as get_ec_initdate
 from current_fc_arome import get_current_plotted_fc_arome as get_no_initdate
 
@@ -118,7 +118,7 @@ for chapter in chapters:
 # Where to save the weather map; 
 filepath = conf.plotpath+'/../publoop.html'
 
-env = Environment(loader=FileSystemLoader(searchpath=basepath+'/web'))
+env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/web'))
 
 t = env.get_template('template_publoop.html')
 c = {
