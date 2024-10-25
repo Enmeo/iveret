@@ -127,8 +127,11 @@ if __name__ == '__main__':
     
     print('Plotting the AROME %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
     
+    # Domains to be plotted here (i.e. NOT we60)
+    domainnames = ['vestland', 'snorway', 'scandes']
+    
     plots = [plotter(domainname, domains[domainname], 'no', plotname, plot)
-            for domainname, plots_by_domain in plots['no'].items() for plotname, plot in plots_by_domain.items()]
+            for domainname in domainnames for plotname, plot in plots['no'][domainname].items()]
     #plots = [plotter(domainname, domains[domainname], 'no', plotname, plot)
     #        for domainname, plots_by_domain in plots['no'].items() for plotname, plot in plots_by_domain.items()
     #        if plotname == 'ff10_gusts']
