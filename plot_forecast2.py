@@ -746,9 +746,9 @@ if __name__ == '__main__':
     print('Plotting the ECMWF local %s forecasts' % forecast.strftime('%Y-%m-%d %H'))
 
     PLOT_SETS = {
-        'plev': ['z500_msl', 't850_msl', 'deform850_fronts', 'eqpt850_cape', 'eddy_uv', 'eddy_vT', 'tcwv', 'iwvt_axis', 't850_perc', ],
+        'plev': ['z500_msl', 't850_msl', 'deform850_fronts', 'eqpt850_cape', 'eddy_vT', 'tcwv', 'iwvt_axis', 't850_perc', ],
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
-        'pv2': ['ptpv2_jets', ],
+        'pv2': ['ptpv2_jets', 'eddy_uv', ],
         'ens': ['cycfreq_msl', ],
         'ai': ['z500_msl_aifs', 'z500_msl_dmgc', ],
         'test': [],
