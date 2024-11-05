@@ -753,7 +753,7 @@ if __name__ == '__main__':
         'ai': ['z500_msl_aifs', 'z500_msl_dmgc', ],
         'test': [],
         'website_only': [],  # do not plot anything, only refresh website
-        'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'rh2m_tp', 'sfc_fcerror', ],
+        'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'shf_winds', 'rh2m_tp', 'sfc_fcerror', ],
     }
     
     if len(sys.argv) > 1:
@@ -829,6 +829,11 @@ if __name__ == '__main__':
     render_webpage('natl', 'ec', forecast, fclist, leadlist, leadlist_link)
     render_webpage('npolar', 'ec', forecast, fclist, leadlist, leadlist_link)
     render_webpage('spolar', 'ec', forecast, fclist, leadlist, leadlist_link)
+
     render_webpage('tindpac', 'ec', forecast, fclist, leadlist, leadlist_link)
+
+    render_webpage('nordicseas', 'ec', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('atlarctic', 'ec', forecast, fclist, leadlist, leadlist_link)
+    render_webpage('ff_kh', 'ec', forecast, fclist, leadlist, leadlist_link)
 
 # the end

@@ -10,6 +10,8 @@ from datetime import datetime as dt, timedelta as td
 from dynlib.shorthands import *
 from settings.common2 import pconf, pconfl, WEB_ROOT, VAERKART_ROOT
 
+from update_KH_position import get_KH_position
+
 #
 # Central plot configuration for (hopefully soon) all plots on iveret
 #
@@ -79,12 +81,27 @@ class overlay(object):
 # Defining data sources
 datasources = ['no', 'ecmwf', 'noaa', 'no_kyst', ]
 
+# Parameterised plot domain following Kronprins Haakon
+def KH_proj_factory(lat, lon):
+    # dynlib requires the map projection to be a callable returning the projection object. 
+    # With this construction the lat/lon variables are bound to the lambda statement at the 
+    # time of definition of this class and function, rather than at the time of execution 
+    # of the lambda construct (where they would otherwise no longer be available as local/
+    # global variables).
+    return lambda: proj.Basemap(projection='gnom', width=4500000, height=4500000,
+        lat_0=lat, lon_0=lon, resolution='l')
+
+llat, llon = get_KH_position()
+
 # Defining domains
 domains = {
     'npolar': domain(proj.n_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
     'spolar': domain(proj.s_hemisphere_forecast, (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002),
     'natl': domain(proj.N_Atlantic_forecast, (7.2,4.8), (8.18182,4.8), vector_space_numbers_xy=(45, 30), quiver_width=0.002),
     'tindpac': domain(proj.Tropical_IndoPacific, (12.5,5.0), (14.2,5.0), vector_space_numbers_xy=(110, 44), quiver_width=0.001),
+    'ff_kh': domain(KH_proj_factory(llat, llon), (6.4,6.4), (7.27273,6.4), vector_space_numbers_xy=(45, 45), quiver_width=0.002, mark=(llon, llat), mark_kwargs=dict(markersize=20, markeredgewidth=1.5)),
+    'nordicseas': domain(proj.Nordic_Seas, (5.0,6.25), (5.68182, 6.25), vector_space_numbers_xy=(32,40)),
+    'atlarctic': domain(proj.Atlantic_Arctic, (5.0,6.25), (5.68182, 6.25), vector_space_numbers_xy=(32,40)),
     'scandes': domain(proj.Scandinavia, (5.5,6.18), (6.25,6.18), vector_space_interval=30, vector_space_numbers_xy=(30, 40)),
     'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
     'vestland': domain(proj.Vestland, (6.4,6.4), (7.27273,6.4), vector_space_interval=5),
@@ -271,8 +288,10 @@ def map_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropi
 
     if sst_reduce:
         sst_scale = [-1,] + list(range(0,31,2))
+        sst_ticks = [-1,] + list(range(0,31,10))
     else:
         sst_scale = range(-1,21)
+        sst_ticks = range(0,21,5)
 
     if sh:
         pv_ticklabels = np.arange(-1.0,-9.1,-1.0)
@@ -430,10 +449,12 @@ def map_archetypes(msl_ci=2, msl_reduce=False, sst_reduce=False, tcwv_extratropi
         cb_tickspacing='uniform', extend='max', overlays=[
             o('black', msl, range(900,1070,msl_ci), contour_labels=True, contour_labels_format='%1.0f'),
     ], name='Cloud base altitude and SLP'),
-    'cao_winds': plot(caoidx, scale=range(1,16), ticks=range(4,16,4), cmap='afmhot_r', overlays=[
-            o('black', barbs10, None, otype='barbs', alpha=0.5, linewidths=0.5, length=5),
+    'cao_winds': plot(caoidx, scale=range(1,16), ticks=range(4,16,4), overlays=[
             o('grey', sst, sst_scale, linewidths=[0.7, 1.2,] + [0.7, 0.7, 0.7, 0.7, 1.2]*4, alpha=0.5),
             o('violet', sic, [0.2, 0.8], colors='blueviolet'),
+            o('yellow', ff10, [17.2, ], colors='gold'),
+            o('orange', ff10, [24.5, ], colors='coral'),
+            o('red', ff10, [32.7, ], colors='crimson'),
     ], name='Cold-air outbreak index, 10m winds, SSTs and MIZ'),
     'shf_winds': plot(sthff, scale=shf_scale, cmap='BrBG', norm=mpl.colors.BoundaryNorm(shf_ticks, 256),
         cb_tickspacing='uniform', overlays=[
@@ -547,6 +568,9 @@ plots = {
         'spolar':  _select_map(['z500_msl', 't850_msl', 'tcwv', 'iwvt_axis', 'cycfreq_msl', 'pvpt315_irot_wind', 'pvpt330_irot_wind', 'ptpv2_jets', 'eddy_uv', 'eddy_vT', 'z500_msl_aifs', 'z500_msl_dmgc', ],
             msl_ci=5, msl_reduce=True, sst_reduce=True, sh=True),
         'tindpac': _select_map(['t850_msl', 'eqpt850_cape', 'tcwv', 'iwvt_axis', 'rh2m_tp', ], msl_ci=5, msl_reduce=True, sst_reduce=True),
+        'ff_kh': _select_map(['rh2m_tp', 'shf_winds', 'cao_winds', ]),
+        'nordicseas': _select_map(['rh2m_tp', 'shf_winds', 'cao_winds', ]),
+        'atlarctic': _select_map(['rh2m_tp', 'shf_winds', 'cao_winds', ]),
         'meteograms': _select_special(['t2m_bgo', 't2m_modal_bgo', 't2m_modal_naive_bgo', 'tcwv_bgo', 'tcwv_modal_bgo', 'tcwv_modal_naive_bgo', 'msl_bgo', 'msl_modal_bgo', 'msl_modal_naive_bgo', ]),
     },
     'ec_ext': {
@@ -573,6 +597,9 @@ pages = {
     ('ec', 'npolar'): ('ECMWF forecasts Northern Hemisphere (restricted)', '/closed/vaerkart_ec_npolar.html'),
     ('ec', 'spolar'): ('ECMWF forecasts Southern Hemisphere (restricted)', '/closed/vaerkart_ec_spolar.html'),
     ('ec', 'tindpac'): ('ECMWF forecasts Tropical Indopacific (restricted)', '/closed/vaerkart_ec_tindpac.html'),
+    ('ec', 'ff_kh'): ('ECMWF forecasts FF Kronpris Haakon (restricted)', '/closed/vaerkart_ec_ff_kh.html'),
+    ('ec', 'nordicseas'): ('ECMWF forecasts Nordic Seas (restricted)', '/closed/vaerkart_ec_nordicseas.html'),
+    ('ec', 'atlarctic'): ('ECMWF forecasts Atlantic Arctic (restricted)', '/closed/vaerkart_ec_atlarctic.html'),
     ('ec', 'scandes'): ('ECMWF forecasts Scandinavia (restricted)', '/closed/vaerkart_ec_scandes.html'),
     ('ec', 'barents'): ('ECMWF forecasts Barents Sea (restricted)', '/closed/vaerkart_ec_barents.html'),
     ('ec', 'meteograms'): ('ECMWF forecast Meteograms (restricted)', '/closed/vaerkart_ec_meteograms.html'),
@@ -596,6 +623,9 @@ plots_per_page = {
     ('ec', 'npolar'): plots['ec']['npolar'],
     ('ec', 'spolar'): plots['ec']['spolar'],
     ('ec', 'tindpac'): plots['ec']['tindpac'],
+    ('ec', 'ff_kh'): plots['ec']['ff_kh'],
+    ('ec', 'nordicseas'): plots['ec']['nordicseas'],
+    ('ec', 'atlarctic'): plots['ec']['atlarctic'],
     ('ec', 'meteograms'): plots['ec']['meteograms'],
     ('ec_ext', 'npolar'): plots['ec_ext']['npolar'],
     ('ec_ext', 'spolar'): plots['ec_ext']['spolar'],

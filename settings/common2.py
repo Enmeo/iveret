@@ -61,6 +61,15 @@ pconf[None,'Jet occurrence within 300 km','cmap'] = cm.Blues
 pconf[None,'Anomalous MTA occurrence within 300 km','cmap'] = cm.PiGn2
 pconf[None,'Anomalous cyclone occurrence','cmap'] = cm.seismic_r
 
+pconf[None,'Cold-air outbreak index','cmap'] = None # Assumes range 1-15 with extend=both
+c1, c2, c3, c4 = cm.Blues, cm.Purples, cm.Reds, cm.Oranges
+pconf[None,'Cold-air outbreak index','colors'] = [
+        'w', c1(0.2), c1(0.4), c1(0.6),
+        c2(0.1), c2(0.3), c2(0.5), c2(0.7),
+        c3(0.2), c3(0.4), c3(0.6), c3(0.8),
+        c4(0.3), c4(0.5), c4(0.7), c4(0.9),
+]
+
 pconf [None,'Geopotential','hook'] = lambda z: z/98.1 # from m/s^2 to gpdm
 pconfl[None,'Geopotential','hook'] = lambda z: z/98.1
 pconf [None,'Geopotential (AIFS)','hook'] = lambda z: z/98.1 # from m/s^2 to gpdm
