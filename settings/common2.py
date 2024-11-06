@@ -38,6 +38,7 @@ pconf[None,'Potential temperature','cmap'] = cm.RdYlCyBu2
 pconf[None,'Equivalent potential temperature','cmap'] = cm.Greys
 
 pconf[None,'Sea-surface temperature','cmap'] = cm.RdYlCyBu2
+pconf[None,'Sea-surface temperature anomaly','cmap'] = cm.RdYlCyBu2
 pconf[None,'Sea-surface salinity','cmap'] = cm.viridis_r
 pconf[None,'Surface current speed','cmap'] = cm.RdYlCyBu2
 

@@ -43,6 +43,7 @@ q_map = {
     'Low cloud cover': 'lcc',
     'Mid-level cloud cover': 'mcc',
     'High cloud cover': 'hcc',
+    'Sea-surface height': 'zos',
 }
 
 qf = {
@@ -149,12 +150,9 @@ def get(fc_str, fc_str_prev, level, var):
     return dat
 
 
-landmask = np.load(VAERKART_ROOT+'/settings/ecmwf_fc_sea_mask.npy')
-def mask_land(data):
-    data[:,landmask] = np.nan
-
-    return data
-
+PERC_PATH = '/home/ubuntu/data'
+PERC_PERIOD = '1979-2020'
+conf.datapath.insert(1, PERC_PATH)
 
 def get_eqpt(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
@@ -201,7 +199,9 @@ def get_cao(fc_str, fc_str_prev, level, var):
     t = get_single(fc_str, fc_str_prev, '850', 't')
     msl = get_single(fc_str, fc_str_prev, 'sfc', 'msl')
     sst = get_single(fc_str, fc_str_prev, 'sfc', 'sst')
+    zos = get_single(fc_str, fc_str_prev, 'sfc', 'zos')
     siconc = get_single(fc_str, fc_str_prev, 'sfc', 'siconc')
+    landmask = np.isnan(zos[0,:,:])
 
     CAOi = dynlib.detect.cold_air_outbreak_index(t, msl, sst, siconc, landmask)
     CAOi[np.isnan(CAOi)] = 0.0
@@ -251,13 +251,36 @@ def get_sthf(fc_str, fc_str_prev, level, var):
 
 def get_siconc(fc_str, fc_str_prev, level, var):
     siconc = get_single(fc_str, fc_str_prev, 'sfc', 'siconc')
-
-    return mask_land(siconc)
+    sithick = get_single(fc_str, fc_str_prev, 'sfc', 'sithick')
+    
+    siconc[np.isnan(sithick)] = np.nan
+    
+    return siconc
 
 def get_sst(fc_str, fc_str_prev, level, var):
     sst = get_single(fc_str, fc_str_prev, 'sfc', 'sst')
+    zos = get_single(fc_str, fc_str_prev, 'sfc', 'zos')
 
-    return mask_land(sst)
+    sst[np.isnan(zos)] = np.nan
+
+    return sst
+
+def get_ssta(fc_str, fc_str_prev, level, var):
+    sst = get_single(fc_str, fc_str_prev, 'sfc', 'sst')
+    zos = get_single(fc_str, fc_str_prev, 'sfc', 'zos')
+
+    sst[np.isnan(zos)] = np.nan
+
+    filename = 'ea.ans.%s.month_composites' % PERC_PERIOD
+    print('Using base data from %s' % filename)
+    f = metopen(filename, no_static=True)
+    sst_clim = dynlib.utils.scale(f.groups['sfc'].variables['sst'])
+    f.close()
+
+    mon = static.t_parsed[0].month - 1
+    sst -= sst_clim[mon:mon+1,:,:]
+
+    return sst
 
 def get_rh2m(fc_str, fc_str_prev, level, var):
     t2m = get_single(fc_str, fc_str_prev, 'sfc', 't2m')
@@ -310,9 +333,6 @@ def get_iwvt_axis(fc_str, fc_str_prev, level, var):
     return iwvta, iwvtoff
 
 
-PERC_PATH = '/home/ubuntu/data'
-PERC_PERIOD = '1979-2020'
-conf.datapath.insert(1, PERC_PATH)
 def get_t_ano(fc_str, fc_str_prev, level, var):
     plev = level2plev(level)
     t = get_single(fc_str, fc_str_prev, plev, 't')
@@ -710,6 +730,7 @@ get_special = {
     'Surface latent heat flux': get_slhf,
     'Surface total heat flux': get_sthf,
     'Sea-surface temperature': get_sst,
+    'Sea-surface temperature anomaly': get_ssta,
     'Sea ice concentration': get_siconc,
     'Column integral water vapour transport': get_absiwvt,
     'Moisture transport axes': get_iwvt_axis,
@@ -753,7 +774,7 @@ if __name__ == '__main__':
         'ai': ['z500_msl_aifs', 'z500_msl_dmgc', ],
         'test': [],
         'website_only': [],  # do not plot anything, only refresh website
-        'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'sshf_winds', 'slhf_winds', 'shf_winds', 'rh2m_tp', 'sfc_fcerror', ],
+        'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'ssta_ssh', 'sshf_winds', 'slhf_winds', 'shf_winds', 'rh2m_tp', 'sfc_fcerror', ],
     }
     
     if len(sys.argv) > 1:
