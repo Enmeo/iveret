@@ -70,28 +70,6 @@ def _filter_l5d(dat):
 
     return dat
 
-# Medio days of each month (for a non-leap year), start counting days at zero
-_monthly_medios = [dt(2010,1,15), dt(2010,2,14), dt(2010,3,15), dt(2010,4,15), dt(2010,5,15), dt(2010,6,15), 
-                   dt(2010,7,15), dt(2010,8,15), dt(2010,9,15), dt(2010,10,15), dt(2010,11,15), dt(2010,12,15),]
-_monthly_doys = np.array([date.timetuple().tm_yday-1 for date in _monthly_medios], dtype='i4')
-_monthly_lens = np.concatenate((_monthly_doys[1:] - _monthly_doys[:-1], np.array([31,])), axis=0)
-def _interpolate_to_valid_time(percs, dates):
-    # Disregard leap days if present (in this case, 30 and 31 December are treated identical)
-    doys = np.array([min(364,date.timetuple().tm_yday-1) for date in dates], dtype='i4')
-
-    # Might be all zeros or all ones -> in both cases we need to interpolate between mid Dec and mid Jan
-    # Thus firstidx = -1, nextidx = 0
-    firstidx = (doys[:,np.newaxis] >= _monthly_doys[np.newaxis,:]).sum(axis=1) % 12 - 1
-    nextidx = firstidx + 1
-    
-    # Difference is negeative for 1 Jan through 14 Jan -> modulo to take into account periodicity
-    frac = ((doys - _monthly_doys[firstidx]) % 365 )/_monthly_lens[firstidx]
-    
-    # Linear interpolation in monthly time segments
-    ipercs = percs[firstidx,:,:] * (1-frac[:,np.newaxis,np.newaxis]) + percs[nextidx,:,:] * frac[:,np.newaxis,np.newaxis]
-    
-    return ipercs
-
 
 PERC_PATH = '/home/ubuntu/data'
 PERC_PERIOD = '1979-2020'
@@ -124,7 +102,7 @@ def get_mtafreq(fc_str, fc_str_prev, level, var, static):
     # Remove interpolated monthly climatology
     f = metopen(f'ea.ans.{PERC_PERIOD}.month_composites', no_static=True)
     mtaclim = dynlib.utils.scale(f.groups['sfc'].variables['wvfaxis_dist'])
-    mtafreq -= _interpolate_to_valid_time(mtaclim[:,::3,::3], static.t_parsed)
+    mtafreq -= interpolate_monthly_to_valid_time(mtaclim[:,::3,::3], static.t_parsed)
     f.close()
 
     return _filter_l5d(mtafreq)
@@ -150,7 +128,7 @@ def get_cycfreq(fc_str, fc_str_prev, level, var, static):
     # Remove interpolated monthly climatology
     f = metopen(f'ea.ans.{PERC_PERIOD}.month_composites', no_static=True)
     cycclim = dynlib.utils.scale(f.groups['sfc'].variables['cyc_freq'])
-    cycfreq -= _interpolate_to_valid_time(cycclim[:,::3,::3], static.t_parsed)
+    cycfreq -= interpolate_monthly_to_valid_time(cycclim[:,::3,::3], static.t_parsed)
     f.close()
 
     return _filter_l5d(cycfreq)
@@ -164,7 +142,7 @@ def get_prob_factory(q, perc_idx):
         perc_len = t_percs.shape[1]
         
         # TODO: interpolate to coarser grid 
-        t_percs = _interpolate_to_valid_time(t_percs[:,perc_idx,::3,::3], static.t_parsed)
+        t_percs = interpolate_monthly_to_valid_time(t_percs[:,perc_idx,::3,::3], static.t_parsed)
         
         t = get_single(fc_str, fc_str_prev, plev, q)
         s = t.shape

@@ -786,6 +786,28 @@ def level2plev(level):
         raise ValueError(f'Unknown vertical level `{level}`.')
 
 
+# Medio days of each month (for a non-leap year), start counting days at zero
+_monthly_medios = [dt(2010,1,15), dt(2010,2,14), dt(2010,3,15), dt(2010,4,15), dt(2010,5,15), dt(2010,6,15), 
+                   dt(2010,7,15), dt(2010,8,15), dt(2010,9,15), dt(2010,10,15), dt(2010,11,15), dt(2010,12,15),]
+_monthly_doys = np.array([date.timetuple().tm_yday-1 for date in _monthly_medios], dtype='i4')
+_monthly_lens = np.concatenate((_monthly_doys[1:] - _monthly_doys[:-1], np.array([31,])), axis=0)
+def interpolate_monthly_to_valid_time(dat, dates):
+    # Disregard leap days if present (in this case, 30 and 31 December are treated identical)
+    doys = np.array([min(364,date.timetuple().tm_yday-1) for date in dates], dtype='i4')
+
+    # Might be all zeros or all ones -> in both cases we need to interpolate between mid Dec and mid Jan
+    # Thus firstidx = -1, nextidx = 0
+    firstidx = (doys[:,np.newaxis] >= _monthly_doys[np.newaxis,:]).sum(axis=1) % 12 - 1
+    nextidx = firstidx + 1
+    
+    # Difference is negeative for 1 Jan through 14 Jan -> modulo to take into account periodicity
+    frac = ((doys - _monthly_doys[firstidx]) % 365 )/_monthly_lens[firstidx]
+    
+    # Linear interpolation in monthly time segments
+    idat = dat[firstidx,:,:] * (1-frac[:,np.newaxis,np.newaxis]) + dat[nextidx,:,:] * frac[:,np.newaxis,np.newaxis]
+    
+    return idat
+
 
 def render_webpage_factory(pages, plots_per_page, web_root):
     def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link, enable_cb=True):
