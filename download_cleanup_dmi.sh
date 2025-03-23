@@ -18,7 +18,8 @@ download_single () {
 			sleep_=$(( 2 * $sleep_ ))
 		fi
 
-		wget "${baseurl}/${file}?api-key=${API_KEY}" -O $file
+		dir="${file::16}"
+		wget "${baseurl}/${dir}/${file}?api-key=${API_KEY}" -O $file
 	done
 
 	if [ "$size" -ge "$minsize" ]; then
@@ -44,7 +45,7 @@ else
 fi
 
 source /home/ubuntu/sw/vaerkart/.dmi_api_key
-baseurl='https://dmigw.govcloud.dk/v1/forecastdata/download'
+baseurl='https://dmi-opendata.s3.eu-north-1.amazonaws.com/forecastdata'
 
 timestr=`date -d $time +"%Y%m%d%H"`
 mkdir -p $dest/$timestr
