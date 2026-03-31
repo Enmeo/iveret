@@ -17,6 +17,12 @@ retain_plots = [
 ]
 
 retain_ext = [
+    ('ec_ext','npolar','prob_z500'),
+    ('ec_ext','spolar','prob_z500'),
+    ('ec_ext','npolar','prob_t850'),
+    ('ec_ext','spolar','prob_t850'),
+    ('ec_ext','npolar','cycfreqa'),
+    ('ec_ext','spolar','cycfreqa'),
     ('ec_ext','npolar','mtafreqa'),
     ('ec_ext','spolar','mtafreqa'),
 ]
