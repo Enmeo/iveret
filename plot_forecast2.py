@@ -128,9 +128,6 @@ def get(fc_str, fc_str_prev, level, var):
     if var[-7:] == ' (AIFS)':
         var = var[:-7]
         fc_src = 'aifs'
-    if var[-19:] == ' (Google GraphCast)':
-        var = var[:-19]
-        fc_src = 'dmgc'
 
     plev = level2plev(level)
     if var in q_map:
@@ -691,7 +688,7 @@ if __name__ == '__main__':
         'isentropic': ['pvpt315_irot_wind', 'pvpt330_irot_wind', ],
         'pv2': ['ptpv2_jets', 'eddy_uv', ],
         'ens': ['cycfreq_msl', ],
-        'ai': ['z500_msl_aifs', 'z500_msl_dmgc', ],
+        'ai': ['z500_msl_aifs', ],
         'test': [],
         'website_only': [],  # do not plot anything, only refresh website
         'sfc': ['tcc', 'ff10_gusts', 'cao_winds', 'ssta_ssh', 'sshf_winds', 'slhf_winds', 'shf_winds', 'rh2m_tp', 'sfc_fcerror', ],
