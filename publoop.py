@@ -49,11 +49,11 @@ publoop = OrderedDict([
 		'2m Relative Humidity and Precipitation': ('scandes', 'rh2m_tp', 'no')}, 
 			no_initdate, no_fcdates)),
 	('AROME Arctic forecast 1/2', ('Arctic T2m', {
-		'10 m Wind speed and direction': ('barents', 't2m_msl', 'no'),
+		'2m Temperature and SLP': ('barents', 't2m_msl', 'no'),
 		'2m Relative humidity and precipitation': ('barents', 'rh2m_tp', 'no')}, 
 			no_arctic_initdate, no_arctic_fcdates)),
 	('AROME Arctic forecast 2/2', ('Arctic sfx', {
-		'Surface fluxes, 10m winds, SSTs, and MIZ': ('barents', 'shf_wind', 'no'), 
+		'Surface fluxes, 10m winds, SSTs, and MIZ': ('barents', 'shf_winds', 'no'), 
 		'2m Relative humidity and precipitation': ('barents', 'rh2m_tp', 'no')}, 
 			no_arctic_initdate, no_arctic_fcdates)),
 ])
@@ -64,7 +64,7 @@ units = {
 		't2m_msl': '°C',
 		'rh2m_tp': 'mm/h',
 		'q925_msl': 'g/kg',
-		'shf_wind': 'W/m²',
+		'shf_winds': 'W/m²',
 }	
 
 def mk_slide_panel(paneltitle, domain, plot, fcsrc, init, valid):
