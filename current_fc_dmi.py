@@ -5,7 +5,7 @@ from datetime import datetime as dt, timedelta as td
 
 
 DATEFMT = '%Y-%m-%dT%H:%M:%SZ'
-STATFILE = '/home/ubuntu/log/status/gfs'
+STATFILE = '/home/ubuntu/log/status/dmi'
 
 def get_current_fc_dmi():
     ''' Return the most recent available forecast init time '''
