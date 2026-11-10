@@ -3,12 +3,13 @@
 
 from datetime import datetime as dt, timedelta as td
 
+DATEFMT = '%Y%m%dT%HZ'
 
 def get_current_fc_kyst():
 	''' Return the most recent available forecast init time '''
 
 	now = dt.now()
-	if now.hour in range(0,11):
+	if now.hour in range(0,7):
 		forecast = dt(now.year,now.month,now.day,0)
 		forecast -= td(1,0)
 	else:

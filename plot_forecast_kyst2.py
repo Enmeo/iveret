@@ -12,7 +12,7 @@ import pyproj
 from plotconfig_ihavet import *
 from settings.common2 import *
 
-from current_fc_kyst import get_current_fc_kyst
+from current_fc_kyst import get_current_fc_kyst, DATEFMT
 
 
 
@@ -22,12 +22,14 @@ q_map = {
 
 
 def get_single(fc_str, plev, q):
-    fname1 = f'norkyst_an_{fc_str}.{plev}'
-    fname2 = f'norkyst_fc_{fc_str}.{plev}'
     try:
-        f, dat1 = metopen(fname1, q, no_static=True)
-        f, dat2 = metopen(fname2, q, no_static=True)
-        dat = np.concatenate((dat1, dat2), axis=0)
+        dat = []
+        for idx in range(6):
+            fname = f'kyst_fc{idx}.{fc_str}.{plev}.{q}'
+            f, dat_ = metopen(fname, q, no_static=True)
+            dat.append(dat_)
+
+        dat = np.concatenate(dat, axis=0)
         dat = dat.squeeze()
     except:
         dat = None
@@ -150,21 +152,22 @@ def get_temperature(fc_str, level, var):
 
 def get_uv(fc_str, level, var):
     plev = level2plev(level)
-    u_ = get_single(fc_str, plev, 'u')
-    v_ = get_single(fc_str, plev, 'v')
-
-    proj = pyproj.Proj("+proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs")
+    u = get_single(fc_str, plev, 'u_eastward')
+    v = get_single(fc_str, plev, 'v_northward')
     
-    u = np.empty(u_.shape)
-    v = np.empty(v_.shape)
-    for tidx in range(u.shape[0]):
-        u[tidx,:,:], v[tidx,:,:] = rotate_vector_i(proj, u_[tidx,:,:], v_[tidx,:,:], static.x, static.y)
+    # u and v are now east and northward by default
+    #proj = pyproj.Proj("+proj=stere +lat_0=90 +lon_0=70 +lat_ts=60 +units=m +a=6.371e+06 +e=0 +no_defs")
+    
+    #u = np.empty(u_.shape)
+    #v = np.empty(v_.shape)
+    #for tidx in range(u.shape[0]):
+    #    u[tidx,:,:], v[tidx,:,:] = rotate_vector_i(proj, u_[tidx,:,:], v_[tidx,:,:], static.x, static.y)
 
     return u, v
 
 def get_bathymetry(fc_str, level, var):
     t = get_single(fc_str, 'sfc', 'temperature')
-    f, bathy_ = metopen('settings/norkyst_bathymetry', 'h', no_static=True)
+    f, bathy_ = metopen('static/norkyst_bathymetry', 'h', no_static=True)
 
     bathy = np.empty((t.shape[0], *bathy_.shape))
     bathy[:,:,:] = bathy_[np.newaxis,:,:]
@@ -174,8 +177,8 @@ def get_bathymetry(fc_str, level, var):
 
 def get_ff(fc_str, level, var):
     plev = level2plev(level)
-    u = get_single(fc_str, plev, 'u')
-    v = get_single(fc_str, plev, 'v')
+    u = get_single(fc_str, plev, 'u_eastward')
+    v = get_single(fc_str, plev, 'v_northward')
 
     return np.sqrt(u**2 + v**2)
 
@@ -205,25 +208,31 @@ if __name__ == '__main__':
     #        for domainname, plots_by_domain in plots['no_kyst'].items() for plotname, plot in plots_by_domain.items()
     #        if plotname == 'sst_sfccur']
     
-    fc_str = forecast.strftime('%Y%m%d%H')
+    fc_str = forecast.strftime(DATEFMT)
     conf.datapath.insert(1, '/share/base/metno_kyst')
     
-    # Load surface pressure to be able to mask areas under ground
-    fname1 = f'norkyst_an_{fc_str}.sfc'
-    fname2 = f'norkyst_fc_{fc_str}.sfc'
-    f1, static = metopen(fname1)
-    f2, static2 = metopen(fname2)
+    t = []
+    t_parsed = []
+    for idx in range(6):
+        fname = f'kyst_fc{idx}.{fc_str}.sfc.temperature'
+        f, static_ = metopen(fname)
 
-    # We need to replace the auto-detected x dimension with the alternative lon dimension
-    static.x = f1.variables['lon'][::]
-    static.y = f2.variables['lat'][::]
-    static.gridtype = 'latlon'
-    static.t = np.concatenate((static.t, static2.t), axis=0)
-    static.t_parsed = np.concatenate((static.t_parsed, static2.t_parsed), axis=0)
+        if idx == 0:
+            static = static_
 
-    f1.close()
-    f2.close()
+            # We need to replace the auto-detected x dimension with the alternative lon dimension
+            static.x = f.variables['lon'][::]
+            static.y = f.variables['lat'][::]
+            static.gridtype = 'latlon'
         
+        t.append(static_.t)
+        t_parsed.append(static_.t_parsed)
+
+        f.close()
+
+    static.t = np.concatenate(t, axis=0)
+    static.t_parsed = np.concatenate(t_parsed, axis=0)
+
     data = {}
     for plot in plots:
         for plev, q in plot.requires:

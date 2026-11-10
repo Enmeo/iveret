@@ -66,7 +66,7 @@ def get(fc_str, level, var):
     return dat
 
 
-landmask = np.load(VAERKART_ROOT+'/settings/ecmwf_hrfc_sea_mask.npy')
+landmask = np.load(VAERKART_ROOT+'/static/ecmwf_hrfc_sea_mask.npy')
 landmask = np.logical_not(landmask)
 def mask_land(data):
     data[:,landmask] = np.nan

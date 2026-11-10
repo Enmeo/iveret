@@ -10,7 +10,7 @@ from datetime import datetime as dt, timedelta as td
 from dynlib.shorthands import *
 from settings.common2 import pconf, pconfl, WEB_ROOT, VAERKART_ROOT
 
-from plotconfig import domain, variable, plot, overlay, render_webpage_factory, datasources, domains, level2plev, plotter
+from plotconfig import domain, variable, plot, overlay, render_webpage_factory, datasources, level2plev, plotter
 
 WEB_ROOT += '/ocean'
 #
@@ -57,6 +57,12 @@ def map_archetypes():
 def _select_map(plot_names, **kwargs):
     plots = map_archetypes(**kwargs)
     return {plot_name: plots[plot_name] for plot_name in plot_names}
+
+domains = {
+    'snorway': domain(proj.S_Norway, (6.4,6.4), (7.27273,6.4), vector_space_interval=20),
+    'vestland': domain(proj.Vestland, (6.4,6.4), (7.27273,6.4), vector_space_interval=10),
+    'bergen': domain(proj.Bergen, (6.4,6.4), (7.27273,6.4), vector_space_interval=2),
+}
 
 plots = {
     'no_kyst': {
