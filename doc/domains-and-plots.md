@@ -20,6 +20,10 @@ Map domains are defined in `plotconfig.domains`. Projections come from
 | `snorway` | Southern Norway | `S_Norway` | 6.4 × 6.4 → 614 × 614 | `no`, `dmi`, `no_kyst` |
 | `vestland` | Vestland county (western Norway) | `Vestland` | 6.4 × 6.4 → 614 × 614 | `no`, `dmi`, `no_kyst` |
 | `bergen` | Bergen area | `Bergen` | 6.4 × 6.4 → 614 × 614 | `no_kyst` |
+
+The NorKyst plots use their own copies of `snorway`, `vestland` and `bergen` from
+`plotconfig_ihavet.domains`. Projection and size are the same, but the current-vector
+spacing differs (`vector_space_interval` 20 / 10 / 2).
 | `dmi` | DMI DINI model domain (north-western Europe) | `DMI_Arome` | 6.4 × 6.4 → 614 × 614 | `dmi` |
 
 Non-map "domains":
@@ -35,9 +39,9 @@ Number of plot types per (domain, source). Empty means the combination is not pr
 
 | Domain | `ec` | `ec_local` | `ec_ext` | `noaa` | `no` | `no_arctic` | `dmi` | `no_kyst` |
 |---|---|---|---|---|---|---|---|---|
-| `natl` | 22 | | | 13 | | | | |
-| `npolar` | 13 | | 4 | 4 | | | | |
-| `spolar` | 12 | | 4 | 4 | | | | |
+| `natl` | 21 | | | 13 | | | | |
+| `npolar` | 12 | | 4 | 4 | | | | |
+| `spolar` | 11 | | 4 | 4 | | | | |
 | `tindpac` | 5 | | | | | | | |
 | `ff_kh` | 4 | | | | | | | |
 | `nordicseas` | 4 | | | | | | | |
@@ -59,7 +63,6 @@ Number of plot types per (domain, source). Empty means the combination is not pr
 |---|---|---|---|
 | `z500_msl` | 500 hPa Geopotential and SLP | Z500 | 552 gpdm contour, SLP |
 | `z500_msl_aifs` | … (AIFS) | Z500 from AIFS | 552 gpdm contour, SLP from AIFS |
-| `z500_msl_dmgc` | … (Google GraphCast) | Z500 from GraphCast | 552 gpdm contour, SLP from GraphCast |
 | `t850_msl` | 850 hPa Temperature, SLP and wind barbs | T850 | 0 °C contour, SLP, 850 hPa barbs |
 | `t925_msl` | 925 hPa Temperature, SLP and wind barbs | T925 | 0 °C contour, SLP, 925 hPa barbs |
 | `t2m_msl` | 2m Temperature and SLP | T2m | 0 °C contour, SLP |
@@ -147,7 +150,6 @@ Taken from `plotconfig.plots` (and `plotconfig_ihavet.plots` for NorKyst).
 | `eddy_uv` | ✓ | ✓ | ✓ |  |  |  |  |
 | `eddy_vT` | ✓ | ✓ | ✓ |  |  |  |  |
 | `z500_msl_aifs` | ✓ | ✓ | ✓ |  |  |  |  |
-| `z500_msl_dmgc` | ✓ | ✓ | ✓ |  |  |  |  |
 | `shf_winds` |  |  |  |  | ✓ | ✓ | ✓ |
 | `ssta_ssh` |  |  |  |  | ✓ | ✓ | ✓ |
 
@@ -263,7 +265,7 @@ types; the domains come from the tables above.
 | | `isentropic` | `pvpt315_irot_wind`, `pvpt330_irot_wind` |
 | | `pv2` | `ptpv2_jets`, `eddy_uv` |
 | | `sfc` | `tcc`, `ff10_gusts`, `cao_winds`, `ssta_ssh`, `sshf_winds`, `slhf_winds`, `shf_winds`, `rh2m_tp`, `sfc_fcerror` |
-| | `ai` | `z500_msl_aifs`, `z500_msl_dmgc` |
+| | `ai` | `z500_msl_aifs` |
 | | `ens` | `cycfreq_msl` |
 | | `website_only`, `test` | nothing (only re-renders the pages) |
 | `plot_forecast_gfs2.py` | `plev` | `z500_msl`, `t850_msl`, `eqpt850_cape`, `tcwv`, `iwvt_axis`, `t850_perc` |
@@ -309,7 +311,7 @@ One HTML page per (source, domain), from `plotconfig.pages` (under `/share/web`)
 
 The ECMWF `natl` (since 2017-09-22) and `npolar` (since 2021-06-02) pages also link
 to an archive of analysis-time plots at 12-hourly steps. The archived plot types
-are the ones `cleanup.py` keeps.
+are the ones `cleanup.py` keeps. Extended-range plots are kept for 40 days.
 
 `publoop.html` (from `publoop.py`) is a slide show of: ECMWF `natl` `z500_msl`,
 `tcwv` and `t850_msl` (0–66 h every 6 h, then 72–168 h every 12 h); AROME `scandes`

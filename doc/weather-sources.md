@@ -8,7 +8,7 @@ output path and in the page definitions.
 | Source | `fcsrc` key | Model | Data origin | Format | Input directory | Inits plotted (UTC) | Lead times plotted | Step | Inits selectable on page |
 |---|---|---|---|---|---|---|---|---|---|
 | ECMWF HRES (global) | `ec` | ECMWF IFS deterministic | external delivery | NetCDF | `/share/base/ecmwf/<YYYYmmddHH>/` | 00, 12 | 0–240 h | 3 h to 69 h, then 6 h from 72 h | 15 (7 days, 12-hourly) |
-| ECMWF AI models | `ec` (`*_aifs`, `*_dmgc` plot types) | ECMWF AIFS, Google DeepMind GraphCast | external delivery | NetCDF | `/share/base/ecmwf_ai/<YYYYmmddHH>/` | 00, 12 | as ECMWF HRES | as ECMWF HRES | as ECMWF HRES |
+| ECMWF AI model | `ec` (`*_aifs` plot types) | ECMWF AIFS | external delivery | NetCDF | `/share/base/ecmwf_ai/<YYYYmmddHH>/` | 00, 12 | as ECMWF HRES | as ECMWF HRES | as ECMWF HRES |
 | ECMWF ensemble | `ec` (`cycfreq_msl`, meteograms) | ECMWF IFS ENS, 50 members + control | external delivery | NetCDF | `/share/base/ecmwf/<YYYYmmddHH>/` | 00, 12 | time steps in the ensemble files; meteograms: one image per init | – | 15 |
 | ECMWF HRES high resolution (regional) | `ec_local` (written as `ec`) | ECMWF IFS deterministic, full resolution | external delivery | NetCDF | `/share/base/ecmwf/<YYYYmmddHH>/` | 00, 12 | 0–72 h | 3 h | 15 |
 | ECMWF extended range | `ec_ext` | ECMWF IFS ENS extended | external delivery | NetCDF | `/share/base/ecmwf_ext/<YYYYmmddHH>/` | 00 (daily) | 0–840 h (35 days) | 12 h | 21 (daily) |
@@ -17,7 +17,7 @@ output path and in the page definitions.
 | MET Norway AROME Arctic | `no_arctic` (written as `no`) | AROME Arctic deterministic 2.5 km | thredds.met.no, OPeNDAP (`aromearcticlatest`) | NetCDF | `/share/base/metno/<YYYYmmddTHHZ>/` | 00, 06, 12, 18 | 0–66 h | 3 h | 29 |
 | NOAA GFS | `noaa` | GFS 0.5° (`pgrb2.0p50`) | nomads.ncep.noaa.gov | GRIB2 | `/share/base/noaa/<YYYYmmddHH>/` | 00, 06, 12, 18 | 0–240 h | 3 h to 72 h, then 6 h | 31 (~7.5 days, 6-hourly) |
 | DMI HARMONIE DINI | `dmi` | HARMONIE-AROME, DINI domain | DMI open data (S3, API key) | GRIB | `/share/base/dmi2/<YYYYmmddHH>/` | 00, 06, 12, 18 | 0–60 h | 3 h | 29 |
-| MET Norway NorKyst-800 (ocean) | `no_kyst` | NorKyst-800m ocean model, surface level | thredds.met.no, NCSS (`fou-hi/norkyst800m-1h`) | NetCDF | `/share/base/metno_kyst/` | 00 (daily) | 0–120 h (analysis + forecast file) | 3 h | 5 (daily) |
+| MET Norway NorKyst-800 v3 (ocean) | `no_kyst` | NorKyst-800m v3 ocean model, surface level | thredds.met.no, OPeNDAP (`fou-hi/norkystv3_his_files`) | NetCDF | `/share/base/metno_kyst/` | 00 (daily) | 0–120 h (analysis day + 4 forecast days + 1 step) | 3 h | 5 (daily) |
 
 ### Which init is plotted
 
@@ -27,12 +27,12 @@ source needs to make its data available:
 
 | Source | Script | Server hour → init plotted |
 |---|---|---|
-| ECMWF HRES / ens / AI | `current_fc.py` | 07–18 → 00 UTC today; 19–23 → 12 UTC today; 00–06 → 12 UTC yesterday |
+| ECMWF HRES / ens / AIFS | `current_fc.py` | 07–18 → 00 UTC today; 19–23 → 12 UTC today; 00–06 → 12 UTC yesterday |
 | ECMWF extended | `current_ext_fc.py` | 00–19 → 00 UTC yesterday; 20–23 → 00 UTC today |
 | AROME / AROME Arctic | `current_fc_arome.py` | 02–07 → 00; 08–13 → 06; 14–19 → 12; 20–23 → 18; 00–01 → 18 yesterday |
 | DMI | `current_fc_dmi.py` | 03–08 → 00; 09–14 → 06; 15–20 → 12; 21–23 → 18; 00–02 → 18 yesterday |
 | GFS | `current_fc_gfs.py` | 04–09 → 00; 10–15 → 06; 16–21 → 12; 22–23 → 18; 00–03 → 18 yesterday |
-| NorKyst | `current_fc_kyst.py` | 00–10 → 00 UTC yesterday; 11–23 → 00 UTC today |
+| NorKyst | `current_fc_kyst.py` | 00–06 → 00 UTC yesterday; 07–23 → 00 UTC today |
 
 ### How time steps are selected
 
@@ -40,7 +40,7 @@ source needs to make its data available:
 - **AROME, AROME Arctic, cross section**: the download takes every 3rd hourly step from 0 to 66 h (`time[0:3:66]`). The plot scripts also skip any step whose hour is not a multiple of 3.
 - **GFS**: `download_cleanup_gfs.sh` fetches `f000`–`f072` every 3 h and `f078`–`f240` every 6 h. `plot_forecast_gfs2.py` opens one file per lead time.
 - **DMI**: `download_cleanup_dmi.sh` fetches one PL and one SF file per lead time, 0–60 h every 3 h. Files that stay below a minimum size are retried up to 5 times with backoff.
-- **NorKyst**: hourly model output downloaded with `timeStride=3`. The analysis and forecast files are joined in time.
+- **NorKyst**: `download_kyst.py` reads six daily files of hourly output from the init date's folder: the analysis day (`…_<init>_m00_AN.nc`) and the forecast days `…_latest_m00_FC_0001`–`0004.nc`, each with every 3rd step (`time[0:3:23]`), plus only the first step of `FC_0005`. The plot script joins the six files in time.
 
 ## Required variables per source
 
@@ -75,12 +75,13 @@ transport axes, cold-air outbreak index.
 The pipeline starts plotting once `ec.for-hr.<init>.700.t.nc` and
 `ec.for.<init>.pt330.pv.nc` exist.
 
-**ECMWF AI models**, in `/share/base/ecmwf_ai/<init>/`:
+**ECMWF AIFS**, in `/share/base/ecmwf_ai/<init>/`:
 
 | File | Used by |
 |---|---|
 | `aifs.for.<init>.500.z`, `aifs.for.<init>.sfc.msl` | `z500_msl_aifs` |
-| `dmgc.for.<init>.500.z`, `dmgc.for.<init>.sfc.msl` | `z500_msl_dmgc` |
+
+(Google DeepMind GraphCast, `dmgc.*`, was removed because ECMWF no longer provides it.)
 
 **ECMWF ensemble**, files `ec.ens.*` (members) and `ec.ensctrl.*` (control):
 
@@ -91,9 +92,11 @@ The pipeline starts plotting once `ec.for-hr.<init>.700.t.nc` and
 | `pv2000.u`, `pv2000.v` | `cycfreq_msl` (jet frequency) |
 | `sfc.meteogram.nc` with `t2m`, `tcwv`, `msl` | meteograms (Bergen). Its arrival gates the meteogram step |
 
-Side effect: `plot_forecast2.py ens` writes every member's jet and MTA detections to
-`/share/web/jetens` and `/share/web/mtaens`. `plot_n_update.sh` also copies the raw
-ensemble `viewvt`/`vinwvt` and `pv2000.u/v` files there.
+The export of per-member jet and MTA detections, and the copying of their raw input
+files to `/share/web/jetens` and `/share/web/mtaens`, has been disabled.
+
+**Bimodality extracts** (`extract_bimodal_for_natacha.py`): from `ec.for.<init>.700.u`/`v`
+and `ec.for.<init>.sfc.viewvt`/`vinwvt` (NetCDF variables `viwve`/`viwvn`).
 
 **Climatology** (`/home/ubuntu/data`): `ea.ans.1979-2020.850.t_percs` (`t850_perc`),
 `ea.ans.1979-2020.month_composites` (`sst`, for `ssta_ssh`).
@@ -107,7 +110,7 @@ ensemble `viewvt`/`vinwvt` and `pv2000.u/v` files there.
 | `sfc` | `sst`, `siconc` | `cao_winds`, `shf_winds`, `rh2m_tp` |
 | `925`, `850` hPa | `t`, `q`, `u`, `v` | `t925_msl`, `t850_msl`, `q925_msl`, `q850_msl` |
 
-Plus the static land/sea mask `settings/ecmwf_hrfc_sea_mask.npy`.
+Plus the static land/sea mask `static/ecmwf_hrfc_sea_mask.npy` (not in git).
 
 ### ECMWF extended range (`ec_ext`), files `ec.ens.<init>.<level>.<var>.nc`
 
@@ -196,15 +199,19 @@ files are reduced with `grib_copy` to these parameters:
 
 Sea ice is not available and is set to zero.
 
-### MET Norway NorKyst-800 (`no_kyst`)
+### MET Norway NorKyst-800 v3 (`no_kyst`)
 
-Files: `norkyst_an_<init>.sfc.nc` and `norkyst_fc_<init>.sfc.nc`. Surface level
-(`vertCoord=0`), 3-hourly.
+Files: `kyst_fc<0–5>.<YYYYmmddTHHZ>.sfc.<var>.nc`, one per source file and variable.
+`fc0` is the analysis day and `fc1`–`fc5` are forecast days. All are from the uppermost depth level
+(index 0) of the `zdepth` files, 3-hourly.
 
 | Variables | Used by |
 |---|---|
-| `temperature` | `sst_sfccur` |
+| `temperature` | `sst_sfccur`; also defines the grid and time axis |
 | `salinity` | `sss_sfccur` |
-| `u`, `v` | all plots (current vectors), `ff_sfccur` |
+| `u_eastward`, `v_northward` (already geographic, no rotation needed) | all plots (current vectors), `ff_sfccur` |
 
-Plus the static bathymetry `settings/norkyst_bathymetry.nc` (variable `h`).
+Plus the static bathymetry `static/norkyst_bathymetry.nc` (variable `h`, not in git).
+
+The analysis file is addressed by its init time. The forecast files use the `latest`
+names (`…_latest_m00_FC_000<n>.nc`) in the init date's folder.
