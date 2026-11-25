@@ -17,6 +17,7 @@ import dynlib.sphere
 import dynlib.utils
 
 from current_ext_fc import get_current_fc
+from frontend_catalog import write_catalog
 
 
 
@@ -250,6 +251,9 @@ if __name__ == '__main__':
     fclist = [forecast - td(day) for day in range(21)]
     leadlist = list(range(0,841,12))
     leadlist_link = [24*(week*7 + day) for week in range(5) for day in [0,2,4]] + [840,]
+
+    # Catalogue for the new frontend (B1)
+    write_catalog()
 
     render_webpage('npolar', 'ec_ext', forecast, fclist, leadlist, leadlist_link)
     render_webpage('spolar', 'ec_ext', forecast, fclist, leadlist, leadlist_link)

@@ -13,6 +13,7 @@ from plotconfig_ihavet import *
 from settings.common2 import *
 
 from current_fc_kyst import get_current_fc_kyst, DATEFMT
+from frontend_catalog import write_catalog
 
 
 
@@ -269,6 +270,9 @@ if __name__ == '__main__':
     fclist = [forecast - td(i) for i in range(5)]
     leadlist = range(0,121,3)
     leadlist_link = range(0,121,12)
+    # Catalogue for the new frontend (B1)
+    write_catalog()
+
     render_webpage('bergen', 'no_kyst', forecast, fclist, leadlist, leadlist_link)
     render_webpage('vestland', 'no_kyst', forecast, fclist, leadlist, leadlist_link)
     render_webpage('snorway', 'no_kyst', forecast, fclist, leadlist, leadlist_link)

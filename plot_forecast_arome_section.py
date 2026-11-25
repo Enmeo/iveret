@@ -15,6 +15,7 @@ import dynlib.thermodyn
 from plotconfig import render_webpage
 
 from current_fc_arome import get_current_fc_arome
+from frontend_catalog import write_catalog
 
 
 conf.datapath.insert(1, '/share/base/metno')
@@ -313,6 +314,9 @@ print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H U
 fclist = [forecast - td(0.25)*i for i in range(29)]
 leadlist = range(0,67,3)
 leadlist_link = range(0,67,6)
+
+# Catalogue for the new frontend (B1)
+write_catalog()
 
 render_webpage('we60','no', forecast, fclist, leadlist, leadlist_link)
 

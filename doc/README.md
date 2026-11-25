@@ -19,3 +19,5 @@ definitions live in:
 - `plot_n_update*.sh`: the run order of each source's pipeline
 
 If you change one of these files, please update the matching table here.
+Changes to sources, lead times or the archive also need to be mirrored in the
+hand-maintained part of `frontend_catalog.py`.

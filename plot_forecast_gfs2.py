@@ -19,6 +19,7 @@ import dynlib.sphere
 import dynlib.utils
 
 from current_fc_gfs import get_current_fc_gfs as get_current_fc
+from frontend_catalog import write_catalog
 
 
 q_map = {
@@ -528,6 +529,9 @@ if __name__ == '__main__':
     print('Creating page for forecasts from %s.' % forecast.strftime('%d.%m.%Y, %H UTC'))
 
     fclist = [forecast - td(0.25)*i for i in range(31)]
+    # Catalogue for the new frontend (B1)
+    write_catalog()
+
     render_webpage('natl', 'noaa', forecast, fclist, leadlist, leadlist_link)
     render_webpage('npolar', 'noaa', forecast, fclist, leadlist, leadlist_link)
     render_webpage('spolar', 'noaa', forecast, fclist, leadlist, leadlist_link)

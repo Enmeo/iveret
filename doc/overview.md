@@ -15,7 +15,8 @@ being run periodically. Each run:
 2. downloads the input data (for most sources),
 3. plots every configured plot type for every configured domain and time step,
 4. writes a status file recording which initialisation has been plotted,
-5. re-renders the HTML pages from Jinja2 templates, and
+5. writes the catalogue of the new frontend (`meta/catalog.json`) and re-renders
+   the old HTML pages from Jinja2 templates, and
 6. deletes old input data and old plots.
 
 The periodic triggering (e.g. cron) is configured on the server and is not part
@@ -47,6 +48,7 @@ Other helpers:
 | `cleanup_mtaens.py` | Prunes the ensemble moisture transport axis (MTA) and jet detections in `/share/web/mtaens` and `/share/web/jetens`. Keeps 11 days, plus Monday 00 UTC inits indefinitely. Not called by any pipeline script. Since the export of these files was disabled, it only affects files that are already there. |
 | `update_KH_position.py` | Fetches the current position of RV *Kronprins Haakon* and stores it in `status/KH_position.pickle`. The position defines the moving `ff_kh` domain. |
 | `extract_decorations.sh` | Former manual tool: cropped colour bars from decorated plots into `templates/static/deco/cbar_*.png`. Obsolete now that all plots embed their colour bar. |
+| `frontend_catalog.py` | Exports `WEB_ROOT/meta/catalog.json` for the new frontend (sources, domains, plot types with legend text, lead times, image sizes, archive). Titles, legends, plots per domain and figure sizes come from `plotconfig.py` / `plotconfig_ihavet.py`; sources, time axes and the archive are listed in the file itself. `write_catalog()` is called by every plot script except the meteograms, before `render_webpage()`; the file is only replaced when its content changes. Can also be run by hand: `python frontend_catalog.py [path]`. |
 | `convert_plots_to_webp.sh` | One-time migration: appends the matching `static/deco` colour bar to every existing PNG plot (retained runs and archive) and writes it as WebP next to it. Run with `-h` for options; `-n` is a dry run. |
 
 ## Code structure
@@ -96,7 +98,7 @@ the plots under `/maps`.
 | `/share/base/{ecmwf,ecmwf_ai,ecmwf_ext,metno,noaa,dmi2}` | Input data, one sub-folder per init |
 | `/share/base/metno_kyst` | NorKyst input data (flat, no per-init sub-folder) |
 | `/share/base/bimodal_extract` | Output of `extract_bimodal_for_natacha.py` |
-| `/share/web` | Web root (`WEB_ROOT`): HTML pages, `plots/`, `ocean/`, `static/`, and the legacy `mtaens/`, `jetens/` |
+| `/share/web` | Web root (`WEB_ROOT`): HTML pages, `plots/`, `ocean/`, `static/`, `meta/` (catalogue of the new frontend), and the legacy `mtaens/`, `jetens/` |
 
 ## Dependencies
 

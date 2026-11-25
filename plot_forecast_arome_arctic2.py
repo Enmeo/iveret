@@ -15,6 +15,7 @@ import dynlib.thermodyn
 import dynlib.utils
 
 from current_fc_arome import get_current_fc_arome
+from frontend_catalog import write_catalog
 
 
 
@@ -187,6 +188,9 @@ if __name__ == '__main__':
     fclist = [forecast - td(0.25)*i for i in range(29)]
     leadlist = range(0,67,3)
     leadlist_link = range(0,67,6)
+    # Catalogue for the new frontend (B1)
+    write_catalog()
+
     render_webpage('barents', 'no', forecast, fclist, leadlist, leadlist_link)
 
 

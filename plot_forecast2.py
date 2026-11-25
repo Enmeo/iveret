@@ -17,6 +17,7 @@ import dynlib.sphere
 import dynlib.utils
 
 from current_fc import get_current_fc
+from frontend_catalog import write_catalog
 
 
 
@@ -763,6 +764,9 @@ if __name__ == '__main__':
     leadlist = list(range(0,72,3))
     leadlist.extend(range(72,241,6))
     leadlist_link = range(0,241,12)
+
+    # Catalogue for the new frontend (B1)
+    write_catalog()
 
     render_webpage('natl', 'ec', forecast, fclist, leadlist, leadlist_link)
     render_webpage('npolar', 'ec', forecast, fclist, leadlist, leadlist_link)
