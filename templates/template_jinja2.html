@@ -20,6 +20,7 @@
 	var fcsrc = '{{ fcsrc }}';
 	var domain = '{{ domain }}';
 	var plotdir = '{{ plotdir }}';
+	var plotext = '{{ plotext }}';
 	var units = {}; {% for plot in plotlist %}
 	units['{{ plot.prefix }}'] = '{{ plot.cbar_units }}'; {% endfor %}
 	{% if archive %}var archive_available = true;
@@ -75,7 +76,7 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container1" class="map">
-          <img id="map1" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+          <img id="map1" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.{{ plotext }}" />
         </div>
         {% if enable_cb %}<div class="cbar_container">
 	  <img class="cbar" id="cbar1" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
@@ -97,7 +98,7 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container2" class="map">
-          <img id="map2" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+          <img id="map2" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.{{ plotext }}" />
         </div>
         {% if enable_cb %}<div class="cbar_container">
           <img class="cbar" id="cbar2" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
@@ -119,7 +120,7 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container3" class="map">
-          <img id="map3" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+          <img id="map3" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.{{ plotext }}" />
         </div>
         {% if enable_cb %}<div class="cbar_container">
           <img class="cbar" id="cbar3" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />
@@ -141,7 +142,7 @@
       </div>{% endfor %}
       <div class="plot">
         <div id="map_container4" class="map">
-          <img id="map4" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.png" />
+          <img id="map4" src="/{{ plotdir }}/{{ domain }}/{{ initplot.prefix}}/{{ fcsrc }}/{{ date_init.strftime("%Y%m%d%H") }}_for_{{ date_begin.strftime("%Y%m%d%H") }}.{{ plotext }}" />
         </div>
 	{% if enable_cb %}<div class="cbar_container">
           <img class="cbar" id="cbar4" src="/static/deco/cbar_{{ fcsrc }}_for_{{ domain_ }}{{ initplot.prefix }}.png" />

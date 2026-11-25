@@ -8,7 +8,7 @@ import codecs
 from datetime import datetime as dt, timedelta as td
 
 from dynlib.shorthands import *
-from settings.common2 import pconf, pconfl, WEB_ROOT, VAERKART_ROOT
+from settings.common2 import pconf, pconfl, WEB_ROOT, VAERKART_ROOT, FILETYPE, plotpath, savefig_webp
 
 from update_KH_position import get_KH_position
 
@@ -645,8 +645,6 @@ plots_per_page = {
 
 del o
 
-DECORATIONS = False
-FILETYPE = 'png'
 DATEFMT = '%Y%m%d%H'
 STD_PLOTCONF = {
     'coastcolor': 'k',
@@ -687,21 +685,18 @@ class plotter(object):
         # Domain and forecast source-specific configuration
         self.std_plotconf.update(STD_PLOTCONF_PER_FCSRC_AND_DOMAIN.get((fcsrc,domainname), {}))
 
-        if DECORATIONS:
-            self.std_plotconf['fig_size'] = domain.fig_size_deco
-            self.std_plotconf['show_legend'] = True
-            self.std_plotconf['cb_orientation'] = 'vertical'
-            self.std_plotconf['cb_expand_fig_fraction'] = 0.12
-            self.std_plotconf['cb_shrink'] = 0.65
-            
-        else:
-            self.std_plotconf['fig_size'] = domain.fig_size
-            self.std_plotconf['cb_disable'] = True
+        # Colour bar embedded in the plot; the figure is widened accordingly
+        self.std_plotconf['fig_size'] = domain.fig_size_deco
+        self.std_plotconf['show_legend'] = True
+        self.std_plotconf['cb_orientation'] = 'vertical'
+        self.std_plotconf['cb_expand_fig_fraction'] = 0.12
+        self.std_plotconf['cb_shrink'] = 0.65
     
     # Do the art; to be overriden in derived classes
     def plot(self, data, static, dateinit, datevalid):
-        self.std_plotconf['save'] = '%s/%s/%s/%s_for_%s.%s' % (
-                self.domainname, self.plotname, self.fcsrc,
+        # Saved here rather than by dynlib, to control resolution and format
+        savepath = '%s/%s/%s/%s/%s_for_%s.%s' % (
+                plotpath, self.domainname, self.plotname, self.fcsrc,
                 dateinit.strftime(DATEFMT), datevalid.strftime(DATEFMT),
                 FILETYPE
         )
@@ -715,7 +710,7 @@ class plotter(object):
 
         if not data_available:
             fi.text(0.5, 0.5, 'Error: Data unavailable', horizontalalignment='center', fontsize=24, bbox=dict(facecolor='red', alpha=0.5))
-            plt.savefig(plotpath + '/' + self.std_plotconf['save'])
+            savefig_webp(fi, savepath)
 
             return
         
@@ -762,6 +757,7 @@ class plotter(object):
         plotconf = pconf.merge(*plevq, overlays=overlays, **self.std_plotconf)
         plotconf.update(self.plotdef.plotconf) # plotdef.plotconf takes precedence over stuff defined in pconf, self.std_plotconf
         fig.map(data[plevq], static, **plotconf)
+        savefig_webp(fi, savepath)
 
         return
 
@@ -804,7 +800,7 @@ def interpolate_monthly_to_valid_time(dat, dates):
 
 
 def render_webpage_factory(pages, plots_per_page, web_root):
-    def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link, enable_cb=True):
+    def render_webpage(domain, fcsrc, date_fc, fclist, leadlist, leadlist_link, enable_cb=False, plotext=FILETYPE):
         from jinja2 import FileSystemLoader, Environment
         env = Environment(loader=FileSystemLoader(searchpath=VAERKART_ROOT+'/templates'))
         
@@ -833,6 +829,7 @@ def render_webpage_factory(pages, plots_per_page, web_root):
             'plotdir': 'maps',
             'display_details': False,
             'enable_cb': enable_cb,
+            'plotext': plotext,
         }
         if fcsrc == 'ec':
             if domain == 'natl':

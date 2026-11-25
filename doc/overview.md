@@ -46,7 +46,8 @@ Other helpers:
 | `extract_bimodal_for_natacha.py` | Extracts area-mean time series from each ECMWF HRES forecast for a bimodality study: the 700 hPa wind over the Alps (8–13° E, 46–47.5° N) and the integrated moisture transport off the Norwegian west coast (3.5–4.5° E, 59–61° N). Writes `wind_Alps_<init>.nc` and `moisture_transport_NorthSea_<init>.nc` to `/share/base/bimodal_extract/`. Run by `plot_n_update.sh` after the ensemble data has arrived. |
 | `cleanup_mtaens.py` | Prunes the ensemble moisture transport axis (MTA) and jet detections in `/share/web/mtaens` and `/share/web/jetens`. Keeps 11 days, plus Monday 00 UTC inits indefinitely. Not called by any pipeline script. Since the export of these files was disabled, it only affects files that are already there. |
 | `update_KH_position.py` | Fetches the current position of RV *Kronprins Haakon* and stores it in `status/KH_position.pickle`. The position defines the moving `ff_kh` domain. |
-| `extract_decorations.sh` | Manual tool: crops colour bars from plots made with `DECORATIONS = True` into `templates/static/deco/cbar_*.png`. |
+| `extract_decorations.sh` | Former manual tool: cropped colour bars from decorated plots into `templates/static/deco/cbar_*.png`. Obsolete now that all plots embed their colour bar. |
+| `convert_plots_to_webp.sh` | One-time migration: appends the matching `static/deco` colour bar to every existing PNG plot (retained runs and archive) and writes it as WebP next to it. Run with `-h` for options; `-n` is a dry run. |
 
 ## Code structure
 
@@ -70,8 +71,12 @@ missing, the plot is still written, as an "Error: Data unavailable" image.
 ### Output naming
 
 ```
-/share/web/plots/<domain>/<plot type>/<fcsrc>/<init YYYYmmddHH>_for_<valid YYYYmmddHH>.png
+/share/web/plots/<domain>/<plot type>/<fcsrc>/<init YYYYmmddHH>_for_<valid YYYYmmddHH>.webp
 ```
+
+All maps and the cross section are WebP (lossy, quality 90) at 300 dpi with the
+colour bar embedded, written by `settings.common2.savefig_webp`. Meteograms stay
+PNG. Plots made before the switch were PNG without colour bar.
 
 `<fcsrc>` is the source key: `ec`, `ec_ext`, `noaa`, `no`, `dmi`, `no_kyst`. Note that
 `ec_local` and `no_arctic` write into `ec` and `no` respectively. The website reaches
@@ -116,6 +121,7 @@ the result in this folder.
 | numpy | Arrays | everywhere |
 | scipy | `interpolate.RectBivariateSpline` (θ at jet axis positions) | `plot_forecast2.py`, `plot_forecast_gfs2.py`, … |
 | matplotlib (Agg backend) | Plotting | all plot scripts |
+| Pillow (with WebP support; a matplotlib dependency) | Encoding the plots as WebP | `settings/common2.py` |
 | basemap (`mpl_toolkits.basemap`) | Map projections, via `dynlib.shorthands.proj` (e.g. `proj.Basemap` for `ff_kh`) | `plotconfig.py` |
 | netCDF4 | NetCDF reading/writing (dynlib, xarray engine) | all |
 | xarray | OPeNDAP download of AROME and NorKyst data; writing the bimodality extracts | `download_arome*.py`, `download_kyst.py`, `extract_bimodal_for_natacha.py` |
@@ -131,7 +137,7 @@ the result in this folder.
 | bash, GNU coreutils/`date`, `find` | Pipeline scripts |
 | `wget` | GFS and DMI downloads |
 | `grib_copy` (ecCodes) | Subsetting the DMI GRIB files |
-| `convert` (ImageMagick) | `extract_decorations.sh` |
+| `convert`, `identify` (ImageMagick, with WebP support) | `convert_plots_to_webp.sh`, `extract_decorations.sh` |
 | `sudo` (as user `ecmwf`) | Deleting ECMWF input data in `cleanup_ec*.sh`, `cleanup_ai.sh` |
 
 ### External data and services
@@ -150,4 +156,3 @@ the result in this folder.
 ## Known quirks
 
 - `plot_n_update.sh` stops with `exit -1` if the ensemble files never arrive, so the bimodality extract, meteograms and `cleanup.py` are skipped for that run.
-- `publoop.py` builds the colour-bar name as `cbar_<fcsrc>_for_<plot>.png`, without the domain. The AROME Arctic `shf_winds` panel therefore looks for `cbar_no_for_shf_winds.png`, which does not exist (the matching file is `cbar_no_for_arctic_shf_winds.png`).

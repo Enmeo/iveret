@@ -28,7 +28,6 @@ var slides = [
       {% for panel in slide.panels %}{
         {% if panel.title %}title: "{{ panel.title }}", 
         {% endif %}fname: "{{ panel.fname }}", 
-        cbar: "{{ panel.cbar }}",
         units: "{{ panel.units }}",
       },{% endfor %}
     ],
@@ -56,12 +55,8 @@ function next() {
   $('#publoop_progress').css('width', progress.toFixed(2) + '%');
 
   $('#map1').attr('src', plotdir+'/'+slides[curidx].panels[0].fname);
-  $('#cbar1').attr('src', './static/deco/'+slides[curidx].panels[0].cbar); 
-  $('#cbar_units1').text('['+slides[curidx].panels[0].units+']'); 
   if ( slides[curidx].panels.length > 1 ) {
     $('#map2').attr('src', plotdir+'/'+slides[curidx].panels[1].fname);
-    $('#cbar2').attr('src', './static/deco/'+slides[curidx].panels[1].cbar); 
-    $('#cbar_units2').text('['+slides[curidx].panels[1].units+']'); 
   }
   $('#timtitle').text('Forecast from '+slides[curidx].init+' for '+slides[curidx].valid+' [+'+slides[curidx].lead+'h]');
 }
@@ -93,10 +88,6 @@ $(play);
       <div id="map_container1" class="map">
         <img id="map1" src="{{ plotdir }}/{{ fstpanel.fname }}" />
       </div>
-      <div class="cbar_container">
-        <img class="cbar" id="cbar1" src="./static/deco/{{ fstpanel.cbar }}" />
-        <div class="cbar_units" id="cbar_units1">[x]</div>
-      </div>
     </div> <!-- plot -->
   </div> <!-- panel -->
   <div class="panel panel_top panel_right" id="panel_top_right" style="width=49.5%; {% if not sndpanel %}display: none;{% else %}display: inline-block;{% endif %}">
@@ -104,10 +95,6 @@ $(play);
     <div class="plot">
       <div id="map_container2" class="map">
         <img id="map2" src="{{ plotdir }}/{{ sndpanel.fname }}" />
-      </div>
-      <div class="cbar_container">
-        <img class="cbar" id="cbar2" src="./static/deco/{{ sndpanel.cbar }}" />
-        <div class="cbar_units" id="cbar_units2">[x]</div>
       </div>
     </div> <!-- plot -->
   </div> <!-- panel -->

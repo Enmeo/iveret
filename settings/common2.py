@@ -14,6 +14,37 @@ conf.datapath.append(VAERKART_ROOT)
 WEB_ROOT = '/share/web'
 plotpath = f'{WEB_ROOT}/plots'
 
+# Output format of all plots with an embedded colour bar
+SAVE_DPI = 300
+FILETYPE = 'webp'
+# Lossy WebP; quality 90 keeps lines and labels sharp at 300 dpi. Keep in sync
+# with the -quality option in convert_plots_to_webp.sh.
+WEBP_QUALITY = 90
+
+
+def savefig_webp(fig, path, dpi=SAVE_DPI):
+    ''' Save a matplotlib figure as WebP at the given resolution
+
+    The figure is rendered to PNG in memory and encoded with Pillow, so this
+    works independent of whether the installed matplotlib supports WebP
+    itself. The file is written to a temporary name first and then renamed,
+    so the web server never serves a half-written plot.
+    '''
+    import io
+    import os
+    from PIL import Image
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png', dpi=dpi)
+    buf.seek(0)
+
+    tmppath = f'{path}.tmp'
+    with Image.open(buf) as img:
+        img.save(tmppath, format='WEBP', quality=WEBP_QUALITY, method=4)
+    os.replace(tmppath, path)
+
+    return
+
 
 pconf[None, None, 'cb_orientation'] = 'vertical'
 pconf[None,None,'plotpath'] = plotpath

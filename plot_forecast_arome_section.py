@@ -8,7 +8,7 @@ mpl.use('Agg')
 mpl.rcParams.update({'font.size': 16})
 
 from dynlib.shorthands import *
-from settings.common2 import plotpath
+from settings.common2 import plotpath, FILETYPE, savefig_webp
 
 import dynlib.thermodyn
 
@@ -24,13 +24,10 @@ conf.datapath.insert(1, '/share/base/metno')
 
 # Genering plot
 class plotter(object):
-    filetype = 'png'
+    filetype = FILETYPE
     sect = 'W-E_60'
     fcsrc = 'no'
     domain = 'we60'
-    
-    # Add colorbar and legend
-    decorations = False
 
     # Which data is required for the plot
     requires=[]
@@ -40,17 +37,16 @@ class plotter(object):
     p_limits = (105000, 8000)
     xticks = np.arange(4,15,2)
     cs_labels = None
+    cs = None
 
-    figsize = (9.6,4.8)
-    figsize_deco = (10.6667,4.8)
+    # Includes the space for the colour bar
+    figsize = (10.6667,4.8)
     
     # Do the art; to be overriden in derived classes
     def plot(self, data, static, dateinit, datevalid):
 
-        if self.decorations:
-            fi = plt.figure(figsize=self.figsize_deco, dpi=96)
-        else:
-            fi = plt.figure(figsize=self.figsize, dpi=96)
+        fi = plt.figure(figsize=self.figsize, dpi=96)
+        self.cs = None
 
         fi.subplotpars.update(left=0.07, right=0.99, top=0.99, bottom=0.06)
         
@@ -67,7 +63,8 @@ class plotter(object):
 
 
     def plot_finish(self, dateinit, datevalid):
-        if self.decorations:
+        # No colour bar if the data was unavailable
+        if self.cs is not None:
             cbar = plt.colorbar(self.cs, fraction=0.1, orientation='vertical', shrink=0.8, pad=0.03)
             if type(self.cs_labels) == tuple:
                 ticks, labels = self.cs_labels
@@ -91,7 +88,7 @@ class plotter(object):
                 self.filetype
         )
 
-        plt.savefig(f'{plotpath}/{fname}')
+        savefig_webp(plt.gcf(), f'{plotpath}/{fname}')
         plt.close()
 
 

@@ -3,35 +3,38 @@
 ## Plot domains
 
 Map domains are defined in `plotconfig.domains`. Projections come from
-`dynlib.shorthands.proj`. Figures are saved at 96 dpi without decorations
-(colour bars are separate images in `templates/static/deco/`).
+`dynlib.shorthands.proj`. Plots are saved as WebP at 300 dpi with the colour
+bar embedded. The figure is then `fig_size_deco`, about 13.6 % wider than
+`fig_size` (the colour bar takes 12 % of the width). Plots made before that
+switch were PNG without colour bar; `convert_plots_to_webp.sh` migrates them
+by appending the separate colour bar images from `static/deco/`.
 
-| Domain key | Region | Projection (`proj.*`) | Figure size (in → px) | Sources plotting it |
+| Domain key | Region | Projection (`proj.*`) | Figure size with colour bar (in → px at 300 dpi) | Sources plotting it |
 |---|---|---|---|---|
-| `npolar` | Northern Hemisphere | `n_hemisphere_forecast` | 6.4 × 6.4 → 614 × 614 | `ec`, `ec_ext`, `noaa` |
-| `spolar` | Southern Hemisphere | `s_hemisphere_forecast` | 6.4 × 6.4 → 614 × 614 | `ec`, `ec_ext`, `noaa` |
-| `natl` | North Atlantic | `N_Atlantic_forecast` | 7.2 × 4.8 → 691 × 461 | `ec`, `noaa` |
-| `tindpac` | Tropical Indo-Pacific | `Tropical_IndoPacific` | 12.5 × 5.0 → 1200 × 480 | `ec` |
-| `ff_kh` | Moving 4500 × 4500 km domain centred on RV *Kronprins Haakon* (position from `update_KH_position.py`, ship marked) | gnomonic `Basemap`, built at import time | 6.4 × 6.4 → 614 × 614 | `ec` |
-| `nordicseas` | Nordic Seas | `Nordic_Seas` | 5.0 × 6.25 → 480 × 600 | `ec` |
-| `atlarctic` | Atlantic sector of the Arctic | `Atlantic_Arctic` | 5.0 × 6.25 → 480 × 600 | `ec` |
-| `scandes` | Scandinavia | `Scandinavia` | 5.5 × 6.18 → 528 × 593 | `ec_local`, `no` |
-| `barents` | Barents Sea | `Barents_Sea` | 5.0 × 6.375 → 480 × 612 | `ec_local`, `no_arctic` |
-| `snorway` | Southern Norway | `S_Norway` | 6.4 × 6.4 → 614 × 614 | `no`, `dmi`, `no_kyst` |
-| `vestland` | Vestland county (western Norway) | `Vestland` | 6.4 × 6.4 → 614 × 614 | `no`, `dmi`, `no_kyst` |
-| `bergen` | Bergen area | `Bergen` | 6.4 × 6.4 → 614 × 614 | `no_kyst` |
+| `npolar` | Northern Hemisphere | `n_hemisphere_forecast` | 7.27 × 6.4 → 2181 × 1920 | `ec`, `ec_ext`, `noaa` |
+| `spolar` | Southern Hemisphere | `s_hemisphere_forecast` | 7.27 × 6.4 → 2181 × 1920 | `ec`, `ec_ext`, `noaa` |
+| `natl` | North Atlantic | `N_Atlantic_forecast` | 8.18 × 4.8 → 2454 × 1440 | `ec`, `noaa` |
+| `tindpac` | Tropical Indo-Pacific | `Tropical_IndoPacific` | 14.2 × 5.0 → 4260 × 1500 | `ec` |
+| `ff_kh` | Moving 4500 × 4500 km domain centred on RV *Kronprins Haakon* (position from `update_KH_position.py`, ship marked) | gnomonic `Basemap`, built at import time | 7.27 × 6.4 → 2181 × 1920 | `ec` |
+| `nordicseas` | Nordic Seas | `Nordic_Seas` | 5.68 × 6.25 → 1704 × 1875 | `ec` |
+| `atlarctic` | Atlantic sector of the Arctic | `Atlantic_Arctic` | 5.68 × 6.25 → 1704 × 1875 | `ec` |
+| `scandes` | Scandinavia | `Scandinavia` | 6.25 × 6.18 → 1875 × 1854 | `ec_local`, `no` |
+| `barents` | Barents Sea | `Barents_Sea` | 5.68 × 6.375 → 1704 × 1912 | `ec_local`, `no_arctic` |
+| `snorway` | Southern Norway | `S_Norway` | 7.27 × 6.4 → 2181 × 1920 | `no`, `dmi`, `no_kyst` |
+| `vestland` | Vestland county (western Norway) | `Vestland` | 7.27 × 6.4 → 2181 × 1920 | `no`, `dmi`, `no_kyst` |
+| `bergen` | Bergen area | `Bergen` | 7.27 × 6.4 → 2181 × 1920 | `no_kyst` |
 
 The NorKyst plots use their own copies of `snorway`, `vestland` and `bergen` from
 `plotconfig_ihavet.domains`. Projection and size are the same, but the current-vector
 spacing differs (`vector_space_interval` 20 / 10 / 2).
-| `dmi` | DMI DINI model domain (north-western Europe) | `DMI_Arome` | 6.4 × 6.4 → 614 × 614 | `dmi` |
+| `dmi` | DMI DINI model domain (north-western Europe) | `DMI_Arome` | 7.27 × 6.4 → 2181 × 1920 | `dmi` |
 
 Non-map "domains":
 
 | Domain key | What | Defined in | Figure size | Source |
 |---|---|---|---|---|
-| `we60` | Vertical west–east cross section along ~60° N (axis 4–14° E, 1050–80 hPa) | `plot_forecast_arome_section.py` | 9.6 × 4.8 → 922 × 461 | `no` (MEPS model levels) |
-| `meteograms` | Ensemble meteograms for Bergen | `plot_forecast_meteograms.py` | 8.4 × 3.6 → 806 × 346 | `ec` (ensemble) |
+| `we60` | Vertical west–east cross section along ~60° N (axis 4–14° E, 1050–80 hPa) | `plot_forecast_arome_section.py` | 10.67 × 4.8 → 3200 × 1440 | `no` (MEPS model levels) |
+| `meteograms` | Ensemble meteograms for Bergen | `plot_forecast_meteograms.py` | 8.4 × 3.6 → 806 × 346 | `ec` (ensemble); PNG at 96 dpi, no colour bar |
 
 ## Domains × sources
 

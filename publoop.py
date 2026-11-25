@@ -4,7 +4,7 @@ import codecs
 from datetime import datetime as dt, timedelta as td
 from jinja2 import FileSystemLoader, Environment
 
-from settings.common2 import VAERKART_ROOT
+from settings.common2 import VAERKART_ROOT, FILETYPE
 from current_fc import get_current_plotted_fc as get_ec_initdate
 from current_fc_arome import get_current_plotted_fc_arome as get_no_initdate
 
@@ -70,8 +70,7 @@ units = {
 def mk_slide_panel(paneltitle, domain, plot, fcsrc, init, valid):
 	return {
         'paneltitle': paneltitle, 
-		'fname': '%s/%s/%s/%s_for_%s.png' % (domain, plot, fcsrc, init.strftime(file_fmt), valid.strftime(file_fmt)),
-		'cbar': 'cbar_%s_for_%s.png' % (fcsrc, plot),
+		'fname': '%s/%s/%s/%s_for_%s.%s' % (domain, plot, fcsrc, init.strftime(file_fmt), valid.strftime(file_fmt), FILETYPE),
 		'units': units[plot],
 	}
 

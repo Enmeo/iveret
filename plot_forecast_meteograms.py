@@ -397,6 +397,6 @@ fclist = [forecast - td(0.5)*i for i in range(15)]
 leadlist = [0, ]
 leadlist_link = [0, ]
 
-render_webpage('meteograms','ec', forecast, fclist, leadlist, leadlist_link, enable_cb=False)
+render_webpage('meteograms','ec', forecast, fclist, leadlist, leadlist_link, enable_cb=False, plotext='png')
 
 # the end
