@@ -54,6 +54,8 @@ python3 $basepath/plot_forecast2.py plev > $logpath/web_plot_ec_plev_out.log 2> 
 
 # Mark the plotting as finished (required for rendering the correct websites)
 echo $fc > $plotstat/ecmwf
+# Status for the new frontend; ensemble plots and meteograms follow later
+python3 $basepath/write_status.py ecmwf $fc --partial cycfreq_msl,meteograms > $logpath/web_status_ecmwf_out.log 2> $logpath/web_status_ecmwf_err.log
 
 # Then render the fitting website
 python3 $basepath/publoop.py  > $logpath/publoop_out.log 2> $logpath/publoop_err.log
@@ -88,7 +90,8 @@ if [ "$somethingmissing" = true ]; then
 	exit -1
 fi
 
-python3 $basepath/plot_forecast2.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log &
+( python3 $basepath/plot_forecast2.py ens > $logpath/web_plot_ec_ens_out.log 2> $logpath/web_plot_ec_ens_err.log
+  python3 $basepath/write_status.py ecmwf $fc --complete cycfreq_msl >> $logpath/web_status_ecmwf_out.log 2>> $logpath/web_status_ecmwf_err.log ) &
 python3 $basepath/extract_bimodal_for_natacha.py > $logpath/extract_for_natacha.log 2> $logpath/extract_for_natacha_err.log
 
 
@@ -121,7 +124,8 @@ if [ "$somethingmissing" = true ]; then
 	exit -1
 fi
 
-python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_out.log 2> $logpath/web_plot_ec_meteograms_err.log &
+( python3 $basepath/plot_forecast_meteograms.py > $logpath/web_plot_ec_meteograms_out.log 2> $logpath/web_plot_ec_meteograms_err.log
+  python3 $basepath/write_status.py ecmwf $fc --complete meteograms >> $logpath/web_status_ecmwf_out.log 2>> $logpath/web_status_ecmwf_err.log ) &
 
 # Clean-up old plots
 echo "Cleaning up old plots."

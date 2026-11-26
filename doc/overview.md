@@ -14,7 +14,8 @@ being run periodically. Each run:
 1. finds the most recent forecast initialisation that should now be available,
 2. downloads the input data (for most sources),
 3. plots every configured plot type for every configured domain and time step,
-4. writes a status file recording which initialisation has been plotted,
+4. writes a status file recording which initialisation has been plotted, and the
+   status JSON of the new frontend (`meta/status/<name>.json`),
 5. writes the catalogue of the new frontend (`meta/catalog.json`) and re-renders
    the old HTML pages from Jinja2 templates, and
 6. deletes old input data and old plots.
@@ -26,12 +27,12 @@ of this repository.
 
 | Pipeline script | Source | Download step | Plot scripts | Status file written |
 |---|---|---|---|---|
-| `plot_n_update.sh` | ECMWF HRES, ensemble, AIFS | *external*: data is placed in `/share/base/ecmwf/<init>/` and `/share/base/ecmwf_ai/<init>/` by another process (user `ecmwf`). The script waits for marker files (up to 2 h for HRES, 1 h each for ensemble and meteogram files). | `plot_forecast_eclocal2.py`, `plot_forecast2.py <set>` with sets `ai`, `isentropic`, `pv2`, `sfc`, `plev`, then `ens`; `extract_bimodal_for_natacha.py`; `plot_forecast_meteograms.py` | `status/ecmwf` |
-| `plot_n_update_ext.sh` | ECMWF extended-range ensemble | *external*, into `/share/base/ecmwf_ext/<init>/`; waits for `ec.ens.<init>.850.t.nc` | `plot_forecast_ext2.py all` | `status/ecmwf_ext` |
-| `plot_n_update_arome.sh` | MET Norway AROME (MEPS) and AROME Arctic | `download_cleanup_arome.sh` → `download_arome.py`, `download_arome_section.py` (OPeNDAP, thredds.met.no) | `plot_forecast_arome2.py`, `plot_forecast_arome_arctic2.py`, `plot_forecast_arome_section.py` | `status/arome` |
-| `plot_n_update_gfs.sh` | NOAA GFS 0.5° | `download_cleanup_gfs.sh` (wget, NOMADS) | `plot_forecast_gfs2.py` with sets `pv2`, `sfc`, `plev` | `status/gfs` |
-| `plot_n_update_dmi.sh` | DMI HARMONIE DINI | `download_cleanup_dmi.sh` (wget, DMI open data S3, needs API key, filters GRIB with `grib_copy`) | `plot_forecast_dmi2.py` | `status/dmi` |
-| `plot_n_update_kyst.sh` | MET Norway NorKyst-800 v3 (ocean) | `cleanup_kyst.sh`, then `download_kyst.py` (OPeNDAP via xarray, thredds.met.no), run inside `/share/base/metno_kyst` | `plot_forecast_kyst2.py` | – |
+| `plot_n_update.sh` | ECMWF HRES, ensemble, AIFS | *external*: data is placed in `/share/base/ecmwf/<init>/` and `/share/base/ecmwf_ai/<init>/` by another process (user `ecmwf`). The script waits for marker files (up to 2 h for HRES, 1 h each for ensemble and meteogram files). | `plot_forecast_eclocal2.py`, `plot_forecast2.py <set>` with sets `ai`, `isentropic`, `pv2`, `sfc`, `plev`, then `ens`; `extract_bimodal_for_natacha.py`; `plot_forecast_meteograms.py` | `status/ecmwf`, `meta/status/ecmwf.json` |
+| `plot_n_update_ext.sh` | ECMWF extended-range ensemble | *external*, into `/share/base/ecmwf_ext/<init>/`; waits for `ec.ens.<init>.850.t.nc` | `plot_forecast_ext2.py all` | `status/ecmwf_ext`, `meta/status/ecmwf_ext.json` |
+| `plot_n_update_arome.sh` | MET Norway AROME (MEPS) and AROME Arctic | `download_cleanup_arome.sh` → `download_arome.py`, `download_arome_section.py` (OPeNDAP, thredds.met.no) | `plot_forecast_arome2.py`, `plot_forecast_arome_arctic2.py`, `plot_forecast_arome_section.py` | `status/arome`, `meta/status/arome.json` |
+| `plot_n_update_gfs.sh` | NOAA GFS 0.5° | `download_cleanup_gfs.sh` (wget, NOMADS) | `plot_forecast_gfs2.py` with sets `pv2`, `sfc`, `plev` | `status/gfs`, `meta/status/gfs.json` |
+| `plot_n_update_dmi.sh` | DMI HARMONIE DINI | `download_cleanup_dmi.sh` (wget, DMI open data S3, needs API key, filters GRIB with `grib_copy`) | `plot_forecast_dmi2.py` | `status/dmi`, `meta/status/dmi.json` |
+| `plot_n_update_kyst.sh` | MET Norway NorKyst-800 v3 (ocean) | `cleanup_kyst.sh`, then `download_kyst.py` (OPeNDAP via xarray, thredds.met.no), run inside `/share/base/metno_kyst` | `plot_forecast_kyst2.py` | `meta/status/kyst.json` only |
 
 After plotting, most pipelines also run:
 
@@ -49,6 +50,7 @@ Other helpers:
 | `update_KH_position.py` | Fetches the current position of RV *Kronprins Haakon* and stores it in `status/KH_position.pickle`. The position defines the moving `ff_kh` domain. |
 | `extract_decorations.sh` | Former manual tool: cropped colour bars from decorated plots into `templates/static/deco/cbar_*.png`. Obsolete now that all plots embed their colour bar. |
 | `frontend_catalog.py` | Exports `WEB_ROOT/meta/catalog.json` for the new frontend (sources, domains, plot types with legend text, lead times, image sizes, archive). Titles, legends, plots per domain and figure sizes come from `plotconfig.py` / `plotconfig_ihavet.py`; sources, time axes and the archive are listed in the file itself. `write_catalog()` is called by every plot script except the meteograms, before `render_webpage()`; the file is only replaced when its content changes. Can also be run by hand: `python frontend_catalog.py [path]`. |
+| `write_status.py` | Maintains `WEB_ROOT/meta/status/<name>.json` for the new frontend: the plotted inits, newest first (at most as many as the old pages offered), and optionally per init the plot types that are still missing (`partial`). Called by each `plot_n_update*.sh` once a run is plotted: `write_status.py <name> <init> [--partial a,b] [--complete a,b]`. Runs whose plots have been deleted are dropped, using one reference plot per pipeline (`PIPELINES`). The first call seeds the list from the plots on disk. ECMWF runs are reported with `cycfreq_msl` and `meteograms` pending; these are cleared when the ensemble plots and meteograms are done. |
 | `convert_plots_to_webp.sh` | One-time migration: appends the matching `static/deco` colour bar to every existing PNG plot (retained runs and archive) and writes it as WebP next to it. Run with `-h` for options; `-n` is a dry run. |
 
 ## Code structure

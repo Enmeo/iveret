@@ -45,6 +45,7 @@ python3 $basepath/plot_forecast_ext2.py all > $logpath/web_plot_ec_ext_all_out.l
 
 # Mark the plotting as finished (required for rendering the correct websites)
 echo $fc > $plotstat/ecmwf_ext
+python3 $basepath/write_status.py ecmwf_ext $fc > $logpath/web_status_ecmwf_ext_out.log 2> $logpath/web_status_ecmwf_ext_err.log
 
 
 # Clean-up old plots

@@ -16,6 +16,7 @@ python3 $basepath/plot_forecast_gfs2.py plev > $logpath/web_plot_gfs_plev_out.lo
 
 # Mark the plotting as finished
 echo $fc > $plotstat/gfs
+python3 $basepath/write_status.py gfs $fc > $logpath/web_status_gfs_out.log 2> $logpath/web_status_gfs_err.log
 
 # Clean-up old plots
 python3 $basepath/cleanup.py
